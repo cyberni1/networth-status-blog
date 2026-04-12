@@ -16,6 +16,10 @@
         "NSMicrophoneUsageDescription": "Wird nicht benötigt."
       }
     },
+    "android": {
+      "package": "com.personal.soundboard",
+      "versionCode": 1
+    },
     "plugins": [
       [
         "expo-av",
