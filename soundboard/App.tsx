@@ -186,7 +186,7 @@ export default function App() {
   const pickSound = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ['audio/*'],
+        type: '*/*',
         copyToCacheDirectory: true,
       });
 
