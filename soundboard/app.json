@@ -8,6 +8,7 @@
     "splash": {
       "backgroundColor": "#1A1A2E"
     },
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.personal.soundboard",
