@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, HelpCircle } from "lucide-react";
 
 interface Faq {
   question: string;
@@ -18,28 +17,24 @@ export default function FaqSection({ faqs }: FaqSectionProps) {
   if (!faqs.length) return null;
 
   return (
-    <section className="mt-12 pt-10 border-t border-white/5">
-      <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-        <HelpCircle className="w-6 h-6 text-purple-400" />
+    <section style={{ marginTop: "40px", paddingTop: "32px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+      <h2 style={{ fontSize: "clamp(18px,4vw,24px)", fontWeight: 700, color: "#fff", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
+        <span style={{ color: "#a855f7" }}>?</span>
         Häufig gestellte Fragen
       </h2>
 
-      <div className="space-y-3">
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         {faqs.map((faq, i) => (
-          <div key={i} className="glass-card overflow-hidden">
+          <div key={i} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "12px", overflow: "hidden" }}>
             <button
               onClick={() => setOpen(open === i ? null : i)}
-              className="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-white/3"
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 18px", textAlign: "left", background: "none", border: "none", cursor: "pointer", gap: "12px" }}
             >
-              <span className="font-semibold text-white/90 pr-4">{faq.question}</span>
-              <ChevronDown
-                className={`w-5 h-5 text-purple-400 flex-shrink-0 transition-transform duration-200 ${
-                  open === i ? "rotate-180" : ""
-                }`}
-              />
+              <span style={{ fontSize: "clamp(13px,3vw,15px)", fontWeight: 600, color: "rgba(255,255,255,0.9)", lineHeight: 1.4 }}>{faq.question}</span>
+              <span style={{ fontSize: "18px", color: "#a855f7", flexShrink: 0, transform: open === i ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>⌄</span>
             </button>
             {open === i && (
-              <div className="px-5 pb-5 text-white/60 leading-relaxed border-t border-white/5 pt-4">
+              <div style={{ padding: "0 18px 16px", fontSize: "clamp(13px,2.8vw,15px)", color: "rgba(255,255,255,0.6)", lineHeight: 1.7, borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "14px", marginTop: "0" }}>
                 {faq.answer}
               </div>
             )}

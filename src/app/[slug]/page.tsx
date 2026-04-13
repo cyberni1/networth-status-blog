@@ -11,7 +11,6 @@ import ShareButtons from "@/components/ShareButtons";
 import FaqSection from "@/components/FaqSection";
 import { CATEGORIES } from "@/lib/categories";
 import { Category } from "@prisma/client";
-import { Clock, ArrowLeft, User, Tag, BookOpen } from "lucide-react";
 
 const SITE_URL = "https://networth-status-blog.vercel.app";
 
@@ -79,36 +78,24 @@ export default async function PostPage({ params }: Props) {
   const readingTime = getReadingTime(post.content);
   const postUrl = `${SITE_URL}/${slug}`;
 
-  // Parse FAQ
   let faqs: { question: string; answer: string }[] = [];
   if (post.faq) {
     try { faqs = JSON.parse(post.faq); } catch { faqs = []; }
   }
 
-  // Extract person name from title for Person schema
-  // Assumes title format like "Max Mustermann Nettovermögen" or "Wie reich ist Max Mustermann?"
   const personName = post.title
     .replace(/nettovermögen|vermögen|wie reich ist|was verdient|einkommen/gi, "")
     .replace(/[?!.,]/g, "")
     .trim();
 
-  // JSON-LD: Article
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.metaTitle || post.title,
     description: post.metaDescription || post.excerpt || "",
     image: post.coverImage ? `${SITE_URL}${post.coverImage}` : `${SITE_URL}/api/og?title=${encodeURIComponent(post.title)}&category=${post.category}`,
-    author: {
-      "@type": "Person",
-      name: post.author?.name ?? "Networth Status",
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "Networth Status",
-      url: SITE_URL,
-      logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` },
-    },
+    author: { "@type": "Person", name: post.author?.name ?? "Networth Status" },
+    publisher: { "@type": "Organization", name: "Networth Status", url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` } },
     datePublished: post.publishedAt?.toISOString(),
     dateModified: post.updatedAt.toISOString(),
     url: postUrl,
@@ -118,7 +105,6 @@ export default async function PostPage({ params }: Props) {
     timeRequired: `PT${readingTime}M`,
   };
 
-  // JSON-LD: Person (the celebrity)
   const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -127,7 +113,6 @@ export default async function PostPage({ params }: Props) {
     url: postUrl,
   };
 
-  // JSON-LD: FAQ
   const faqSchema = faqs.length > 0 ? {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -138,7 +123,6 @@ export default async function PostPage({ params }: Props) {
     })),
   } : null;
 
-  // JSON-LD: Breadcrumb
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -149,7 +133,6 @@ export default async function PostPage({ params }: Props) {
     ],
   };
 
-  // Related posts
   const related = await prisma.post.findMany({
     where: { status: "PUBLISHED", category: post.category, NOT: { id: post.id } },
     take: 3,
@@ -159,64 +142,71 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <>
+      <style>{`
+        .related-grid { grid-template-columns: 1fr; }
+        @media (min-width: 640px) { .related-grid { grid-template-columns: repeat(3, 1fr); } }
+        .post-article { padding: 24px 16px 48px; }
+        @media (min-width: 640px) { .post-article { padding: 40px 24px 64px; } }
+      `}</style>
+
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
 
-      <div className="hero-bg min-h-screen">
+      <div style={{ background: "#080810", minHeight: "100vh" }}>
         <Navbar />
 
-        <article className="max-w-4xl mx-auto px-4 py-12">
+        <article className="post-article" style={{ maxWidth: "800px", margin: "0 auto" }}>
+
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-white/30 mb-8" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-white transition-colors">Startseite</Link>
+          <nav style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "rgba(255,255,255,0.3)", marginBottom: "24px", flexWrap: "wrap" }}>
+            <Link href="/" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Startseite</Link>
             <span>/</span>
-            <Link href={`/?kategorie=${cat.slug}`} className="hover:text-white transition-colors">{cat.label}</Link>
+            <Link href={`/?kategorie=${cat.slug}`} style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>{cat.label}</Link>
             <span>/</span>
-            <span className="text-white/60 truncate max-w-xs">{post.title}</span>
+            <span style={{ color: "rgba(255,255,255,0.6)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "180px" }}>{post.title}</span>
           </nav>
 
           {/* Header */}
-          <header className="mb-10">
-            <div className="flex items-center gap-3 mb-5 flex-wrap">
+          <header style={{ marginBottom: "28px" }}>
+            {/* Meta row */}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px", flexWrap: "wrap" }}>
               <CategoryBadge category={post.category as Category} />
               {post.publishedAt && (
-                <span className="text-sm text-white/30 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" />
-                  {new Date(post.publishedAt).toLocaleDateString("de-DE", {
-                    day: "numeric", month: "long", year: "numeric",
-                  })}
+                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", display: "flex", alignItems: "center", gap: "4px" }}>
+                  📅 {new Date(post.publishedAt).toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" })}
                 </span>
               )}
-              <span className="text-sm text-white/30 flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5" />
-                {readingTime} Min. Lesezeit
+              <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", display: "flex", alignItems: "center", gap: "4px" }}>
+                📖 {readingTime} Min. Lesezeit
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-black text-white leading-tight mb-6">
+            {/* Title */}
+            <h1 style={{ fontSize: "clamp(26px, 6vw, 44px)", fontWeight: 900, color: "#fff", lineHeight: 1.2, marginBottom: "16px", letterSpacing: "-0.5px" }}>
               {post.title}
             </h1>
 
+            {/* Excerpt */}
             {post.excerpt && (
-              <p className="text-xl text-white/50 leading-relaxed">{post.excerpt}</p>
+              <p style={{ fontSize: "clamp(15px, 3vw, 18px)", color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
+                {post.excerpt}
+              </p>
             )}
 
-            {/* Author */}
+            {/* Author + Share */}
             {post.author && (
-              <div className="flex items-center justify-between mt-6 pt-6 border-t border-white/5 flex-wrap gap-4">
-                <div className="flex items-center gap-3">
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "20px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.06)", flexWrap: "wrap", gap: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   {post.author.image ? (
-                    <Image src={post.author.image} alt={post.author.name ?? ""} width={36} height={36} className="rounded-full" />
+                    <Image src={post.author.image} alt={post.author.name ?? ""} width={32} height={32} style={{ borderRadius: "50%" }} />
                   ) : (
-                    <div className="w-9 h-9 rounded-full bg-purple-500/30 flex items-center justify-center">
-                      <User className="w-4 h-4 text-purple-400" />
-                    </div>
+                    <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "rgba(168,85,247,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>👤</div>
                   )}
                   <div>
-                    <p className="text-sm font-medium text-white/80">{post.author.name}</p>
-                    <p className="text-xs text-white/30">Autor</p>
+                    <p style={{ fontSize: "13px", fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>{post.author.name}</p>
+                    <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>Autor</p>
                   </div>
                 </div>
                 <ShareButtons url={postUrl} title={post.title} />
@@ -226,30 +216,24 @@ export default async function PostPage({ params }: Props) {
 
           {/* Cover Image */}
           {post.coverImage && (
-            <div className="relative aspect-video rounded-2xl overflow-hidden mb-10 glass">
-              <Image
-                src={post.coverImage}
-                alt={post.coverImageAlt ?? post.title}
-                fill
-                className="object-cover"
-                priority
-              />
+            <div style={{ position: "relative", aspectRatio: "16/9", borderRadius: "16px", overflow: "hidden", marginBottom: "32px", background: "rgba(255,255,255,0.04)" }}>
+              <Image src={post.coverImage} alt={post.coverImageAlt ?? post.title} fill style={{ objectFit: "cover" }} priority />
             </div>
           )}
 
           {/* Content */}
           <div className="prose-wealth" dangerouslySetInnerHTML={{ __html: post.content }} />
 
-          {/* FAQ Section */}
+          {/* FAQ */}
           {faqs.length > 0 && <FaqSection faqs={faqs} />}
 
           {/* Tags */}
           {post.tags.length > 0 && (
-            <div className="mt-10 pt-8 border-t border-white/5">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Tag className="w-4 h-4 text-white/30" />
+            <div style={{ marginTop: "32px", paddingTop: "24px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>🏷</span>
                 {post.tags.map((tag) => (
-                  <span key={tag} className="px-3 py-1 rounded-full text-xs font-medium bg-purple-500/15 text-purple-400 border border-purple-500/20">
+                  <span key={tag} style={{ padding: "4px 12px", borderRadius: "100px", fontSize: "12px", fontWeight: 500, background: "rgba(168,85,247,0.15)", color: "#c084fc", border: "1px solid rgba(168,85,247,0.25)" }}>
                     #{tag}
                   </span>
                 ))}
@@ -257,11 +241,10 @@ export default async function PostPage({ params }: Props) {
             </div>
           )}
 
-          {/* Bottom Share */}
-          <div className="mt-10 pt-8 border-t border-white/5 flex items-center justify-between flex-wrap gap-4">
-            <Link href="/" className="btn-ghost inline-flex">
-              <ArrowLeft className="w-4 h-4" />
-              Zurück zur Übersicht
+          {/* Bottom nav */}
+          <div style={{ marginTop: "32px", paddingTop: "24px", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+            <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "10px 18px", borderRadius: "10px", fontSize: "13px", fontWeight: 500, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)", textDecoration: "none" }}>
+              ← Zurück zur Übersicht
             </Link>
             <ShareButtons url={postUrl} title={post.title} />
           </div>
@@ -269,29 +252,39 @@ export default async function PostPage({ params }: Props) {
 
         {/* Related Posts */}
         {related.length > 0 && (
-          <section className="max-w-4xl mx-auto px-4 pb-20">
-            <h2 className="text-xl font-bold text-white mb-6">Weitere {cat.label}-Beiträge</h2>
-            <div className="grid md:grid-cols-3 gap-5">
-              {related.map((rp) => (
-                <Link key={rp.id} href={`/${rp.slug}`} className="glass-card overflow-hidden group block">
-                  <div className="relative aspect-video bg-black overflow-hidden">
-                    {rp.coverImage ? (
-                      <Image src={rp.coverImage} alt={rp.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                    ) : (
-                      <div className="absolute inset-0 wealth-gradient-bg" />
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-sm font-semibold text-white/80 group-hover:text-white transition-colors line-clamp-2">{rp.title}</h3>
-                    {rp.publishedAt && (
-                      <p className="text-xs text-white/30 mt-2">{new Date(rp.publishedAt).toLocaleDateString("de-DE")}</p>
-                    )}
-                  </div>
-                </Link>
-              ))}
+          <section style={{ maxWidth: "800px", margin: "0 auto", padding: "0 16px 60px" }}>
+            <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#fff", marginBottom: "16px" }}>
+              Weitere {cat.label}-Beiträge
+            </h2>
+            <div className="related-grid" style={{ display: "grid", gap: "12px" }}>
+              {related.map((rp) => {
+                const rCat = CATEGORIES[rp.category as Category];
+                return (
+                  <Link key={rp.id} href={`/${rp.slug}`} style={{ textDecoration: "none" }}>
+                    <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "12px", overflow: "hidden" }}>
+                      <div style={{ position: "relative", aspectRatio: "16/9", background: "linear-gradient(135deg,rgba(168,85,247,0.15),rgba(245,200,66,0.08))" }}>
+                        {rp.coverImage ? (
+                          <Image src={rp.coverImage} alt={rp.title} fill style={{ objectFit: "cover" }} />
+                        ) : (
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", fontSize: "32px" }}>💎</div>
+                        )}
+                      </div>
+                      <div style={{ padding: "12px" }}>
+                        <h3 style={{ fontSize: "13px", fontWeight: 600, color: "rgba(255,255,255,0.8)", lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{rp.title}</h3>
+                        {rp.publishedAt && <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginTop: "6px" }}>{new Date(rp.publishedAt).toLocaleDateString("de-DE")}</p>}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         )}
+
+        {/* Footer */}
+        <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "20px 16px", textAlign: "center" }}>
+          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.2)" }}>© {new Date().getFullYear()} Networth Status · Alle Angaben sind Schätzungen.</p>
+        </footer>
       </div>
     </>
   );
