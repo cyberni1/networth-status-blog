@@ -39,6 +39,9 @@ export default function PostEditor({ initialData }: PostEditorProps) {
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generatingFaq, setGeneratingFaq] = useState(false);
+  const [generatingArticle, setGeneratingArticle] = useState(false);
+  const [articlePrompt, setArticlePrompt] = useState("");
+  const [showArticleModal, setShowArticleModal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [activeTab, setActiveTab] = useState<"content" | "seo" | "faq" | "settings">("content");
   const [tagInput, setTagInput] = useState("");
@@ -62,6 +65,30 @@ export default function PostEditor({ initialData }: PostEditorProps) {
 
   function update<K extends keyof PostData>(key: K, value: PostData[K]) {
     setData((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function handleGenerateArticle() {
+    if (!articlePrompt.trim()) return;
+    setGeneratingArticle(true);
+    try {
+      const res = await fetch("/api/ai/generate-article", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: articlePrompt, category: data.category }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const result = await res.json();
+      if (result.title) update("title", result.title);
+      if (result.content) update("content", result.content);
+      setShowArticleModal(false);
+      setArticlePrompt("");
+      // Auto-generate meta after article
+      setTimeout(() => handleGenerateAI(), 500);
+    } catch (err) {
+      alert("Fehler: " + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setGeneratingArticle(false);
+    }
   }
 
   async function handleGenerateFaq() {
@@ -174,13 +201,21 @@ export default function PostEditor({ initialData }: PostEditorProps) {
   ];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div style={{ padding: "16px", maxWidth: "1200px", margin: "0 auto" }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-white">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px", flexWrap: "wrap", gap: "10px" }}>
+        <h1 style={{ fontSize: "18px", fontWeight: 700, color: "#fff" }}>
           {data.id ? "Beitrag bearbeiten" : "Neuer Beitrag"}
         </h1>
-        <div className="flex items-center gap-3">
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+          <button
+            type="button"
+            onClick={() => setShowArticleModal(true)}
+            style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "8px 14px", borderRadius: "8px", fontSize: "13px", fontWeight: 600, background: "linear-gradient(135deg,#a855f7,#3b82f6)", color: "#fff", border: "none", cursor: "pointer", whiteSpace: "nowrap" }}
+          >
+            <Sparkles className="w-4 h-4" />
+            KI-Artikel
+          </button>
           <button
             type="button"
             onClick={handleGenerateAI}
@@ -221,11 +256,11 @@ export default function PostEditor({ initialData }: PostEditorProps) {
         value={data.title}
         onChange={(e) => update("title", e.target.value)}
         placeholder="Beitragstitel..."
-        className="w-full bg-transparent border-none text-3xl font-bold text-white placeholder-white/20 focus:outline-none mb-6"
+        style={{ width: "100%", background: "transparent", border: "none", fontSize: "clamp(20px, 4vw, 28px)", fontWeight: 800, color: "#fff", outline: "none", marginBottom: "20px", fontFamily: "inherit" }}
       />
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 border-b border-white/10">
+      <div style={{ display: "flex", gap: "4px", marginBottom: "20px", borderBottom: "1px solid rgba(255,255,255,0.08)", overflowX: "auto" }}>
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -245,8 +280,8 @@ export default function PostEditor({ initialData }: PostEditorProps) {
 
       {/* Content Tab */}
       {activeTab === "content" && (
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2">
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: "20px" }} className="content-grid">
+          <div><style>{`.content-grid { grid-template-columns: minmax(0,1fr) !important; } @media (min-width: 900px) { .content-grid { grid-template-columns: minmax(0,2fr) minmax(280px,1fr) !important; } }`}</style>
             <RichTextEditor
               content={data.content}
               onChange={(html) => update("content", html)}
@@ -539,6 +574,50 @@ export default function PostEditor({ initialData }: PostEditorProps) {
                 </label>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── KI-ARTIKEL MODAL ── */}
+      {showArticleModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+          <div style={{ background: "#12121f", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "520px" }}>
+            <h2 style={{ fontSize: "20px", fontWeight: 700, color: "#fff", marginBottom: "8px" }}>
+              🤖 KI-Artikel generieren
+            </h2>
+            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)", marginBottom: "20px", lineHeight: 1.5 }}>
+              Beschreibe kurz worum es geht — z.B. <em>"Cristiano Ronaldo Nettovermögen"</em> oder <em>"Wie reich ist Taylor Swift?"</em>
+            </p>
+            <textarea
+              value={articlePrompt}
+              onChange={(e) => setArticlePrompt(e.target.value)}
+              placeholder="Thema eingeben, z.B. Elon Musk Nettovermögen 2024..."
+              rows={4}
+              style={{ width: "100%", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "10px", padding: "12px", color: "#fff", fontSize: "15px", outline: "none", resize: "none", fontFamily: "inherit", marginBottom: "16px" }}
+              onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) handleGenerateArticle(); }}
+            />
+            <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={() => setShowArticleModal(false)}
+                style={{ padding: "10px 18px", borderRadius: "8px", fontSize: "14px", background: "transparent", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}
+              >Abbrechen</button>
+              <button
+                type="button"
+                onClick={handleGenerateArticle}
+                disabled={generatingArticle || !articlePrompt.trim()}
+                style={{ padding: "10px 22px", borderRadius: "8px", fontSize: "14px", fontWeight: 600, background: "linear-gradient(135deg,#a855f7,#3b82f6)", color: "#fff", border: "none", cursor: generatingArticle ? "wait" : "pointer", display: "flex", alignItems: "center", gap: "8px", opacity: !articlePrompt.trim() ? 0.5 : 1 }}
+              >
+                {generatingArticle ? (
+                  <><RefreshCw className="w-4 h-4 animate-spin" /> Schreibe Artikel...</>
+                ) : (
+                  <><Sparkles className="w-4 h-4" /> Artikel generieren</>
+                )}
+              </button>
+            </div>
+            <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.25)", marginTop: "12px" }}>
+              Inklusive automatischer Metadaten, Keywords &amp; SEO-Optimierung
+            </p>
           </div>
         </div>
       )}

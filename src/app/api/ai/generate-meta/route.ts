@@ -57,9 +57,11 @@ Antworte NUR mit einem validen JSON-Objekt (kein Markdown, kein Text drumherum):
   "excerpt": "Zusammenfassung in 1-2 Sätzen (max 200 Zeichen)",
   "metaTitle": "SEO-Titel mit Hauptkeyword (max 60 Zeichen)",
   "metaDescription": "Meta-Beschreibung für Google (max 160 Zeichen, enthält Call-to-Action)",
-  "keywords": "keyword1, keyword2, keyword3, keyword4, keyword5",
+  "keywords": "hauptkeyword, keyword2, longtail keyword phrase, keyword4, keyword5, keyword6, keyword7, keyword8",
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
-}`,
+}
+
+Für die keywords: Wähle die 8 besten Keywords für Google-Ranking — mix aus: Hauptkeyword (Personenname + Nettovermögen), Longtail-Keywords (z.B. "wie reich ist X"), verwandte Suchbegriffe, und kategoriesspezifische Keywords. Priorisiere Keywords mit hohem Suchvolumen in Deutschland.`,
       },
     ],
   });

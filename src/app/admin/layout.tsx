@@ -1,63 +1,68 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, FileText, PlusCircle, TrendingUp, Settings } from "lucide-react";
+import { LayoutDashboard, FileText, PlusCircle, TrendingUp, LogOut } from "lucide-react";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session) redirect("/auth/signin");
 
+  const navItems = [
+    { href: "/admin", icon: "📊", label: "Dashboard" },
+    { href: "/admin/posts", icon: "📝", label: "Alle Beiträge" },
+    { href: "/admin/posts/new", icon: "➕", label: "Neuer Beitrag" },
+  ];
+
   return (
-    <div className="min-h-screen flex hero-bg">
-      {/* Sidebar */}
-      <aside className="w-64 glass-nav border-r border-white/5 flex-shrink-0">
-        <div className="p-6">
-          <Link href="/" className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg, #f5c842, #a855f7)" }}>
-              <TrendingUp className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold wealth-gradient">Admin</span>
-          </Link>
+    <>
+      <div style={{ minHeight: "100vh", background: "#080810", display: "flex", flexDirection: "column" }}>
+        {/* Top bar (mobile + desktop) */}
+        <header style={{
+          background: "rgba(8,8,16,0.95)", borderBottom: "1px solid rgba(255,255,255,0.08)",
+          backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
+          position: "sticky", top: 0, zIndex: 50,
+        }}>
+          <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 16px", display: "flex", alignItems: "center", gap: "8px", height: "52px", overflowX: "auto" }}>
+            {/* Logo */}
+            <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "8px", marginRight: "16px", flexShrink: 0 }}>
+              <div style={{ width: "28px", height: "28px", borderRadius: "7px", background: "linear-gradient(135deg,#f5c842,#a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>📈</div>
+              <span style={{ fontWeight: 800, fontSize: "13px", background: "linear-gradient(135deg,#f5c842,#c084fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", whiteSpace: "nowrap" }}>Admin</span>
+            </Link>
 
-          <nav className="space-y-1">
-            <Link href="/admin" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all text-sm font-medium">
-              <LayoutDashboard className="w-4 h-4" />
-              Dashboard
-            </Link>
-            <Link href="/admin/posts" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all text-sm font-medium">
-              <FileText className="w-4 h-4" />
-              Alle Beiträge
-            </Link>
-            <Link href="/admin/posts/new" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:text-white hover:bg-white/5 transition-all text-sm font-medium">
-              <PlusCircle className="w-4 h-4" />
-              Neuer Beitrag
-            </Link>
-          </nav>
-        </div>
+            {/* Nav items */}
+            {navItems.map((item) => (
+              <Link key={item.href} href={item.href} style={{
+                display: "flex", alignItems: "center", gap: "6px",
+                padding: "6px 14px", borderRadius: "8px", whiteSpace: "nowrap",
+                fontSize: "13px", fontWeight: 500, color: "rgba(255,255,255,0.65)",
+                textDecoration: "none", background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.07)", flexShrink: 0,
+              }}>
+                <span>{item.icon}</span> {item.label}
+              </Link>
+            ))}
 
-        {/* User info at bottom */}
-        <div className="absolute bottom-0 left-0 w-64 p-4 border-t border-white/5">
-          <div className="flex items-center gap-3">
-            {session.user?.image ? (
-              <img src={session.user.image} alt="" className="w-8 h-8 rounded-full" />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-purple-500/30 flex items-center justify-center">
-                <Settings className="w-4 h-4 text-purple-400" />
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-white/80 truncate">{session.user?.name}</p>
-              <p className="text-xs text-white/40 truncate">{session.user?.email}</p>
+            <div style={{ flex: 1 }} />
+
+            {/* User */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+              {session.user?.image && (
+                <img src={session.user.image} alt="" style={{ width: "28px", height: "28px", borderRadius: "50%" }} />
+              )}
+              <Link href="/api/auth/signout" style={{
+                padding: "6px 12px", borderRadius: "8px", fontSize: "12px",
+                background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+                color: "rgba(255,255,255,0.5)", textDecoration: "none", whiteSpace: "nowrap",
+              }}>Abmelden</Link>
             </div>
           </div>
-        </div>
-      </aside>
+        </header>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
-    </div>
+        {/* Page content */}
+        <main style={{ flex: 1, overflowY: "auto" }}>
+          {children}
+        </main>
+      </div>
+    </>
   );
 }
