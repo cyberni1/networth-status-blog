@@ -3,20 +3,31 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
+// ===================== AUTH MODELS =====================
+
 model User {
-  id            String          @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String          @unique
+  email         String    @unique
   emailVerified DateTime?
   image         String?
+  role          Role      @default(VIEWER)
   accounts      Account[]
   sessions      Session[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  posts         Post[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
 }
 
 model Account {
@@ -56,4 +67,43 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+// ===================== BLOG MODELS =====================
+
+model Post {
+  id              String     @id @default(cuid())
+  title           String
+  slug            String     @unique
+  content         String
+  excerpt         String?
+  metaTitle       String?
+  metaDescription String?
+  keywords        String?
+  tags            String[]   @default([])
+  category        Category
+  coverImage      String?
+  coverImageAlt   String?
+  status          PostStatus @default(DRAFT)
+  publishedAt     DateTime?
+  authorId        String
+  author          User       @relation(fields: [authorId], references: [id])
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([publishedAt])
+}
+
+enum Category {
+  KUENSTLER
+  SPORTLER
+  UNTERNEHMER
+  INFLUENCER
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
 }
