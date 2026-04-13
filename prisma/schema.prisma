@@ -85,6 +85,7 @@ model Post {
   coverImage      String?
   coverImageAlt   String?
   faq             String?    // JSON array of {question, answer}
+  wealthData      String?    // JSON: {netWorth, currency, trend, trendPercent, yearChange, mainSource, sourceIcon, assets: [{label, percent, color}], incomeIcons: string[], annualIncome}
   status          PostStatus @default(DRAFT)
   publishedAt     DateTime?
   authorId        String

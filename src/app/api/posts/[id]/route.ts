@@ -31,6 +31,7 @@ export async function PUT(req: Request, { params }: RouteParams) {
       coverImage: body.coverImage ?? null,
       coverImageAlt: body.coverImageAlt ?? null,
       faq: body.faq ?? null,
+      wealthData: body.wealthData ?? null,
       status: body.status as PostStatus,
       publishedAt:
         body.status === "PUBLISHED"

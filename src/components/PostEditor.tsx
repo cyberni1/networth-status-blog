@@ -12,6 +12,21 @@ import {
 
 interface FaqItem { question: string; answer: string; }
 
+interface WealthAsset { label: string; percent: number; color: string; }
+
+interface WealthFormData {
+  netWorth: string;        // string input e.g. "131"
+  currency: string;
+  trend: "up" | "down" | "flat";
+  trendPercent: string;
+  yearChange: string;
+  mainSource: string;
+  sourceIcon: string;
+  assets: WealthAsset[];
+  incomeIcons: string;     // comma-separated
+  annualIncome: string;
+}
+
 interface PostData {
   id?: string;
   title: string;
@@ -26,8 +41,21 @@ interface PostData {
   coverImage: string;
   coverImageAlt: string;
   faq: FaqItem[];
+  wealthForm: WealthFormData;
   status: "DRAFT" | "PUBLISHED";
 }
+
+const DEFAULT_WEALTH: WealthFormData = {
+  netWorth: "", currency: "$", trend: "flat", trendPercent: "0",
+  yearChange: "0", mainSource: "", sourceIcon: "💼",
+  assets: [
+    { label: "Firmenanteile", percent: 70, color: "#F5B041" },
+    { label: "Immobilien", percent: 20, color: "#a855f7" },
+    { label: "Liquide Mittel", percent: 10, color: "#60a5fa" },
+  ],
+  incomeIcons: "💼 Gründer, 📈 Aktien",
+  annualIncome: "",
+};
 
 interface PostEditorProps {
   initialData?: Partial<PostData>;
@@ -43,7 +71,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
   const [articlePrompt, setArticlePrompt] = useState("");
   const [showArticleModal, setShowArticleModal] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"content" | "seo" | "faq" | "settings">("content");
+  const [activeTab, setActiveTab] = useState<"content" | "seo" | "faq" | "wealth" | "settings">("content");
   const [tagInput, setTagInput] = useState("");
 
   const [data, setData] = useState<PostData>({
@@ -60,6 +88,25 @@ export default function PostEditor({ initialData }: PostEditorProps) {
     coverImage: initialData?.coverImage ?? "",
     coverImageAlt: initialData?.coverImageAlt ?? "",
     faq: initialData?.faq ?? [],
+    wealthForm: (() => {
+      try {
+        const wd = (initialData as any)?.wealthData;
+        if (!wd) return DEFAULT_WEALTH;
+        const parsed = typeof wd === "string" ? JSON.parse(wd) : wd;
+        return {
+          netWorth: String(parsed.netWorth ?? ""),
+          currency: parsed.currency ?? "$",
+          trend: parsed.trend ?? "flat",
+          trendPercent: String(parsed.trendPercent ?? "0"),
+          yearChange: String(parsed.yearChange ?? "0"),
+          mainSource: parsed.mainSource ?? "",
+          sourceIcon: parsed.sourceIcon ?? "💼",
+          assets: parsed.assets ?? DEFAULT_WEALTH.assets,
+          incomeIcons: (parsed.incomeIcons ?? []).join(", "),
+          annualIncome: String(parsed.annualIncome ?? ""),
+        } as WealthFormData;
+      } catch { return DEFAULT_WEALTH; }
+    })(),
     status: initialData?.status ?? "DRAFT",
   });
 
@@ -113,10 +160,33 @@ export default function PostEditor({ initialData }: PostEditorProps) {
     }
   }
 
+  function buildWealthData() {
+    const f = data.wealthForm;
+    if (!f.netWorth) return null;
+    return {
+      netWorth: parseFloat(f.netWorth) || 0,
+      currency: f.currency,
+      trend: f.trend,
+      trendPercent: parseFloat(f.trendPercent) || 0,
+      yearChange: parseFloat(f.yearChange) || 0,
+      mainSource: f.mainSource,
+      sourceIcon: f.sourceIcon,
+      assets: f.assets.filter((a) => a.label),
+      incomeIcons: f.incomeIcons.split(",").map((s) => s.trim()).filter(Boolean),
+      annualIncome: parseFloat(f.annualIncome) || undefined,
+    };
+  }
+
   async function handleSave(status?: "DRAFT" | "PUBLISHED") {
     setSaving(true);
     try {
-      const payload = { ...data, faq: JSON.stringify(data.faq), status: status ?? data.status };
+      const wealthJson = buildWealthData();
+      const payload = {
+        ...data,
+        faq: JSON.stringify(data.faq),
+        wealthData: wealthJson ? JSON.stringify(wealthJson) : null,
+        status: status ?? data.status,
+      };
       const res = await fetch(data.id ? `/api/posts/${data.id}` : "/api/posts", {
         method: data.id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -197,6 +267,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
     { id: "content" as const, label: "Inhalt", icon: FileText },
     { id: "seo" as const, label: "SEO", icon: Search },
     { id: "faq" as const, label: `FAQ ${data.faq.length > 0 ? `(${data.faq.length})` : ""}`, icon: HelpCircle },
+    { id: "wealth" as const, label: "💰 Daten", icon: null },
     { id: "settings" as const, label: "Einstellungen", icon: Globe },
   ];
 
@@ -272,7 +343,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
                 : "text-white/50 border-transparent hover:text-white"
             }`}
           >
-            <tab.icon className="w-4 h-4" />
+            {tab.icon && <tab.icon className="w-4 h-4" />}
             {tab.label}
           </button>
         ))}
@@ -541,6 +612,92 @@ export default function PostEditor({ initialData }: PostEditorProps) {
               <Plus className="w-4 h-4" />
               Frage manuell hinzufügen
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Wealth Data Tab */}
+      {activeTab === "wealth" && (
+        <div style={{ maxWidth: "600px" }}>
+          <div style={{ marginBottom: "20px" }}>
+            <h2 style={{ fontSize: "16px", fontWeight: 700, color: "#fff", marginBottom: "4px" }}>💰 Vermögens-Dashboard</h2>
+            <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>Wird direkt unter dem Artikel-Header angezeigt. Alle Felder optional.</p>
+          </div>
+
+          {/* Row: Net Worth + Currency */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 100px", gap: "10px", marginBottom: "12px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "6px" }}>Nettovermögen (in Mrd.)</label>
+              <input type="number" value={data.wealthForm.netWorth} onChange={(e) => update("wealthForm", { ...data.wealthForm, netWorth: e.target.value })} placeholder="z.B. 131" className="input-glass" />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "6px" }}>Währung</label>
+              <select value={data.wealthForm.currency} onChange={(e) => update("wealthForm", { ...data.wealthForm, currency: e.target.value })} className="select-glass">
+                <option value="$">$ USD</option>
+                <option value="€">€ EUR</option>
+                <option value="£">£ GBP</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Row: Trend + Percent + Year Change */}
+          <div style={{ display: "grid", gridTemplateColumns: "120px 1fr 1fr", gap: "10px", marginBottom: "12px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "6px" }}>Trend</label>
+              <select value={data.wealthForm.trend} onChange={(e) => update("wealthForm", { ...data.wealthForm, trend: e.target.value as any })} className="select-glass">
+                <option value="up">▲ Gestiegen</option>
+                <option value="down">▼ Gesunken</option>
+                <option value="flat">= Gleich</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "6px" }}>Trend % (z.B. 12.3)</label>
+              <input type="number" value={data.wealthForm.trendPercent} onChange={(e) => update("wealthForm", { ...data.wealthForm, trendPercent: e.target.value })} className="input-glass" />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "6px" }}>Veränd. ggü. Vorjahr (Mrd.)</label>
+              <input type="number" value={data.wealthForm.yearChange} onChange={(e) => update("wealthForm", { ...data.wealthForm, yearChange: e.target.value })} placeholder="z.B. 14 oder -5" className="input-glass" />
+            </div>
+          </div>
+
+          {/* Main source */}
+          <div style={{ display: "grid", gridTemplateColumns: "60px 1fr", gap: "10px", marginBottom: "12px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "6px" }}>Icon</label>
+              <input type="text" value={data.wealthForm.sourceIcon} onChange={(e) => update("wealthForm", { ...data.wealthForm, sourceIcon: e.target.value })} className="input-glass" style={{ textAlign: "center", fontSize: "20px" }} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "6px" }}>Haupteinnahmequelle</label>
+              <input type="text" value={data.wealthForm.mainSource} onChange={(e) => update("wealthForm", { ...data.wealthForm, mainSource: e.target.value })} placeholder="z.B. Tech / Software" className="input-glass" />
+            </div>
+          </div>
+
+          {/* Asset mix */}
+          <div style={{ marginBottom: "12px" }}>
+            <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "8px" }}>Vermögensmix (Prozente müssen ~100 ergeben)</label>
+            {data.wealthForm.assets.map((asset, i) => (
+              <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 80px 40px 36px", gap: "6px", marginBottom: "6px", alignItems: "center" }}>
+                <input type="text" value={asset.label} onChange={(e) => { const a = [...data.wealthForm.assets]; a[i] = { ...a[i], label: e.target.value }; update("wealthForm", { ...data.wealthForm, assets: a }); }} placeholder="z.B. Aktien" className="input-glass" style={{ padding: "8px 10px", fontSize: "12px" }} />
+                <input type="number" value={asset.percent} onChange={(e) => { const a = [...data.wealthForm.assets]; a[i] = { ...a[i], percent: parseInt(e.target.value) || 0 }; update("wealthForm", { ...data.wealthForm, assets: a }); }} placeholder="%" className="input-glass" style={{ padding: "8px 10px", fontSize: "12px" }} />
+                <input type="color" value={asset.color} onChange={(e) => { const a = [...data.wealthForm.assets]; a[i] = { ...a[i], color: e.target.value }; update("wealthForm", { ...data.wealthForm, assets: a }); }} style={{ width: "36px", height: "36px", border: "none", borderRadius: "6px", background: "transparent", cursor: "pointer" }} />
+                <button type="button" onClick={() => { const a = data.wealthForm.assets.filter((_, idx) => idx !== i); update("wealthForm", { ...data.wealthForm, assets: a }); }} style={{ width: "36px", height: "36px", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: "14px" }}>×</button>
+              </div>
+            ))}
+            <button type="button" onClick={() => update("wealthForm", { ...data.wealthForm, assets: [...data.wealthForm.assets, { label: "", percent: 0, color: "#6b7280" }] })} style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", background: "none", border: "1px dashed rgba(255,255,255,0.15)", borderRadius: "8px", padding: "6px 14px", cursor: "pointer" }}>+ Asset hinzufügen</button>
+          </div>
+
+          {/* Income icons */}
+          <div style={{ marginBottom: "12px" }}>
+            <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "6px" }}>Vermögensquellen (kommagetrennt)</label>
+            <input type="text" value={data.wealthForm.incomeIcons} onChange={(e) => update("wealthForm", { ...data.wealthForm, incomeIcons: e.target.value })} placeholder="💼 Gründer, 📈 Aktien, 🏠 Immobilien" className="input-glass" />
+            <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.25)", marginTop: "4px" }}>Tipps: 🎤 Musik, ⚽ Sport, 💻 Tech, 🎬 Film, 💎 Luxus-Assets, 🏠 Immobilien</p>
+          </div>
+
+          {/* Annual income for clock */}
+          <div>
+            <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "6px" }}>Jahreseinkommen (Mrd.) — für Vermögensuhr</label>
+            <input type="number" value={data.wealthForm.annualIncome} onChange={(e) => update("wealthForm", { ...data.wealthForm, annualIncome: e.target.value })} placeholder="z.B. 14.5 (optional)" className="input-glass" />
+            <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.25)", marginTop: "4px" }}>Zeigt an: „Während du liest, verdient er/sie ca. X" — leer lassen zum deaktivieren.</p>
           </div>
         </div>
       )}

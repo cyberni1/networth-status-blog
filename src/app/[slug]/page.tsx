@@ -11,6 +11,7 @@ import ShareButtons from "@/components/ShareButtons";
 import FaqSection from "@/components/FaqSection";
 import { CATEGORIES } from "@/lib/categories";
 import { Category } from "@prisma/client";
+import WealthDashboard, { type WealthData } from "@/components/WealthDashboard";
 
 const SITE_URL = "https://networth-status-blog.vercel.app";
 
@@ -81,6 +82,11 @@ export default async function PostPage({ params }: Props) {
   let faqs: { question: string; answer: string }[] = [];
   if (post.faq) {
     try { faqs = JSON.parse(post.faq); } catch { faqs = []; }
+  }
+
+  let wealthData: WealthData | null = null;
+  if ((post as any).wealthData) {
+    try { wealthData = JSON.parse((post as any).wealthData); } catch { wealthData = null; }
   }
 
   const personName = post.title
@@ -214,6 +220,9 @@ export default async function PostPage({ params }: Props) {
               </div>
             )}
           </header>
+
+          {/* Wealth Dashboard — shown below header if data exists */}
+          {wealthData && <WealthDashboard data={wealthData} />}
 
           {/* Cover Image */}
           {post.coverImage && (
