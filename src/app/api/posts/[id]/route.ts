@@ -30,6 +30,7 @@ export async function PUT(req: Request, { params }: RouteParams) {
       category: body.category as Category,
       coverImage: body.coverImage ?? null,
       coverImageAlt: body.coverImageAlt ?? null,
+      faq: body.faq ?? null,
       status: body.status as PostStatus,
       publishedAt:
         body.status === "PUBLISHED"

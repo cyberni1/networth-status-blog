@@ -3,6 +3,8 @@ import PostEditor from "@/components/PostEditor";
 import { notFound } from "next/navigation";
 import { Category, PostStatus } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ id: string }>;
 }
@@ -27,6 +29,7 @@ export default async function EditPostPage({ params }: Props) {
         category: post.category as Category,
         coverImage: post.coverImage ?? "",
         coverImageAlt: post.coverImageAlt ?? "",
+        faq: post.faq ? JSON.parse(post.faq) : [],
         status: post.status as PostStatus,
       }}
     />

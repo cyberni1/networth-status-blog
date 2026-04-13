@@ -7,8 +7,10 @@ import { CATEGORIES } from "@/lib/categories";
 import { Category } from "@prisma/client";
 import {
   Save, Send, Sparkles, Upload, X, Image as ImageIcon,
-  RefreshCw, Tag, FileText, Search, Globe
+  RefreshCw, Tag, FileText, Search, Globe, HelpCircle, ChevronDown, Plus, Trash2
 } from "lucide-react";
+
+interface FaqItem { question: string; answer: string; }
 
 interface PostData {
   id?: string;
@@ -23,6 +25,7 @@ interface PostData {
   category: Category;
   coverImage: string;
   coverImageAlt: string;
+  faq: FaqItem[];
   status: "DRAFT" | "PUBLISHED";
 }
 
@@ -35,8 +38,9 @@ export default function PostEditor({ initialData }: PostEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generatingFaq, setGeneratingFaq] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"content" | "seo" | "settings">("content");
+  const [activeTab, setActiveTab] = useState<"content" | "seo" | "faq" | "settings">("content");
   const [tagInput, setTagInput] = useState("");
 
   const [data, setData] = useState<PostData>({
@@ -52,6 +56,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
     category: initialData?.category ?? "KUENSTLER",
     coverImage: initialData?.coverImage ?? "",
     coverImageAlt: initialData?.coverImageAlt ?? "",
+    faq: initialData?.faq ?? [],
     status: initialData?.status ?? "DRAFT",
   });
 
@@ -59,10 +64,32 @@ export default function PostEditor({ initialData }: PostEditorProps) {
     setData((prev) => ({ ...prev, [key]: value }));
   }
 
+  async function handleGenerateFaq() {
+    if (!data.title && !data.content) {
+      alert("Bitte füge zuerst einen Titel oder Inhalt hinzu.");
+      return;
+    }
+    setGeneratingFaq(true);
+    try {
+      const res = await fetch("/api/ai/generate-faq", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: data.title, content: data.content, category: data.category }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const { faqs } = await res.json();
+      if (faqs?.length) update("faq", faqs);
+    } catch (err) {
+      alert("FAQ-Fehler: " + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setGeneratingFaq(false);
+    }
+  }
+
   async function handleSave(status?: "DRAFT" | "PUBLISHED") {
     setSaving(true);
     try {
-      const payload = { ...data, status: status ?? data.status };
+      const payload = { ...data, faq: JSON.stringify(data.faq), status: status ?? data.status };
       const res = await fetch(data.id ? `/api/posts/${data.id}` : "/api/posts", {
         method: data.id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -142,6 +169,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
   const tabs = [
     { id: "content" as const, label: "Inhalt", icon: FileText },
     { id: "seo" as const, label: "SEO", icon: Search },
+    { id: "faq" as const, label: `FAQ ${data.faq.length > 0 ? `(${data.faq.length})` : ""}`, icon: HelpCircle },
     { id: "settings" as const, label: "Einstellungen", icon: Globe },
   ];
 
@@ -408,6 +436,77 @@ export default function PostEditor({ initialData }: PostEditorProps) {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* FAQ Tab */}
+      {activeTab === "faq" && (
+        <div className="max-w-2xl">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-semibold text-white">FAQ-Sektion</h2>
+              <p className="text-sm text-white/40 mt-1">Erscheint auf Google als "People also ask" — massiv mehr Klicks</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleGenerateFaq}
+              disabled={generatingFaq}
+              className="btn-primary text-sm"
+            >
+              {generatingFaq ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              KI generieren
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {data.faq.map((item, i) => (
+              <div key={i} className="glass-card p-4 space-y-3">
+                <div className="flex items-start gap-2">
+                  <span className="text-xs font-bold text-purple-400 mt-3 w-5 flex-shrink-0">F{i + 1}</span>
+                  <input
+                    type="text"
+                    value={item.question}
+                    onChange={(e) => {
+                      const updated = [...data.faq];
+                      updated[i] = { ...updated[i], question: e.target.value };
+                      update("faq", updated);
+                    }}
+                    placeholder="Frage..."
+                    className="input-glass flex-1 text-sm font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => update("faq", data.faq.filter((_, idx) => idx !== i))}
+                    className="p-2 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-all mt-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex items-start gap-2 pl-7">
+                  <textarea
+                    value={item.answer}
+                    onChange={(e) => {
+                      const updated = [...data.faq];
+                      updated[i] = { ...updated[i], answer: e.target.value };
+                      update("faq", updated);
+                    }}
+                    placeholder="Antwort..."
+                    rows={3}
+                    className="textarea-glass flex-1 text-sm"
+                  />
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => update("faq", [...data.faq, { question: "", answer: "" }])}
+              className="w-full py-3 border-2 border-dashed border-white/10 rounded-xl hover:border-purple-500/40 transition-all text-white/30 hover:text-white/60 flex items-center justify-center gap-2 text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Frage manuell hinzufügen
+            </button>
+          </div>
         </div>
       )}
 

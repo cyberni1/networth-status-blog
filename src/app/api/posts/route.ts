@@ -39,6 +39,7 @@ export async function POST(req: Request) {
       category: (body.category as Category) ?? "KUENSTLER",
       coverImage: body.coverImage ?? null,
       coverImageAlt: body.coverImageAlt ?? null,
+      faq: body.faq ?? null,
       status: (body.status as PostStatus) ?? "DRAFT",
       publishedAt: body.status === "PUBLISHED" ? new Date() : null,
       authorId: user.id,

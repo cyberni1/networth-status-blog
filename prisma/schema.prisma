@@ -84,6 +84,7 @@ model Post {
   category        Category
   coverImage      String?
   coverImageAlt   String?
+  faq             String?    // JSON array of {question, answer}
   status          PostStatus @default(DRAFT)
   publishedAt     DateTime?
   authorId        String
