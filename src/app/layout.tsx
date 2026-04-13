@@ -65,6 +65,9 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        {/* WCAG 2.1: Skip navigation links */}
+        <a href="#main-content" className="skip-link">Zum Hauptinhalt springen</a>
+        <a href="#search-input" className="skip-link">Zur Suche springen</a>
         <Providers>{children}</Providers>
       </body>
     </html>

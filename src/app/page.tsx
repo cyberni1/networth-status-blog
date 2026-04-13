@@ -44,8 +44,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <div style={{ background: "#080810", minHeight: "100vh" }}>
         <Navbar />
 
+        <main id="main-content" tabIndex={-1}>
+
         {/* ── HERO ── */}
-        <section style={{ padding: "clamp(40px,8vw,80px) 16px clamp(32px,6vw,60px)", textAlign: "center", position: "relative", overflow: "hidden" }}>
+        <section aria-labelledby="hero-heading" style={{ padding: "clamp(40px,8vw,80px) 16px clamp(32px,6vw,60px)", textAlign: "center", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: "600px", height: "300px", background: "radial-gradient(ellipse, rgba(168,85,247,0.18) 0%, transparent 70%)", pointerEvents: "none" }} />
           <div style={{ position: "relative", maxWidth: "860px", margin: "0 auto" }}>
 
@@ -53,7 +55,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               💰 VERMÖGEN DER REICHEN &amp; BERÜHMTEN
             </div>
 
-            <h1 className="hero-h1" style={{ fontWeight: 900, lineHeight: 1.0, letterSpacing: "-2px", marginBottom: "20px" }}>
+            <h1 id="hero-heading" className="hero-h1" style={{ fontWeight: 900, lineHeight: 1.0, letterSpacing: "-2px", marginBottom: "20px" }}>
               <span style={{ background: "linear-gradient(135deg, #f5c842 0%, #c084fc 55%, #60a5fa 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>NETWORTH</span>
               <br />
               <span style={{ color: "#fff" }}>STATUS</span>
@@ -65,10 +67,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </p>
 
             {/* Search bar in hero */}
-            <Link href="/suche" style={{ display: "block", maxWidth: "460px", margin: "0 auto 32px" }}>
+            <Link
+              href="/suche"
+              aria-label="Zur Suchseite – Promi-Vermögen suchen"
+              style={{ display: "block", maxWidth: "460px", margin: "0 auto 32px" }}
+            >
               <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "50px", padding: "12px 20px", cursor: "pointer" }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.35)" }}>Name suchen, z.B. Cristiano Ronaldo...</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span style={{ fontSize: "16px", color: "rgba(255,255,255,0.5)" }}>Name suchen, z.B. Cristiano Ronaldo...</span>
               </div>
             </Link>
 
@@ -88,17 +94,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </section>
 
         {/* ── CATEGORY FILTER ── */}
-        <section style={{ padding: "0 16px 28px", maxWidth: "1200px", margin: "0 auto" }}>
-          <div className="cat-pills" style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px" }}>
+        <nav aria-label="Nach Kategorie filtern" style={{ padding: "0 16px 28px", maxWidth: "1200px", margin: "0 auto" }}>
+          <div className="cat-pills" role="group" aria-label="Kategorie-Filter" style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px" }}>
             <Link href="/" style={{ padding: "8px 18px", borderRadius: "100px", fontSize: "13px", fontWeight: 600, textDecoration: "none", flexShrink: 0, background: !kategorie ? "linear-gradient(135deg,#a855f7,#3b82f6)" : "rgba(255,255,255,0.05)", color: !kategorie ? "#fff" : "rgba(255,255,255,0.5)", border: !kategorie ? "none" : "1px solid rgba(255,255,255,0.1)", boxShadow: !kategorie ? "0 4px 15px rgba(168,85,247,0.3)" : "none" }}>Alle</Link>
             {Object.entries(CATEGORIES).map(([key, cat]) => (
               <Link key={key} href={`/?kategorie=${cat.slug}`} style={{ padding: "8px 18px", borderRadius: "100px", fontSize: "13px", fontWeight: 600, textDecoration: "none", flexShrink: 0, background: kategorie === cat.slug ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.04)", color: kategorie === cat.slug ? "#fff" : "rgba(255,255,255,0.5)", border: `1px solid ${kategorie === cat.slug ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.08)"}` }}>{cat.label}</Link>
             ))}
           </div>
-        </section>
+        </nav>
 
         {/* ── POSTS GRID ── */}
-        <section style={{ padding: "0 16px 60px", maxWidth: "1200px", margin: "0 auto" }}>
+        <section aria-labelledby="posts-heading" style={{ padding: "0 16px 60px", maxWidth: "1200px", margin: "0 auto" }}>
+          <h2 id="posts-heading" className="sr-only">Aktuelle Beiträge</h2>
           {posts.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px 20px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "20px" }}>
               <div style={{ fontSize: "56px", marginBottom: "16px" }}>📊</div>
@@ -110,13 +117,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               {posts.map((post) => {
                 const cat = CATEGORIES[post.category as Category];
                 return (
-                  <Link key={post.id} href={`/${post.slug}`} style={{ textDecoration: "none" }}>
-                    <article style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px", overflow: "hidden", height: "100%" }}>
+                  <Link key={post.id} href={`/${post.slug}`} aria-label={`${post.title} – Artikel lesen`} style={{ textDecoration: "none" }}>
+                    <article aria-label={post.title} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px", overflow: "hidden", height: "100%" }}>
                       <div style={{ position: "relative", aspectRatio: "16/9", background: "linear-gradient(135deg, rgba(168,85,247,0.2), rgba(245,200,66,0.1))", overflow: "hidden" }}>
                         {post.coverImage ? (
-                          <Image src={post.coverImage} alt={post.title} fill style={{ objectFit: "cover" }} />
+                          <Image src={post.coverImage} alt={`Titelbild: ${post.title}`} fill style={{ objectFit: "cover" }} />
                         ) : (
-                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", fontSize: "40px" }}>💎</div>
+                          <div aria-hidden="true" style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", fontSize: "40px" }}>💎</div>
                         )}
                         <div style={{ position: "absolute", bottom: "10px", left: "10px", padding: "3px 10px", borderRadius: "100px", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", background: cat.badge.includes("kuenstler") ? "rgba(244,114,182,0.2)" : cat.badge.includes("sportler") ? "rgba(74,222,128,0.2)" : cat.badge.includes("unternehmer") ? "rgba(253,224,71,0.2)" : "rgba(165,180,252,0.2)", border: `1px solid ${cat.color}50`, color: cat.color }}>{cat.label}</div>
                       </div>
@@ -138,10 +145,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           )}
         </section>
 
+        </main>
+
         {/* ── SEO TEXT SECTION ── */}
-        <section style={{ background: "rgba(255,255,255,0.02)", borderTop: "1px solid rgba(255,255,255,0.06)", padding: "clamp(40px,6vw,64px) 16px" }}>
+        <section aria-labelledby="seo-section-heading" style={{ background: "rgba(255,255,255,0.02)", borderTop: "1px solid rgba(255,255,255,0.06)", padding: "clamp(40px,6vw,64px) 16px" }}>
           <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-            <h2 style={{ fontSize: "clamp(20px,4vw,28px)", fontWeight: 800, color: "#fff", marginBottom: "16px", background: "linear-gradient(135deg,#f5c842,#c084fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+            <h2 id="seo-section-heading" style={{ fontSize: "clamp(20px,4vw,28px)", fontWeight: 800, color: "#fff", marginBottom: "16px", background: "linear-gradient(135deg,#f5c842,#c084fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               Das Nettovermögen berühmter Persönlichkeiten — alles auf einem Blick
             </h2>
             <p style={{ fontSize: "clamp(14px,2.5vw,16px)", color: "rgba(255,255,255,0.55)", lineHeight: 1.8, marginBottom: "20px" }}>
@@ -169,8 +178,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </section>
 
         {/* ── FOOTER ── */}
-        <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "24px 16px", textAlign: "center" }}>
-          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.2)" }}>© {new Date().getFullYear()} Networth Status · Alle Angaben sind Schätzungen und dienen zu Informationszwecken.</p>
+        <footer role="contentinfo" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "24px 16px", textAlign: "center" }}>
+          <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.3)", maxWidth: "700px", margin: "0 auto", lineHeight: 1.6 }}>
+            © {new Date().getFullYear()} Networth Status &nbsp;·&nbsp;
+            <strong style={{ color: "rgba(255,255,255,0.4)" }}>Alle Vermögensangaben sind Schätzungen</strong> basierend auf öffentlichen Quellen (Forbes, Bloomberg, Unternehmensberichte). Keine Anlageberatung.
+          </p>
         </footer>
       </div>
     </>

@@ -157,6 +157,7 @@ export default async function PostPage({ params }: Props) {
       <div style={{ background: "#080810", minHeight: "100vh" }}>
         <Navbar />
 
+        <main id="main-content" tabIndex={-1}>
         <article className="post-article" style={{ maxWidth: "800px", margin: "0 auto" }}>
 
           {/* Breadcrumb */}
@@ -216,9 +217,22 @@ export default async function PostPage({ params }: Props) {
 
           {/* Cover Image */}
           {post.coverImage && (
-            <div style={{ position: "relative", aspectRatio: "16/9", borderRadius: "16px", overflow: "hidden", marginBottom: "32px", background: "rgba(255,255,255,0.04)" }}>
-              <Image src={post.coverImage} alt={post.coverImageAlt ?? post.title} fill style={{ objectFit: "cover" }} priority />
-            </div>
+            <figure style={{ margin: "0 0 32px" }}>
+              <div style={{ position: "relative", aspectRatio: "16/9", borderRadius: "16px", overflow: "hidden", background: "rgba(255,255,255,0.04)" }}>
+                <Image
+                  src={post.coverImage}
+                  alt={post.coverImageAlt ?? `Titelbild: ${post.title}`}
+                  fill
+                  style={{ objectFit: "cover" }}
+                  priority
+                />
+              </div>
+              {post.coverImageAlt && (
+                <figcaption style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", textAlign: "center", marginTop: "8px" }}>
+                  {post.coverImageAlt}
+                </figcaption>
+              )}
+            </figure>
           )}
 
           {/* Content */}
@@ -249,6 +263,8 @@ export default async function PostPage({ params }: Props) {
             <ShareButtons url={postUrl} title={post.title} />
           </div>
         </article>
+
+        </main>
 
         {/* Related Posts */}
         {related.length > 0 && (
@@ -282,8 +298,11 @@ export default async function PostPage({ params }: Props) {
         )}
 
         {/* Footer */}
-        <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "20px 16px", textAlign: "center" }}>
-          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.2)" }}>© {new Date().getFullYear()} Networth Status · Alle Angaben sind Schätzungen.</p>
+        <footer role="contentinfo" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "20px 16px", textAlign: "center" }}>
+          <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.3)", maxWidth: "700px", margin: "0 auto", lineHeight: 1.6 }}>
+            © {new Date().getFullYear()} Networth Status &nbsp;·&nbsp;
+            <strong style={{ color: "rgba(255,255,255,0.4)" }}>Alle Vermögensangaben sind Schätzungen</strong> basierend auf öffentlichen Quellen (Forbes, Bloomberg, Unternehmensberichte). Keine Anlageberatung.
+          </p>
         </footer>
       </div>
     </>
