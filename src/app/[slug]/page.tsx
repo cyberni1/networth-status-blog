@@ -12,6 +12,8 @@ import FaqSection from "@/components/FaqSection";
 import { CATEGORIES } from "@/lib/categories";
 import { Category } from "@prisma/client";
 import WealthDashboard, { type WealthData } from "@/components/WealthDashboard";
+import VoteWidget from "@/components/VoteWidget";
+import PdfButton from "@/components/PdfButton";
 
 const SITE_URL = "https://networth-status-blog.vercel.app";
 
@@ -249,6 +251,16 @@ export default async function PostPage({ params }: Props) {
 
           {/* FAQ */}
           {faqs.length > 0 && <FaqSection faqs={faqs} />}
+
+          {/* Community Vote + PDF */}
+          <div data-noprint="true">
+            <VoteWidget
+              postId={post.id}
+              personName={personName}
+              netWorth={wealthData ? `${wealthData.currency}${wealthData.netWorth} Mrd.` : undefined}
+            />
+            <PdfButton title={post.title} />
+          </div>
 
           {/* Tags */}
           {post.tags.length > 0 && (

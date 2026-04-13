@@ -178,11 +178,24 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </section>
 
         {/* ── FOOTER ── */}
-        <footer role="contentinfo" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "24px 16px", textAlign: "center" }}>
-          <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.3)", maxWidth: "700px", margin: "0 auto", lineHeight: 1.6 }}>
-            © {new Date().getFullYear()} Networth Status &nbsp;·&nbsp;
-            <strong style={{ color: "rgba(255,255,255,0.4)" }}>Alle Vermögensangaben sind Schätzungen</strong> basierend auf öffentlichen Quellen (Forbes, Bloomberg, Unternehmensberichte). Keine Anlageberatung.
-          </p>
+        <footer role="contentinfo" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "28px 16px" }}>
+          <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center" }}>
+            <nav aria-label="Footer-Navigation" style={{ display: "flex", justifyContent: "center", gap: "24px", flexWrap: "wrap", marginBottom: "14px" }}>
+              {[
+                { href: "/", label: "Startseite" },
+                { href: "/suche", label: "Suche" },
+                { href: "/team", label: "Über uns" },
+              ].map((link) => (
+                <Link key={link.href} href={link.href} style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+            <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.25)", lineHeight: 1.6 }}>
+              © {new Date().getFullYear()} Networth Status &nbsp;·&nbsp;
+              <strong style={{ color: "rgba(255,255,255,0.35)" }}>Alle Vermögensangaben sind Schätzungen</strong> basierend auf öffentlichen Quellen. Keine Anlageberatung.
+            </p>
+          </div>
         </footer>
       </div>
     </>

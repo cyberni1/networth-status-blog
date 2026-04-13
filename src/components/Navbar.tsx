@@ -61,6 +61,14 @@ export default function Navbar() {
                 }}
               >{cat.label}</Link>
             ))}
+            <Link href="/team"
+              role="menuitem"
+              style={{
+                padding: "8px 12px", borderRadius: "8px", fontSize: "14px", fontWeight: 500,
+                color: "rgba(255,255,255,0.5)", textDecoration: "none",
+                minHeight: "44px", display: "flex", alignItems: "center",
+              }}
+            >Team</Link>
           </div>
 
           {/* Right side: Search + Auth + Hamburger */}
@@ -168,6 +176,16 @@ export default function Navbar() {
               </svg>
               Suche
             </Link>
+            <Link href="/team"
+              role="menuitem"
+              onClick={() => setMenuOpen(false)}
+              style={{
+                display: "block", padding: "14px 16px", borderRadius: "10px",
+                fontSize: "15px", fontWeight: 500, color: "rgba(255,255,255,0.7)",
+                textDecoration: "none",
+                background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)",
+                minHeight: "48px",
+              }}>👥 Über uns / Team</Link>
           </div>
         )}
       </nav>
