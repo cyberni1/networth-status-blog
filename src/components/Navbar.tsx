@@ -6,6 +6,22 @@ import { useState } from "react";
 import { CATEGORIES } from "@/lib/categories";
 import LogoSVG from "@/components/LogoSVG";
 
+function NavLogo() {
+  const [imgError, setImgError] = useState(false);
+
+  if (imgError) return <LogoSVG height={38} />;
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/api/site-logo"
+      alt="PROMIVERMÖGEN"
+      style={{ height: "38px", width: "auto", objectFit: "contain" }}
+      onError={() => setImgError(true)}
+    />
+  );
+}
+
 export default function Navbar() {
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,7 +49,7 @@ export default function Navbar() {
             aria-label="PROMIVERMÖGEN – Startseite"
             style={{ textDecoration: "none", display: "flex", alignItems: "center", flexShrink: 0 }}
           >
-            <LogoSVG height={38} />
+            <NavLogo />
           </Link>
 
           {/* Desktop: Category links */}

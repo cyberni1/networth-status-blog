@@ -120,3 +120,9 @@ model PostVote {
   @@unique([postId, sessionId])
   @@index([postId])
 }
+
+model SiteSetting {
+  key       String   @id
+  value     String   // base64 for images, text for other settings
+  updatedAt DateTime @updatedAt
+}
