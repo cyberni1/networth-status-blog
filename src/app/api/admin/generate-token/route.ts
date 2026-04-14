@@ -8,8 +8,7 @@ const prisma = new PrismaClient();
  * GET /api/admin/generate-token?secret=<CRON_SECRET>
  * POST /api/admin/generate-token?secret=<CRON_SECRET>
  *
- * ⚠️  WICHTIG: Diesen Endpunkt nur mit korrektem Secret aufrufen
- * Nur für Entwicklung und Testing gedacht!
+ * Generates a new admin token, protected by CRON_SECRET
  */
 export async function GET(req: NextRequest) {
   return generateTokenHandler(req);
@@ -45,8 +44,8 @@ async function generateTokenHandler(req: NextRequest) {
       success: true,
       tokenId: token.id,
       loginUrl: `https://promivermögen.com/api/admin/token-login?token=${plainToken}`,
-      plainToken, // Nur in Entwicklung! ⚠️
-      note: "⚠️  Diesen Token sicher speichern - wird nicht nochmal angezeigt!",
+      plainToken,
+      note: "Diesen Token sicher speichern - wird nicht nochmal angezeigt!",
     });
   } catch (err) {
     console.error("Fehler beim Token-Generieren:", err);
