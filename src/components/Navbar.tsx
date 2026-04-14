@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import { CATEGORIES } from "@/lib/categories";
 import LogoSVG from "@/components/LogoSVG";
@@ -23,7 +22,6 @@ function NavLogo() {
 }
 
 export default function Navbar() {
-  const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -79,7 +77,7 @@ export default function Navbar() {
             >Team</Link>
           </div>
 
-          {/* Right side: Search + Auth + Hamburger */}
+          {/* Right side: Search + Hamburger */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
             {/* Search */}
             <Link
@@ -96,34 +94,6 @@ export default function Navbar() {
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
             </Link>
-
-            {session ? (
-              <>
-                <Link href="/admin" style={{
-                  padding: "8px 14px", borderRadius: "8px", fontSize: "13px", fontWeight: 600,
-                  background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)",
-                  color: "#c084fc", textDecoration: "none", whiteSpace: "nowrap",
-                  minHeight: "44px", display: "flex", alignItems: "center",
-                }}>Admin</Link>
-                <button
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  aria-label="Abmelden"
-                  style={{
-                    padding: "8px 12px", borderRadius: "8px", fontSize: "13px",
-                    background: "transparent", border: "1px solid rgba(255,255,255,0.1)",
-                    color: "rgba(255,255,255,0.5)", cursor: "pointer", whiteSpace: "nowrap",
-                    minHeight: "44px",
-                  }}>Abmelden</button>
-              </>
-            ) : (
-              <Link href="/auth/signin" style={{
-                padding: "8px 18px", borderRadius: "8px", fontSize: "13px", fontWeight: 600,
-                background: "linear-gradient(135deg, #a855f7, #3b82f6)",
-                color: "#fff", textDecoration: "none",
-                boxShadow: "0 4px 15px rgba(168,85,247,0.3)", whiteSpace: "nowrap",
-                minHeight: "44px", display: "flex", alignItems: "center",
-              }}>Anmelden</Link>
-            )}
 
             {/* Hamburger for mobile */}
             <button
