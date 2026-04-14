@@ -4,13 +4,12 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Admin routes: require token-based authentication
-  if (pathname.startsWith("/admin")) {
+  // Admin routes: require authentication (skip login page itself)
+  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
     const adminToken = req.cookies.get("adminToken")?.value;
 
     if (!adminToken) {
-      // Return 404 (don't reveal admin exists)
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.redirect(new URL("/admin/login", req.url));
     }
   }
 
