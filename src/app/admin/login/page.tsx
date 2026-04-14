@@ -38,7 +38,6 @@ export default function AdminLoginPage() {
       background: "#08080f", fontFamily: "system-ui, sans-serif",
     }}>
       <div style={{ width: "100%", maxWidth: "380px", padding: "0 20px" }}>
-        {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
           <div style={{ fontSize: "28px", fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>
             PROMI<span style={{ color: "#a855f7" }}>VERMÖGEN</span>
@@ -48,7 +47,6 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        {/* Card */}
         <form
           onSubmit={handleSubmit}
           style={{
@@ -64,7 +62,7 @@ export default function AdminLoginPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
             autoFocus
             style={{
               width: "100%", boxSizing: "border-box",
