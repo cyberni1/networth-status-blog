@@ -244,7 +244,11 @@ export default function PostEditor({ initialData }: PostEditorProps) {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Unbekannter Fehler");
       update("coverImage", json.url);
-      if (!data.coverImageAlt) update("coverImageAlt", json.alt);
+      // Auto SEO alt-text
+      const year = new Date().getFullYear();
+      const catMap: Record<string, string> = { KUENSTLER: "Künstler", SPORTLER: "Sportler", UNTERNEHMER: "Unternehmer", INFLUENCER: "Influencer" };
+      const seoAlt = `${data.title} Nettovermögen ${year}${catMap[data.category] ? ` – ${catMap[data.category]}` : ""} | PROMIVERMÖGEN`;
+      update("coverImageAlt", seoAlt.substring(0, 120));
     } catch (err) {
       alert("Wikipedia-Fehler: " + (err instanceof Error ? err.message : String(err)));
     } finally {
@@ -258,11 +262,13 @@ export default function PostEditor({ initialData }: PostEditorProps) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("title", data.title);
+      formData.append("slug", data.slug);
+      formData.append("category", data.category);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       if (!res.ok) throw new Error(await res.text());
       const { url, alt } = await res.json();
       update("coverImage", url);
-      if (!data.coverImageAlt) update("coverImageAlt", alt);
+      update("coverImageAlt", alt);
     } catch (err) {
       alert("Upload-Fehler: " + (err instanceof Error ? err.message : String(err)));
     } finally {
@@ -400,13 +406,18 @@ export default function PostEditor({ initialData }: PostEditorProps) {
                   >
                     <X className="w-4 h-4" />
                   </button>
+                  {/* SEO Dateiname */}
+                  <p className="mt-2 text-xs text-white/30 font-mono truncate" title={data.coverImage}>
+                    📄 {data.coverImage.split("/").pop()}
+                  </p>
                   <input
                     type="text"
                     value={data.coverImageAlt}
                     onChange={(e) => update("coverImageAlt", e.target.value)}
-                    placeholder="Alt-Text..."
-                    className="input-glass mt-2 text-sm"
+                    placeholder="Alt-Text (SEO)..."
+                    className="input-glass mt-1 text-sm"
                   />
+                  <p className="mt-1 text-xs text-white/25">Alt-Text wird in Google Bildersuche indexiert</p>
                 </div>
               ) : (
                 <div>

@@ -5,9 +5,9 @@ import { writeFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import path from "path";
 
-// SEO-friendly filename from title
-function toSeoFilename(title: string): string {
-  return title
+// SEO-friendly filename from any string
+function toSeoFilename(input: string): string {
+  return input
     .toLowerCase()
     .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
     .replace(/[^a-z0-9\s-]/g, "")
@@ -15,6 +15,20 @@ function toSeoFilename(title: string): string {
     .replace(/-+/g, "-")
     .trim()
     .substring(0, 60);
+}
+
+// Build SEO-optimised alt text from title + category
+function buildSeoAlt(title: string, category: string): string {
+  const catMap: Record<string, string> = {
+    KUENSTLER: "Künstler",
+    SPORTLER: "Sportler",
+    UNTERNEHMER: "Unternehmer",
+    INFLUENCER: "Influencer",
+  };
+  const cat = catMap[category] ?? "";
+  const year = new Date().getFullYear();
+  // e.g. "Helene Fischer Nettovermögen 2026 – Künstlerin | PROMIVERMÖGEN"
+  return `${title} Nettovermögen ${year}${cat ? ` – ${cat}` : ""} | PROMIVERMÖGEN`.substring(0, 120);
 }
 
 export async function POST(req: Request) {
@@ -27,6 +41,8 @@ export async function POST(req: Request) {
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
   const title = (formData.get("title") as string) || "image";
+  const slug = (formData.get("slug") as string) || "";
+  const category = (formData.get("category") as string) || "";
 
   if (!file) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -43,9 +59,10 @@ export async function POST(req: Request) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const seoName = toSeoFilename(title);
+  // Use slug if available (already SEO-perfect), otherwise derive from title
+  const seoBase = slug ? slug.substring(0, 60) : toSeoFilename(title);
   const uniqueSuffix = Date.now().toString(36);
-  const filename = `${seoName}-${uniqueSuffix}.webp`;
+  const filename = `${seoBase}-${uniqueSuffix}.webp`;
 
   const uploadDir = path.join(process.cwd(), "public", "uploads");
   if (!existsSync(uploadDir)) {
@@ -61,7 +78,7 @@ export async function POST(req: Request) {
     .toFile(filePath);
 
   const url = `/uploads/${filename}`;
-  const alt = title || seoName.replace(/-/g, " ");
+  const alt = buildSeoAlt(title, category);
 
   return NextResponse.json({ url, alt });
 }
