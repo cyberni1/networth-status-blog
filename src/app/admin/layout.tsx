@@ -1,12 +1,8 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LayoutDashboard, FileText, PlusCircle, TrendingUp, LogOut } from "lucide-react";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
-  // Note: Admin access now supports both NextAuth session AND token-based auth
-  // Middleware handles token validation, so no redirect needed here
+  // Token-based auth: Middleware handles token validation
 
   const navItems = [
     { href: "/admin", icon: "📊", label: "Dashboard" },
@@ -47,9 +43,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
             {/* User */}
             <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-              {session?.user?.image && (
-                <img src={session.user.image} alt="" style={{ width: "28px", height: "28px", borderRadius: "50%" }} />
-              )}
               <form action="/api/admin/logout" method="POST" style={{ margin: 0 }}>
                 <button type="submit" style={{
                   padding: "6px 12px", borderRadius: "8px", fontSize: "12px",

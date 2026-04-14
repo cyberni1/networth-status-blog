@@ -1,5 +1,5 @@
-import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { PrismaClient } from "@prisma/client";
 import sharp from "sharp";
 
@@ -25,8 +25,9 @@ export async function GET() {
 
 // POST: Logo hochladen (nur Admin)
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.email) {
+  const cookieStore = await cookies();
+  const adminToken = cookieStore.get("adminToken")?.value;
+  if (!adminToken) {
     return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 });
   }
 

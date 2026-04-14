@@ -1,5 +1,5 @@
-import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -12,8 +12,9 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.email) {
+  const cookieStore = await cookies();
+  const adminToken = cookieStore.get("adminToken")?.value;
+  if (!adminToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

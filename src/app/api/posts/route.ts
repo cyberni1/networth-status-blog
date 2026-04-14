@@ -1,24 +1,26 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { Category, PostStatus } from "@prisma/client";
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.email) {
+  const cookieStore = await cookies();
+  const adminToken = cookieStore.get("adminToken")?.value;
+  if (!adminToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json();
 
   // Get or create the user record
-  let user = await prisma.user.findUnique({ where: { email: session.user.email } });
+  const email = "admin@promivermögen.com";
+  let user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     user = await prisma.user.create({
       data: {
-        email: session.user.email,
-        name: session.user.name ?? null,
-        image: session.user.image ?? null,
+        email,
+        name: "Admin",
+        image: null,
         role: "ADMIN",
       },
     });

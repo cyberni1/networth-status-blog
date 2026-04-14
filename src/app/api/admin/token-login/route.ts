@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { verifyToken, extractTokenFromPath } from "@/lib/admin-auth";
+import { hashToken, extractTokenFromPath } from "@/lib/admin-auth";
 import { cookies } from "next/headers";
 
 const prisma = new PrismaClient();
@@ -8,25 +8,36 @@ const prisma = new PrismaClient();
 /**
  * GET /api/admin/token-login?token=<token>
  * or from calling middleware with path: /admin/secret-<token>
+ *
+ * FIX: Hashes the plaintext token from URL before DB lookup
+ * because tokens are stored as SHA-256 hashes in the database
  */
 export async function GET(req: NextRequest) {
-  const token = req.nextUrl.searchParams.get("token");
+  const plainToken = req.nextUrl.searchParams.get("token");
 
-  if (!token) {
+  if (!plainToken) {
     return NextResponse.json({ error: "Token erforderlich" }, { status: 400 });
   }
 
+  // Hash the plaintext token before searching the database
+  const hashedToken = hashToken(plainToken);
+
   const adminToken = await prisma.adminToken.findUnique({
-    where: { token: token },
+    where: { token: hashedToken },
   });
 
   if (!adminToken || !adminToken.active) {
     return NextResponse.json({ error: "Token ungültig oder inaktiv" }, { status: 401 });
   }
 
-  // Token ist gültig — Cookie setzen
+  // Check if token has expired
+  if (adminToken.expiresAt && adminToken.expiresAt < new Date()) {
+    return NextResponse.json({ error: "Token ist abgelaufen" }, { status: 401 });
+  }
+
+  // Token ist gültig — Cookie setzen (speichere den plaintext token im Cookie)
   const cookieStore = await cookies();
-  cookieStore.set("adminToken", token, {
+  cookieStore.set("adminToken", plainToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
@@ -36,7 +47,7 @@ export async function GET(req: NextRequest) {
 
   // Update lastUsedAt
   await prisma.adminToken.update({
-    where: { token },
+    where: { token: hashedToken },
     data: { lastUsedAt: new Date() },
   });
 

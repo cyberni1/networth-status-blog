@@ -1,12 +1,10 @@
 export const dynamic = "force-dynamic";
 
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { FileText, Eye, PlusCircle, TrendingUp, Users } from "lucide-react";
 
 export default async function AdminDashboard() {
-  const session = await auth();
 
   const [totalPosts, publishedPosts, draftPosts, recentPosts] = await Promise.all([
     prisma.post.count(),
@@ -37,7 +35,7 @@ export default async function AdminDashboard() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-          <p className="text-white/50 text-sm mt-1">Willkommen zurück, {session?.user?.name?.split(" ")[0]}</p>
+          <p className="text-white/50 text-sm mt-1">Willkommen zurück</p>
         </div>
         <Link href="/admin/posts/new" className="btn-primary">
           <PlusCircle className="w-4 h-4" />

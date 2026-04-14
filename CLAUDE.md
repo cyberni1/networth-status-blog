@@ -12,12 +12,10 @@
 - Branch für Deployment: `main`
 
 ## Vercel Env Vars — alle eingetragen ✅
-- `AUTH_SECRET` ✅
-- `GOOGLE_CLIENT_ID` ✅
-- `GOOGLE_CLIENT_SECRET` ✅
 - `DATABASE_URL` ✅ (Neon PostgreSQL Pooled)
 - `DIRECT_URL` ✅ (Neon PostgreSQL Direct)
 - `ANTHROPIC_API_KEY` ✅
+- `CRON_SECRET` ✅ (für Auto-Publish Cron Job)
 
 ## Datenbank
 - Provider: Neon PostgreSQL (neon.tech)
@@ -25,14 +23,16 @@
 - Region: EU Central (Frankfurt)
 - Schema: via `prisma db push` — läuft automatisch beim Vercel-Build
 
-## Google OAuth
-- Client-Typ: Web Application
-- Autorisierte Redirect-URI: https://networth-status-blog.vercel.app/api/auth/callback/google
-- Test-User bereits hinzugefügt
+## Admin-Authentifizierung
+- **Typ:** URL-basierte Token-Authentifizierung (kein Google OAuth)
+- **Login:** `https://promivermögen.com/api/admin/token-login?token=<secure-token>`
+- **Token-Generierung:** `node scripts/generate-admin-token.js`
+- **Storage:** Token wird SHA-256 gehashed und in Prisma AdminToken Model gespeichert
+- **Session:** HTTP-only Cookie (7 Tage Gültigkeit)
 
 ## Tech Stack
 - Next.js 16.2.3 (App Router)
-- next-auth v5 (JWT-Strategie, kein Datenbankadapter)
+- Token-basierte Auth (kein NextAuth mehr)
 - Prisma + PostgreSQL (Neon)
 - TipTap Rich Text Editor
 - Sharp für Bildoptimierung (→ WebP)

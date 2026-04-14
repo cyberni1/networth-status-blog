@@ -1,6 +1,6 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { Category, PostStatus } from "@prisma/client";
 
 interface RouteParams {
@@ -8,8 +8,9 @@ interface RouteParams {
 }
 
 export async function PUT(req: Request, { params }: RouteParams) {
-  const session = await auth();
-  if (!session?.user?.email) {
+  const cookieStore = await cookies();
+  const adminToken = cookieStore.get("adminToken")?.value;
+  if (!adminToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -44,8 +45,9 @@ export async function PUT(req: Request, { params }: RouteParams) {
 }
 
 export async function DELETE(req: Request, { params }: RouteParams) {
-  const session = await auth();
-  if (!session?.user?.email) {
+  const cookieStore = await cookies();
+  const adminToken = cookieStore.get("adminToken")?.value;
+  if (!adminToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

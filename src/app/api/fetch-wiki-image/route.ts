@@ -1,13 +1,14 @@
-import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import sharp from "sharp";
 import { writeFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import path from "path";
 
 export async function GET(req: Request) {
-  const session = await auth();
-  if (!session?.user?.email) {
+  const cookieStore = await cookies();
+  const adminToken = cookieStore.get("adminToken")?.value;
+  if (!adminToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
