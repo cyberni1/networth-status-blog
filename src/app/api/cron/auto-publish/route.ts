@@ -69,6 +69,11 @@ Antworte NUR mit einem JSON-Array, kein Markdown:
 }
 
 // ─── Schritt 2: Vollständigen Artikel generieren ──────────────────────────────
+function extractTag(text: string, tag: string): string {
+  const match = text.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`));
+  return match ? match[1].trim() : "";
+}
+
 async function generateArticle(topic: CelebrityTopic): Promise<GeneratedArticle> {
   if (!process.env.ANTHROPIC_API_KEY) {
     throw new Error("ANTHROPIC_API_KEY not set");
@@ -115,31 +120,36 @@ Artikel-Anforderungen:
 Nutze diese inline styles für die Zusammenfassungs-Box:
 style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.25);border-radius:14px;padding:20px 24px;margin-bottom:32px"
 
-Antworte NUR mit einem JSON-Objekt:
-{
-  "title": "SEO-Titel mit Namen und Vermögen ${year}",
-  "content": "Vollständiger HTML-Inhalt",
-  "excerpt": "2-3 Sätze Zusammenfassung für SEO",
-  "metaTitle": "Meta-Title max 60 Zeichen",
-  "metaDescription": "Meta-Description 150-160 Zeichen",
-  "keywords": "keyword1, keyword2, keyword3, keyword4, keyword5",
-  "faq": [
-    {"question": "Frage 1?", "answer": "Antwort 1"},
-    {"question": "Frage 2?", "answer": "Antwort 2"},
-    {"question": "Frage 3?", "answer": "Antwort 3"},
-    {"question": "Frage 4?", "answer": "Antwort 4"},
-    {"question": "Frage 5?", "answer": "Antwort 5"}
-  ]
-}`,
+Antworte GENAU in diesem Format mit XML-Tags (kein JSON, kein Markdown):
+<title>SEO-Titel mit Namen und Vermögen ${year}</title>
+<content>Vollständiger HTML-Inhalt hier</content>
+<excerpt>2-3 Sätze Zusammenfassung für SEO</excerpt>
+<metaTitle>Meta-Title max 60 Zeichen</metaTitle>
+<metaDescription>Meta-Description 150-160 Zeichen</metaDescription>
+<keywords>keyword1, keyword2, keyword3, keyword4, keyword5</keywords>
+<faq>[{"question":"Frage 1?","answer":"Antwort 1"},{"question":"Frage 2?","answer":"Antwort 2"},{"question":"Frage 3?","answer":"Antwort 3"},{"question":"Frage 4?","answer":"Antwort 4"},{"question":"Frage 5?","answer":"Antwort 5"}]</faq>`,
       },
     ],
   });
 
-  const raw = msg.content[0].type === "text" ? msg.content[0].text : "{}";
-  const match = raw.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error(`Kein JSON für ${topic.name}`);
+  const raw = msg.content[0].type === "text" ? msg.content[0].text : "";
 
-  const parsed = JSON.parse(match[0]);
+  const title = extractTag(raw, "title");
+  const content = extractTag(raw, "content");
+  const excerpt = extractTag(raw, "excerpt");
+  const metaTitle = extractTag(raw, "metaTitle");
+  const metaDescription = extractTag(raw, "metaDescription");
+  const keywords = extractTag(raw, "keywords");
+  const faqRaw = extractTag(raw, "faq");
+
+  if (!title || !content) throw new Error(`Ungültige Antwort für ${topic.name}`);
+
+  let faq = "[]";
+  try {
+    faq = JSON.stringify(JSON.parse(faqRaw));
+  } catch {
+    faq = "[]";
+  }
 
   const wealthData = {
     netWorth: topic.netWorthMio,
@@ -161,9 +171,14 @@ Antworte NUR mit einem JSON-Objekt:
   };
 
   return {
-    ...parsed,
+    title,
+    content,
+    excerpt,
+    metaTitle,
+    metaDescription,
+    keywords,
+    faq,
     wealthData: JSON.stringify(wealthData),
-    faq: JSON.stringify(parsed.faq ?? []),
     category: topic.category,
     slug: `${slugify(topic.nameSlug)}-vermoegen-${year}`,
   };
