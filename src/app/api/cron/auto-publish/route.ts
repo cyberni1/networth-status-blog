@@ -11,7 +11,6 @@ import { PrismaClient } from "@prisma/client";
 export const maxDuration = 300; // 5 Minuten Timeout (Vercel Pro)
 
 const prisma = new PrismaClient();
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const today = () => new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" });
 
@@ -27,6 +26,11 @@ function slugify(name: string): string {
 async function getTrendingCelebrities(existingSlugs: string[]): Promise<CelebrityTopic[]> {
   const existingNames = existingSlugs.map((s) => s.replace(/-vermoegen-\d{4}$/, "").replace(/-/g, " "));
 
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY not set");
+  }
+
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const msg = await anthropic.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 1024,
@@ -66,6 +70,12 @@ Antworte NUR mit einem JSON-Array, kein Markdown:
 
 // ─── Schritt 2: Vollständigen Artikel generieren ──────────────────────────────
 async function generateArticle(topic: CelebrityTopic): Promise<GeneratedArticle> {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY not set");
+  }
+
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
   const catLabels: Record<string, string> = {
     KUENSTLER: "Künstler/in",
     SPORTLER: "Sportler/in",
