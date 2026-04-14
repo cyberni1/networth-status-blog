@@ -18,7 +18,7 @@ const team = [
     gradient: "linear-gradient(135deg, #f5c842, #a855f7)",
   },
   {
-    name: "Elena „Leni" Novak",
+    name: 'Elena "Leni" Novak',
     role: "Chefredakteurin",
     emoji: "✍️",
     photo: "/team/leni.jpg",
@@ -34,11 +34,11 @@ const team = [
     gradient: "linear-gradient(135deg, #3b82f6, #06b6d4)",
   },
   {
-    name: "Tatjana „Tati" Müller",
+    name: 'Tatjana "Tati" Müller',
     role: "Head of Digital Trends",
     emoji: "📱",
     photo: null,
-    bio: "Tati ist unsere Expertin für die digitale Währung der Moderne: Aufmerksamkeit. Sie analysiert den „Social Status" und versteht wie keine andere, wie Reichweite heute in echten Wert verwandelt wird. Sie verbindet unsere Plattform mit den globalen Communities und macht den Erfolg der Stars in Echtzeit erlebbar.",
+    bio: 'Tati ist unsere Expertin für die digitale Währung der Moderne: Aufmerksamkeit. Sie analysiert den "Social Status" und versteht wie keine andere, wie Reichweite heute in echten Wert verwandelt wird. Sie verbindet unsere Plattform mit den globalen Communities und macht den Erfolg der Stars in Echtzeit erlebbar.',
     gradient: "linear-gradient(135deg, #f97316, #f59e0b)",
   },
   {
