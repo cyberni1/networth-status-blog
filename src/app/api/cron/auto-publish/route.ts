@@ -214,10 +214,15 @@ async function saveArticle(article: GeneratedArticle, authorId: string): Promise
 
 // ─── Haupt-Handler ─────────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
-  // Autorisierung prüfen
+  // Autorisierung prüfen: Authorization Header ODER ?secret= Query-Param
   const auth = req.headers.get("authorization");
+  const secretParam = req.nextUrl.searchParams.get("secret");
   const secret = process.env.CRON_SECRET;
-  if (!secret || auth !== `Bearer ${secret}`) {
+  const isAuthorized =
+    secret &&
+    (auth === `Bearer ${secret}` || secretParam === secret);
+
+  if (!isAuthorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -229,7 +234,7 @@ export async function GET(req: NextRequest) {
     let admin = await prisma.user.findFirst({ where: { role: "ADMIN" } });
     if (!admin) {
       admin = await prisma.user.create({
-        data: { email: "admin@promivermögen.com", name: "PROMIVERMÖGEN", role: "ADMIN" },
+        data: { email: "admin@promivermogen.com", name: "PROMIVERMÖGEN", role: "ADMIN" },
       });
     }
 
@@ -240,14 +245,18 @@ export async function GET(req: NextRequest) {
     // 3 Trending-Themen von Claude holen
     const topics = await getTrendingCelebrities(existingSlugs);
 
-    // Artikel parallel generieren
-    const articlePromises = topics.map((topic) =>
-      generateArticle(topic).catch((err) => {
-        errors.push(`${topic.name}: ${err.message}`);
-        return null;
-      })
-    );
-    const articles = await Promise.all(articlePromises);
+    // Artikel SEQUENZIELL generieren (verhindert Timeout bei parallelen Requests)
+    const articles: (GeneratedArticle | null)[] = [];
+    for (const topic of topics) {
+      try {
+        const article = await generateArticle(topic);
+        articles.push(article);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        errors.push(`${topic.name}: ${msg}`);
+        articles.push(null);
+      }
+    }
 
     // Artikel in DB speichern
     for (const article of articles) {
