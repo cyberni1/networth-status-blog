@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   const cookieStore = await cookies();
   cookieStore.delete("adminToken");
 
-  return NextResponse.redirect(new URL("/", "https://promivermögen.com"), { status: 302 });
+  return NextResponse.redirect(new URL("/", req.url), { status: 302 });
 }
