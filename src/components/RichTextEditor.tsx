@@ -196,7 +196,7 @@ export default function RichTextEditor({ content, onChange, placeholder = "Schre
 
         <div className="w-px h-5 bg-white/10 mx-0.5" />
 
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} title="Aufz\u00e4hlung">
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")} title="Aufzählung">
           <List className="w-4 h-4" />
         </ToolbarBtn>
         <ToolbarBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} title="Nummerierte Liste">
@@ -217,13 +217,13 @@ export default function RichTextEditor({ content, onChange, placeholder = "Schre
         <ToolbarBtn onClick={addLink} active={editor.isActive("link")} title="Link">
           <Link2 className="w-4 h-4" />
         </ToolbarBtn>
-        <ToolbarBtn onClick={addImage} active={false} title="Bild einf\u00fcgen">
+        <ToolbarBtn onClick={addImage} active={false} title="Bild einfügen">
           <ImageIcon className="w-4 h-4" />
         </ToolbarBtn>
 
         <div className="w-px h-5 bg-white/10 mx-0.5" />
 
-        <ToolbarBtn onClick={() => editor.chain().focus().undo().run()} active={false} title="R\u00fckg\u00e4ngig">
+        <ToolbarBtn onClick={() => editor.chain().focus().undo().run()} active={false} title="Rückgängig">
           <Undo className="w-4 h-4" />
         </ToolbarBtn>
         <ToolbarBtn onClick={() => editor.chain().focus().redo().run()} active={false} title="Wiederholen">

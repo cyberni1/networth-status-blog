@@ -17,7 +17,7 @@ export default async function AdminPostsPage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Alle Beitr\u00e4ge</h1>
+          <h1 className="text-2xl font-bold text-white">Alle Beiträge</h1>
           <p className="text-white/50 text-sm mt-1">{posts.length} Beitrag{posts.length !== 1 ? "e" : ""} insgesamt</p>
         </div>
         <Link href="/admin/posts/new" className="btn-primary">
@@ -29,7 +29,7 @@ export default async function AdminPostsPage() {
       {posts.length === 0 ? (
         <div className="glass-card p-16 text-center">
           <FileText className="w-16 h-16 text-white/20 mx-auto mb-4" />
-          <p className="text-white/40 text-lg mb-6">Noch keine Beitr\u00e4ge vorhanden</p>
+          <p className="text-white/40 text-lg mb-6">Noch keine Beiträge vorhanden</p>
           <Link href="/admin/posts/new" className="btn-primary">
             <PlusCircle className="w-4 h-4" />
             Ersten Beitrag erstellen
@@ -72,7 +72,7 @@ export default async function AdminPostsPage() {
                         <span className={`w-1.5 h-1.5 rounded-full ${
                           post.status === "PUBLISHED" ? "bg-green-400" : "bg-yellow-400"
                         }`} />
-                        {post.status === "PUBLISHED" ? "Ver\u00f6ffentlicht" : "Entwurf"}
+                        {post.status === "PUBLISHED" ? "Veröffentlicht" : "Entwurf"}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-white/40">
