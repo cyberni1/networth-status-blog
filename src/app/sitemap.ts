@@ -18,7 +18,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: SITE_URL,
       lastModified: new Date(),
       changeFrequency: "daily",
-      priority: 1,
+      priority: 1.0,
+    },
+    {
+      url: `${SITE_URL}/suche`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/team`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
     },
     ...Object.values(CATEGORIES).map((cat) => ({
       url: `${SITE_URL}/?kategorie=${cat.slug}`,
@@ -32,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${SITE_URL}/${post.slug}`,
     lastModified: post.updatedAt,
     changeFrequency: "weekly" as const,
-    priority: 0.7,
+    priority: 0.9, // Articles are highest priority after homepage
   }));
 
   return [...staticPages, ...postPages];

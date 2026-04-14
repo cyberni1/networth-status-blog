@@ -2,30 +2,39 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 
+const SITE_URL = "https://networth-status-blog.vercel.app";
+
 export const metadata: Metadata = {
   title: {
     default: "Networth Status – Das Vermögen der Reichen & Berühmten",
     template: "%s | Networth Status",
   },
   description:
-    "Entdecke das Nettovermögen von Künstlern, Sportlern, Unternehmern und Influencern. Aktuelle Zahlen, Hintergründe und Analysen.",
-  keywords: ["Nettovermögen", "Prominente", "Reiche", "Berühmte", "Künstler", "Sportler", "Unternehmer", "Influencer"],
-  authors: [{ name: "Networth Status" }],
+    "Entdecke das aktuelle Nettovermögen deiner Lieblingsstars. Alle Zahlen zu Künstlern, Sportlern, Unternehmern & Influencern – fundiert, aktuell und auf Deutsch.",
+  keywords: [
+    "Nettovermögen", "Net Worth", "Promi Vermögen", "Gehalt Stars",
+    "Wie reich ist", "Reichste Menschen", "Milliardäre", "Prominente Vermögen",
+    "Künstler Nettovermögen", "Sportler Gehalt", "Unternehmer Vermögen",
+    "Influencer Einkommen", "Forbes Liste Deutschland", "Bloomberg Milliardäre",
+  ],
+  authors: [{ name: "Networth Status Redaktion" }],
   creator: "Networth Status",
+  publisher: "Networth Status",
+  alternates: { canonical: SITE_URL },
   openGraph: {
     type: "website",
     locale: "de_DE",
-    url: "https://networth-status-blog.vercel.app",
+    url: SITE_URL,
     siteName: "Networth Status",
     title: "Networth Status – Das Vermögen der Reichen & Berühmten",
     description:
-      "Entdecke das Nettovermögen von Künstlern, Sportlern, Unternehmern und Influencern.",
+      "Entdecke das aktuelle Nettovermögen deiner Lieblingsstars. Fundierte Analysen zu Künstlern, Sportlern, Unternehmern & Influencern.",
     images: [
       {
-        url: "/og-image.png",
+        url: `${SITE_URL}/api/og?title=Networth+Status&category=UNTERNEHMER`,
         width: 1200,
         height: 630,
-        alt: "Networth Status",
+        alt: "Networth Status – Das Vermögen der Reichen & Berühmten",
       },
     ],
   },
@@ -33,8 +42,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Networth Status – Das Vermögen der Reichen & Berühmten",
     description:
-      "Entdecke das Nettovermögen von Künstlern, Sportlern, Unternehmern und Influencern.",
-    images: ["/og-image.png"],
+      "Entdecke das aktuelle Nettovermögen deiner Lieblingsstars. Fundierte Analysen zu Künstlern, Sportlern, Unternehmern & Influencern.",
+    images: [`${SITE_URL}/api/og?title=Networth+Status&category=UNTERNEHMER`],
   },
   robots: {
     index: true,
@@ -46,6 +55,9 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
+  },
+  verification: {
+    google: undefined, // Add Google Search Console verification ID here when available
   },
 };
 
