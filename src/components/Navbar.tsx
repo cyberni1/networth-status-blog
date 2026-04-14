@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import { CATEGORIES } from "@/lib/categories";
+import LogoSVG from "@/components/LogoSVG";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -33,24 +33,7 @@ export default function Navbar() {
             aria-label="PROMIVERMÖGEN – Startseite"
             style={{ textDecoration: "none", display: "flex", alignItems: "center", flexShrink: 0 }}
           >
-            <div style={{
-              background: "#fff",
-              borderRadius: "10px",
-              padding: "3px 10px",
-              display: "flex",
-              alignItems: "center",
-              height: "42px",
-              boxShadow: "0 2px 12px rgba(245,200,66,0.25)",
-            }}>
-              <Image
-                src="/logo.png"
-                alt="PROMIVERMÖGEN"
-                width={150}
-                height={36}
-                style={{ objectFit: "contain", height: "36px", width: "auto" }}
-                priority
-              />
-            </div>
+            <LogoSVG height={38} />
           </Link>
 
           {/* Desktop: Category links */}
