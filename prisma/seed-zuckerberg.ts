@@ -12,17 +12,17 @@ const CONTENT = `
 <div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.25);border-radius:14px;padding:20px 24px;margin-bottom:32px">
   <p style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#fde047;text-transform:uppercase;margin-bottom:12px">⚡ In 5 Sekunden: Das Wichtigste</p>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px">
-    <li style="font-size:15px;color:rgba(255,255,255,0.85)"><strong style="color:#fff">Gesamtvermögen:</strong> $221 Mrd. (Stand: April 2025)</li>
+    <li style="font-size:15px;color:rgba(255,255,255,0.85)"><strong style="color:#fff">Gesamtvermögen:</strong> $221 Mrd. (Stand: April 2026)</li>
     <li style="font-size:15px;color:rgba(255,255,255,0.85)"><strong style="color:#fff">Rang weltweit:</strong> #3 (hinter Bernard Arnault &amp; Jeff Bezos)</li>
     <li style="font-size:15px;color:rgba(255,255,255,0.85)"><strong style="color:#fff">Hauptquelle:</strong> 85% Meta-Aktien (ca. 13% des Unternehmens)</li>
-    <li style="font-size:15px;color:rgba(255,255,255,0.85)"><strong style="color:#fff">Veränderung 2024–2025:</strong> <span style="color:#4ade80">▲ +$23,7 Mrd. (+12%)</span></li>
+    <li style="font-size:15px;color:rgba(255,255,255,0.85)"><strong style="color:#fff">Veränderung 2025–2026:</strong> <span style="color:#4ade80">▲ +$23,7 Mrd. (+12%)</span></li>
     <li style="font-size:15px;color:rgba(255,255,255,0.85)"><strong style="color:#fff">Täglicher Verdienst (geschätzt):</strong> ca. $65 Mio.</li>
   </ul>
 </div>
 
 <h2>Wie ist Mark Zuckerberg so reich geworden?</h2>
 
-<p>Mark Zuckerberg, der Gründer und CEO von Meta (ehemals Facebook), gehört seit über einem Jahrzehnt zu den reichsten Menschen der Welt. Mit einem geschätzten Vermögen von <strong>$221 Mrd.</strong> (April 2025) belegt er laut Forbes den dritten Platz – hinter Bernard Arnault (LVMH) und Jeff Bezos. Im Vergleich zum Vorjahr konnte Zuckerberg sein Net Worth um über <strong style="color:#4ade80">$23 Mrd.</strong> steigern, getrieben durch die starke Erholung der Meta-Aktie und milliardenschwere KI-Investitionen.</p>
+<p>Mark Zuckerberg, der Gründer und CEO von Meta (ehemals Facebook), gehört seit über einem Jahrzehnt zu den reichsten Menschen der Welt. Mit einem geschätzten Vermögen von <strong>$221 Mrd.</strong> (April 2026) belegt er laut Forbes den dritten Platz – hinter Bernard Arnault (LVMH) und Jeff Bezos. Im Vergleich zum Vorjahr konnte Zuckerberg sein Net Worth um über <strong style="color:#4ade80">$23 Mrd.</strong> steigern, getrieben durch die starke Erholung der Meta-Aktie und milliardenschwere KI-Investitionen.</p>
 
 <p>Anders als viele andere Tech-Milliardäre ist sein Vermögen extrem konzentriert: Rund <strong>85% stecken in Meta-Aktien</strong>. Dieser Artikel analysiert seine Einnahmequellen, größten Assets, Kontroversen und warum er „nur" 1% seines Vermögens spendet – anders als Gates oder Buffett.</p>
 
@@ -36,7 +36,7 @@ const CONTENT = `
 
 <div style="background:rgba(168,85,247,0.06);border-left:3px solid #a855f7;padding:14px 18px;border-radius:0 10px 10px 0;margin:24px 0">
   <p style="font-size:12px;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">📊 Konfidenz-Rating: Hoch gesichert</p>
-  <p style="font-size:14px;color:rgba(255,255,255,0.6);margin:0">Basiert auf SEC-Filings, Forbes Real-Time Billionaires Index und Bloomberg Billionaires Index (April 2025).</p>
+  <p style="font-size:14px;color:rgba(255,255,255,0.6);margin:0">Basiert auf SEC-Filings, Forbes Real-Time Billionaires Index und Bloomberg Billionaires Index (April 2026).</p>
 </div>
 
 <h2>Die größten Assets von Mark Zuckerberg</h2>
@@ -130,9 +130,9 @@ const CONTENT = `
 <h2>Quellen &amp; Verweise</h2>
 
 <ul>
-  <li>Forbes Real-Time Billionaires Index (April 2025)</li>
-  <li>Bloomberg Billionaires Index (April 2025)</li>
-  <li>SEC-Filings, Meta Platforms Inc. (2024–2025)</li>
+  <li>Forbes Real-Time Billionaires Index (April 2026)</li>
+  <li>Bloomberg Billionaires Index (April 2026)</li>
+  <li>SEC-Filings, Meta Platforms Inc. (2025–2026)</li>
   <li>The Land Report – Immobilienkäufe Zuckerberg</li>
 </ul>
 
@@ -145,7 +145,7 @@ const CONTENT = `
 const FAQ = JSON.stringify([
   {
     question: "Wie reich ist Mark Zuckerberg genau?",
-    answer: "$221 Mrd. (April 2025) – die exakte Zahl schwankt täglich mit dem Meta-Aktienkurs. Bei einem 10%-Einbruch verliert er auf dem Papier über $20 Mrd. innerhalb eines Tages.",
+    answer: "$221 Mrd. (April 2026) – die exakte Zahl schwankt täglich mit dem Meta-Aktienkurs. Bei einem 10%-Einbruch verliert er auf dem Papier über $20 Mrd. innerhalb eines Tages.",
   },
   {
     question: "Besitzt Mark Zuckerberg mehr als Elon Musk?",
@@ -209,12 +209,12 @@ async function main() {
     await prisma.post.update({
       where: { slug: "mark-zuckerberg-vermoegen-2025" },
       data: {
-        title: "Das Vermögen von Mark Zuckerberg 2025: Aktuelle Schätzung, Quelle, Entwicklung",
+        title: "Das Vermögen von Mark Zuckerberg 2026: Aktuelle Schätzung, Quelle, Entwicklung",
         content: CONTENT,
-        excerpt: "Mark Zuckerbergs Vermögen 2025: $221 Mrd. Wie reich ist der Meta-Gründer wirklich? Alle Fakten zu Einkommensquellen, Assets, Kontroversen und dem Vergleich mit Musk & Bezos.",
-        metaTitle: "Mark Zuckerberg Vermögen 2025: $221 Mrd. – Aktuelle Schätzung",
-        metaDescription: "Mark Zuckerbergs Vermögen 2025: Aktuelle Schätzung $221 Mrd. Wie reich ist der Meta-Gründer wirklich? Quelle, Entwicklung, Vergleich zu Musk & Bezos.",
-        keywords: "Mark Zuckerberg Vermögen, Mark Zuckerberg Nettovermögen, wie reich ist Zuckerberg, Zuckerberg 2025, Meta Gründer Vermögen, Zuckerberg Aktien, Zuckerberg Immobilien, reichste Tech-Milliardäre",
+        excerpt: "Mark Zuckerbergs Vermögen 2026: $221 Mrd. Wie reich ist der Meta-Gründer wirklich? Alle Fakten zu Einkommensquellen, Assets, Kontroversen und dem Vergleich mit Musk & Bezos.",
+        metaTitle: "Mark Zuckerberg Vermögen 2026: $221 Mrd. – Aktuelle Schätzung",
+        metaDescription: "Mark Zuckerbergs Vermögen 2026: Aktuelle Schätzung $221 Mrd. Wie reich ist der Meta-Gründer wirklich? Quelle, Entwicklung, Vergleich zu Musk & Bezos.",
+        keywords: "Mark Zuckerberg Vermögen, Mark Zuckerberg Nettovermögen, wie reich ist Zuckerberg, Zuckerberg 2026, Meta Gründer Vermögen, Zuckerberg Aktien, Zuckerberg Immobilien, reichste Tech-Milliardäre",
         tags: ["mark-zuckerberg", "meta", "tech-milliardaere", "facebook", "nettovermögen"],
         faq: FAQ,
         wealthData: WEALTH_DATA,
@@ -225,13 +225,13 @@ async function main() {
   } else {
     await prisma.post.create({
       data: {
-        title: "Das Vermögen von Mark Zuckerberg 2025: Aktuelle Schätzung, Quelle, Entwicklung",
+        title: "Das Vermögen von Mark Zuckerberg 2026: Aktuelle Schätzung, Quelle, Entwicklung",
         slug: "mark-zuckerberg-vermoegen-2025",
         content: CONTENT,
-        excerpt: "Mark Zuckerbergs Vermögen 2025: $221 Mrd. Wie reich ist der Meta-Gründer wirklich? Alle Fakten zu Einkommensquellen, Assets, Kontroversen und dem Vergleich mit Musk & Bezos.",
-        metaTitle: "Mark Zuckerberg Vermögen 2025: $221 Mrd. – Aktuelle Schätzung",
-        metaDescription: "Mark Zuckerbergs Vermögen 2025: Aktuelle Schätzung $221 Mrd. Wie reich ist der Meta-Gründer wirklich? Quelle, Entwicklung, Vergleich zu Musk & Bezos.",
-        keywords: "Mark Zuckerberg Vermögen, Mark Zuckerberg Nettovermögen, wie reich ist Zuckerberg, Zuckerberg 2025, Meta Gründer Vermögen, Zuckerberg Aktien, Zuckerberg Immobilien, reichste Tech-Milliardäre",
+        excerpt: "Mark Zuckerbergs Vermögen 2026: $221 Mrd. Wie reich ist der Meta-Gründer wirklich? Alle Fakten zu Einkommensquellen, Assets, Kontroversen und dem Vergleich mit Musk & Bezos.",
+        metaTitle: "Mark Zuckerberg Vermögen 2026: $221 Mrd. – Aktuelle Schätzung",
+        metaDescription: "Mark Zuckerbergs Vermögen 2026: Aktuelle Schätzung $221 Mrd. Wie reich ist der Meta-Gründer wirklich? Quelle, Entwicklung, Vergleich zu Musk & Bezos.",
+        keywords: "Mark Zuckerberg Vermögen, Mark Zuckerberg Nettovermögen, wie reich ist Zuckerberg, Zuckerberg 2026, Meta Gründer Vermögen, Zuckerberg Aktien, Zuckerberg Immobilien, reichste Tech-Milliardäre",
         tags: ["mark-zuckerberg", "meta", "tech-milliardaere", "facebook", "nettovermögen"],
         category: "UNTERNEHMER",
         faq: FAQ,
