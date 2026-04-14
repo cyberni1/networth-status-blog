@@ -71,6 +71,8 @@ export default function PostEditor({ initialData }: PostEditorProps) {
   const [articlePrompt, setArticlePrompt] = useState("");
   const [showArticleModal, setShowArticleModal] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [wikiSearch, setWikiSearch] = useState("");
+  const [wikiFetching, setWikiFetching] = useState(false);
   const [activeTab, setActiveTab] = useState<"content" | "seo" | "faq" | "wealth" | "settings">("content");
   const [tagInput, setTagInput] = useState("");
 
@@ -230,6 +232,23 @@ export default function PostEditor({ initialData }: PostEditorProps) {
       alert("KI-Fehler: " + (err instanceof Error ? err.message : String(err)));
     } finally {
       setGenerating(false);
+    }
+  }
+
+  async function fetchWikiImage() {
+    const name = wikiSearch.trim() || data.title.trim();
+    if (!name) return alert("Bitte einen Namen eingeben.");
+    setWikiFetching(true);
+    try {
+      const res = await fetch(`/api/fetch-wiki-image?name=${encodeURIComponent(name)}`);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Unbekannter Fehler");
+      update("coverImage", json.url);
+      if (!data.coverImageAlt) update("coverImageAlt", json.alt);
+    } catch (err) {
+      alert("Wikipedia-Fehler: " + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setWikiFetching(false);
     }
   }
 
@@ -401,18 +420,40 @@ export default function PostEditor({ initialData }: PostEditorProps) {
                       if (file) handleImageUpload(file);
                     }}
                   />
+                  {/* Wikipedia auto-fetch */}
+                  <div className="flex gap-2 mb-3">
+                    <input
+                      type="text"
+                      value={wikiSearch}
+                      onChange={(e) => setWikiSearch(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && fetchWikiImage()}
+                      placeholder={data.title ? `z.B. "${data.title.split(" ").slice(0,2).join(" ")}"` : "Name auf Wikipedia..."}
+                      className="input-glass text-sm flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={fetchWikiImage}
+                      disabled={wikiFetching}
+                      title="Bild automatisch von Wikipedia holen"
+                      className="px-3 py-2 rounded-xl bg-yellow-500/15 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/25 transition-all text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap disabled:opacity-50"
+                    >
+                      {wikiFetching ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <span>🌐</span>}
+                      {wikiFetching ? "Lädt..." : "Wikipedia"}
+                    </button>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
-                    className="w-full py-8 border-2 border-dashed border-white/10 rounded-xl hover:border-purple-500/40 transition-all text-white/30 hover:text-white/60 flex flex-col items-center gap-2"
+                    className="w-full py-6 border-2 border-dashed border-white/10 rounded-xl hover:border-purple-500/40 transition-all text-white/30 hover:text-white/60 flex flex-col items-center gap-2"
                   >
                     {uploading ? (
                       <RefreshCw className="w-6 h-6 animate-spin" />
                     ) : (
                       <Upload className="w-6 h-6" />
                     )}
-                    <span className="text-xs">{uploading ? "Lädt hoch..." : "Bild hochladen"}</span>
+                    <span className="text-xs">{uploading ? "Lädt hoch..." : "Eigenes Bild hochladen"}</span>
                   </button>
                 </div>
               )}
