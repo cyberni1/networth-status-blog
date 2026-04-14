@@ -235,8 +235,21 @@ export default function PostEditor({ initialData }: PostEditorProps) {
     }
   }
 
+  // Extrahiert den Personen-Namen aus Slug oder Titel
+  // z.B. "elon-musk-vermoegen-2026" → "Elon Musk"
+  function extractPersonName(): string {
+    if (wikiSearch.trim()) return wikiSearch.trim();
+    // Aus Slug: alles vor "-vermoegen-" nehmen
+    if (data.slug) {
+      const slugName = data.slug.replace(/-vermoegen-\d{4}.*$/, "").replace(/-/g, " ");
+      if (slugName) return slugName.replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+    // Fallback: erste 2 Wörter des Titels
+    return data.title.split(" ").slice(0, 2).join(" ");
+  }
+
   async function fetchWikiImage() {
-    const name = wikiSearch.trim() || data.title.trim();
+    const name = extractPersonName();
     if (!name) return alert("Bitte einen Namen eingeben.");
     setWikiFetching(true);
     try {
@@ -438,7 +451,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
                       value={wikiSearch}
                       onChange={(e) => setWikiSearch(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && fetchWikiImage()}
-                      placeholder={data.title ? `z.B. "${data.title.split(" ").slice(0,2).join(" ")}"` : "Name auf Wikipedia..."}
+                      placeholder={data.slug ? data.slug.replace(/-vermoegen-\d{4}.*$/, "").replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "Name leer lassen = auto"}
                       className="input-glass text-sm flex-1"
                     />
                     <button
