@@ -126,3 +126,14 @@ model SiteSetting {
   value     String   // base64 for images, text for other settings
   updatedAt DateTime @updatedAt
 }
+
+model AdminToken {
+  id        String   @id @default(cuid())
+  token     String   @unique // SHA-256 hashed token
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  lastUsedAt DateTime?
+  expiresAt DateTime?
+
+  @@index([token])
+}

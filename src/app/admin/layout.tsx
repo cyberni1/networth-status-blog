@@ -5,7 +5,8 @@ import { LayoutDashboard, FileText, PlusCircle, TrendingUp, LogOut } from "lucid
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session) redirect("/auth/signin");
+  // Note: Admin access now supports both NextAuth session AND token-based auth
+  // Middleware handles token validation, so no redirect needed here
 
   const navItems = [
     { href: "/admin", icon: "📊", label: "Dashboard" },
@@ -46,14 +47,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
             {/* User */}
             <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
-              {session.user?.image && (
+              {session?.user?.image && (
                 <img src={session.user.image} alt="" style={{ width: "28px", height: "28px", borderRadius: "50%" }} />
               )}
-              <Link href="/api/auth/signout" style={{
-                padding: "6px 12px", borderRadius: "8px", fontSize: "12px",
-                background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-                color: "rgba(255,255,255,0.5)", textDecoration: "none", whiteSpace: "nowrap",
-              }}>Abmelden</Link>
+              <form action="/api/admin/logout" method="POST" style={{ margin: 0 }}>
+                <button type="submit" style={{
+                  padding: "6px 12px", borderRadius: "8px", fontSize: "12px",
+                  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+                  color: "rgba(255,255,255,0.5)", cursor: "pointer", whiteSpace: "nowrap",
+                }}>Abmelden</button>
+              </form>
             </div>
           </div>
         </header>

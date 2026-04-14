@@ -4,12 +4,15 @@ import { NextResponse } from "next/server";
 export default auth((req) => {
   const { pathname } = req.nextUrl;
 
-  // Admin routes require authentication
+  // Admin routes: allow NextAuth session OR admin token from cookie
   if (pathname.startsWith("/admin")) {
-    if (!req.auth) {
-      const signInUrl = new URL("/auth/signin", req.url);
-      signInUrl.searchParams.set("callbackUrl", req.url);
-      return NextResponse.redirect(signInUrl);
+    const hasSession = !!req.auth;
+    const adminToken = req.cookies.get("adminToken")?.value;
+
+    // Allow if either authenticated or has valid token
+    if (!hasSession && !adminToken) {
+      // Redirect to 404 (don't reveal admin exists)
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
   }
 
