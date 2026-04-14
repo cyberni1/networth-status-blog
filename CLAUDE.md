@@ -5,15 +5,13 @@
 - URL: https://networth-status-blog.vercel.app
 - Branch für Deployment: `claude/setup-gws-auth-GeK9J` (wird in main gemergt)
 
-## Bereits in Vercel eingetragene Env Vars
+## Vercel Env Vars — alle eingetragen ✅
 - `AUTH_SECRET` ✅
 - `GOOGLE_CLIENT_ID` ✅
 - `GOOGLE_CLIENT_SECRET` ✅
-
-## Noch einzutragen in Vercel
-- `DATABASE_URL` — Neon PostgreSQL (Pooled)
-- `DIRECT_URL` — Neon PostgreSQL (Direct)
-- `ANTHROPIC_API_KEY` — für KI-Metadaten-Generierung
+- `DATABASE_URL` ✅ (Neon PostgreSQL Pooled)
+- `DIRECT_URL` ✅ (Neon PostgreSQL Direct)
+- `ANTHROPIC_API_KEY` ✅
 
 ## Datenbank
 - Provider: Neon PostgreSQL (neon.tech)
@@ -41,7 +39,14 @@ KUENSTLER, SPORTLER, UNTERNEHMER, INFLUENCER
 ## Git Branch
 Entwicklung auf: `claude/setup-gws-auth-GeK9J`
 
-## Was noch fehlt
-- `DATABASE_URL` + `DIRECT_URL` in Vercel eintragen
-- `ANTHROPIC_API_KEY` besorgen und eintragen
-- Redeploy auslösen nach Env Vars
+## Aktueller Stand
+- Alle Env Vars in Vercel eingetragen ✅
+- Zuckerberg-Artikel wird automatisch beim Build geseeded ✅
+- Sitemap + robots.txt vorhanden ✅
+- WealthDashboard, VoteWidget, PdfButton implementiert ✅
+- Team-Seite mit Premium-Avataren implementiert ✅
+
+## Nächste Schritte
+- Mehr Artikel über Admin-Panel erstellen (Ziel: 10-15 Artikel)
+- Zuckerberg Cover-Bild manuell über Admin hochladen
+- Google Search Console einrichten + Sitemap einreichen
