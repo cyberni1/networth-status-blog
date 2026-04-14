@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import { CATEGORIES } from "@/lib/categories";
@@ -29,19 +30,27 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            aria-label="Networth Status – Startseite"
-            style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}
+            aria-label="PROMIVERMÖGEN – Startseite"
+            style={{ textDecoration: "none", display: "flex", alignItems: "center", flexShrink: 0 }}
           >
             <div style={{
-              width: "30px", height: "30px", borderRadius: "8px",
-              background: "linear-gradient(135deg, #f5c842, #a855f7)",
-              display: "flex", alignItems: "center", justifyContent: "center", fontSize: "15px",
-            }} aria-hidden="true">📈</div>
-            <span style={{
-              fontWeight: 800, fontSize: "14px", letterSpacing: "0.5px",
-              background: "linear-gradient(135deg, #f5c842, #c084fc)",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
-            }}>PROMIVERMÖGEN</span>
+              background: "#fff",
+              borderRadius: "10px",
+              padding: "3px 10px",
+              display: "flex",
+              alignItems: "center",
+              height: "42px",
+              boxShadow: "0 2px 12px rgba(245,200,66,0.25)",
+            }}>
+              <Image
+                src="/logo.png"
+                alt="PROMIVERMÖGEN"
+                width={150}
+                height={36}
+                style={{ objectFit: "contain", height: "36px", width: "auto" }}
+                priority
+              />
+            </div>
           </Link>
 
           {/* Desktop: Category links */}
