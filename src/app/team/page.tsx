@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
@@ -11,43 +10,48 @@ export const metadata: Metadata = {
 const team = [
   {
     name: "Julian von Thalberg",
+    initials: "JT",
     role: "Founder & CEO",
     emoji: "🎯",
-    photo: "/team/julian.jpg",
     bio: "Als Visionär an der Schnittstelle von Wirtschaft und Entertainment hat Julian von Thalberg Networth Status ins Leben gerufen. Mit seinem Hintergrund in der strategischen Unternehmensentwicklung versteht er es, den Wert einer Marke – egal ob Firma oder Person – präzise einzuschätzen. Unter seiner Leitung hat sich das Portal zur ersten Adresse für exklusive Insights in die Welt des Erfolgs entwickelt.",
     gradient: "linear-gradient(135deg, #f5c842, #a855f7)",
+    accent: "#f5c842",
   },
   {
     name: 'Elena "Leni" Novak',
+    initials: "LN",
     role: "Chefredakteurin",
     emoji: "✍️",
-    photo: "/team/leni.jpg",
-    bio: "Leni ist die operative Schaltzentrale unserer Redaktion. Mit ihrem unvergleichlichen Gespür für gesellschaftliche Strömungen und einem Netzwerk, das keine Grenzen kennt, kuratiert sie die Inhalte, die unsere Leser bewegen. Sie trennt die Spreu vom Weizen und sorgt dafür, dass Networth Status immer am Puls der Zeit bleibt.",
+    bio: 'Leni ist die operative Schaltzentrale unserer Redaktion. Mit ihrem unvergleichlichen Gespür für gesellschaftliche Strömungen und einem Netzwerk, das keine Grenzen kennt, kuratiert sie die Inhalte, die unsere Leser bewegen. Sie trennt die Spreu vom Weizen und sorgt dafür, dass Networth Status immer am Puls der Zeit bleibt.',
     gradient: "linear-gradient(135deg, #ec4899, #a855f7)",
+    accent: "#ec4899",
   },
   {
     name: "Marc Brandstetter",
+    initials: "MB",
     role: "Chief Investigative Officer",
     emoji: "🔍",
-    photo: null,
     bio: "Hinter jedem Vermögen und jedem Status steckt eine Geschichte. Marc Brandstetter ist unser Mann für die Fakten. Mit seiner jahrelangen Erfahrung im investigativen Journalismus beleuchtet er die Hintergründe von Deals, Verträgen und dem Aufstieg der Stars. Er steht für die Verlässlichkeit und Tiefe, die unsere Leser von uns erwarten.",
     gradient: "linear-gradient(135deg, #3b82f6, #06b6d4)",
+    accent: "#3b82f6",
   },
   {
     name: 'Tatjana "Tati" Müller',
+    initials: "TM",
     role: "Head of Digital Trends",
     emoji: "📱",
-    photo: null,
     bio: 'Tati ist unsere Expertin für die digitale Währung der Moderne: Aufmerksamkeit. Sie analysiert den "Social Status" und versteht wie keine andere, wie Reichweite heute in echten Wert verwandelt wird. Sie verbindet unsere Plattform mit den globalen Communities und macht den Erfolg der Stars in Echtzeit erlebbar.',
     gradient: "linear-gradient(135deg, #f97316, #f59e0b)",
+    accent: "#f97316",
   },
   {
     name: "Simon Wu",
+    initials: "SW",
     role: "Director of Analytics & Tech",
     emoji: "📊",
-    photo: null,
     bio: "Daten lügen nicht. Simon Wu ist der Architekt hinter unseren Analyse-Tools. Er wertet komplexe Datenströme aus, um die Entwicklung von Marktwerten und Trends vorherzusagen. Dank seiner technischen Expertise bietet Networth Status mehr als nur News – wir bieten datengestützte Orientierung in einer glitzernden Welt.",
     gradient: "linear-gradient(135deg, #10b981, #3b82f6)",
+    accent: "#10b981",
   },
 ];
 
@@ -116,26 +120,32 @@ export default function TeamPage() {
 
             <div className="team-grid">
               {team.map((member) => (
-                <article key={member.name} aria-label={`${member.name}, ${member.role}`} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "20px", overflow: "hidden" }}>
-                  {/* Photo area */}
-                  <div style={{ position: "relative", aspectRatio: "4/3", background: "rgba(255,255,255,0.04)", overflow: "hidden" }}>
-                    {member.photo ? (
-                      <Image
-                        src={member.photo}
-                        alt={`${member.name} – ${member.role} bei Networth Status`}
-                        fill
-                        style={{ objectFit: "cover", objectPosition: "top" }}
-                      />
-                    ) : (
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", background: member.gradient, opacity: 0.15 }}>
-                        <span aria-hidden="true" style={{ fontSize: "64px", opacity: 0.8, filter: "none" }}>{member.emoji}</span>
+                <article key={member.name} aria-label={`${member.name}, ${member.role}`} style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${member.accent}25`, borderRadius: "20px", overflow: "hidden", transition: "border-color 0.3s, box-shadow 0.3s" }}>
+                  {/* Avatar area */}
+                  <div style={{ position: "relative", aspectRatio: "4/3", overflow: "hidden" }}>
+                    {/* Gradient background */}
+                    <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: member.gradient, opacity: 0.12 }} />
+                    {/* Radial glow */}
+                    <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: `radial-gradient(circle at center, ${member.accent}30 0%, transparent 70%)` }} />
+                    {/* Initials circle */}
+                    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                      <div style={{
+                        width: "80px", height: "80px", borderRadius: "50%",
+                        background: member.gradient,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: "28px", fontWeight: 900, color: "#fff",
+                        boxShadow: `0 0 30px ${member.accent}50`,
+                        letterSpacing: "-1px",
+                      }} aria-hidden="true">
+                        {member.initials}
                       </div>
-                    )}
-                    {/* Gradient overlay */}
-                    <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,8,16,0.9) 0%, transparent 60%)" }} />
+                      <span aria-hidden="true" style={{ fontSize: "28px" }}>{member.emoji}</span>
+                    </div>
+                    {/* Bottom fade */}
+                    <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(8,8,16,0.95) 0%, transparent 55%)" }} />
                     {/* Role badge */}
-                    <div style={{ position: "absolute", bottom: "12px", left: "14px", right: "14px" }}>
-                      <div style={{ display: "inline-block", padding: "3px 10px", borderRadius: "100px", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", background: "rgba(0,0,0,0.6)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)" }}>
+                    <div style={{ position: "absolute", bottom: "14px", left: "14px", right: "14px" }}>
+                      <div style={{ display: "inline-block", padding: "4px 12px", borderRadius: "100px", fontSize: "10px", fontWeight: 700, letterSpacing: "0.5px", background: `${member.accent}20`, border: `1px solid ${member.accent}50`, color: member.accent }}>
                         {member.role}
                       </div>
                     </div>
@@ -143,11 +153,10 @@ export default function TeamPage() {
 
                   {/* Content */}
                   <div style={{ padding: "20px" }}>
-                    <h3 style={{ fontSize: "clamp(16px,3vw,18px)", fontWeight: 800, color: "#fff", marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span aria-hidden="true">{member.emoji}</span>
+                    <h3 style={{ fontSize: "clamp(16px,3vw,18px)", fontWeight: 800, color: "#fff", marginBottom: "10px" }}>
                       {member.name}
                     </h3>
-                    <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)", lineHeight: 1.7 }}>
+                    <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)", lineHeight: 1.75 }}>
                       {member.bio}
                     </p>
                   </div>

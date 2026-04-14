@@ -148,32 +148,93 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </main>
 
         {/* ── SEO TEXT SECTION ── */}
-        <section aria-labelledby="seo-section-heading" style={{ background: "rgba(255,255,255,0.02)", borderTop: "1px solid rgba(255,255,255,0.06)", padding: "clamp(40px,6vw,64px) 16px" }}>
+        <section aria-labelledby="seo-section-heading" style={{ background: "rgba(255,255,255,0.02)", borderTop: "1px solid rgba(255,255,255,0.06)", padding: "clamp(48px,7vw,80px) 16px" }}>
           <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-            <h2 id="seo-section-heading" style={{ fontSize: "clamp(20px,4vw,28px)", fontWeight: 800, color: "#fff", marginBottom: "16px", background: "linear-gradient(135deg,#f5c842,#c084fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              Das Nettovermögen berühmter Persönlichkeiten — alles auf einem Blick
+
+            {/* Main heading */}
+            <h2 id="seo-section-heading" style={{ fontSize: "clamp(22px,4.5vw,32px)", fontWeight: 800, marginBottom: "20px", background: "linear-gradient(135deg,#f5c842,#c084fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              Nettovermögen & Gehalt von Prominenten – Deutschlands führende Analyse-Plattform
             </h2>
-            <p style={{ fontSize: "clamp(14px,2.5vw,16px)", color: "rgba(255,255,255,0.55)", lineHeight: 1.8, marginBottom: "20px" }}>
-              <strong style={{ color: "rgba(255,255,255,0.8)" }}>Networth Status</strong> ist die führende deutschsprachige Quelle für fundierte Vermögensschätzungen und Einkommensanalysen von Prominenten. Ob Musiker, Fußballstar, Tech-Unternehmer oder Social-Media-Influencer — wir recherchieren sorgfältig und stellen dir die aktuellsten Informationen zu den Vermögen der bekanntesten Persönlichkeiten zur Verfügung.
+
+            <p style={{ fontSize: "clamp(14px,2.5vw,16px)", color: "rgba(255,255,255,0.6)", lineHeight: 1.9, marginBottom: "18px" }}>
+              <strong style={{ color: "rgba(255,255,255,0.85)" }}>Networth Status</strong> ist die führende deutschsprachige Quelle für fundierte Vermögensschätzungen, Einkommensanalysen und Karriere-Hintergründe der bekanntesten Persönlichkeiten der Welt. Unsere Redaktion recherchiert täglich auf Basis öffentlicher Quellen wie <strong style={{ color: "rgba(255,255,255,0.85)" }}>Forbes, Bloomberg, SEC-Filings und Unternehmensberichten</strong> – und liefert dir aktuelle, transparente Einblicke, wie reich Stars, Sportler, Unternehmer und Influencer wirklich sind.
             </p>
-            <p style={{ fontSize: "clamp(14px,2.5vw,16px)", color: "rgba(255,255,255,0.55)", lineHeight: 1.8, marginBottom: "28px" }}>
-              Wie reich ist <strong style={{ color: "rgba(255,255,255,0.8)" }}>Cristiano Ronaldo</strong>? Was verdient <strong style={{ color: "rgba(255,255,255,0.8)" }}>Elon Musk</strong> wirklich? Wie hoch ist das <strong style={{ color: "rgba(255,255,255,0.8)" }}>Nettovermögen von Taylor Swift</strong>? Diese und viele weitere Fragen beantworten wir mit detaillierten Hintergrundartikeln zu Karriere, Einkommensquellen und Vermögensschätzungen.
+
+            <p style={{ fontSize: "clamp(14px,2.5vw,16px)", color: "rgba(255,255,255,0.6)", lineHeight: 1.9, marginBottom: "18px" }}>
+              Wie hoch ist das <strong style={{ color: "rgba(255,255,255,0.85)" }}>Nettovermögen von Mark Zuckerberg</strong>? Was verdient <strong style={{ color: "rgba(255,255,255,0.85)" }}>Cristiano Ronaldo</strong> pro Jahr? Wie reich ist <strong style={{ color: "rgba(255,255,255,0.85)" }}>Taylor Swift</strong> nach ihrer Eras Tour? Welches Vermögen hat <strong style={{ color: "rgba(255,255,255,0.85)" }}>Elon Musk</strong> trotz Twitter-Übernahme aufgebaut? Diese und Hunderte weitere Fragen beantworten wir mit detaillierten Artikeln, die Karriere, Einkommensquellen, Luxus-Assets und Vermögensentwicklung beleuchten.
+            </p>
+
+            <p style={{ fontSize: "clamp(14px,2.5vw,16px)", color: "rgba(255,255,255,0.6)", lineHeight: 1.9, marginBottom: "32px" }}>
+              Unser einzigartiges <strong style={{ color: "rgba(255,255,255,0.85)" }}>Vermögens-Dashboard</strong> visualisiert Nettovermögen in Echtzeit – inklusive Live-Ticker, Vermögensmix-Analyse und Jahreswachstum. So macht Networth Status aus abstrakten Milliardenzahlen erlebbare, vergleichbare Daten.
             </p>
 
             {/* Category boxes */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px", marginBottom: "48px" }}>
               {Object.entries(CATEGORIES).map(([key, cat]) => (
-                <Link key={key} href={`/?kategorie=${cat.slug}`} style={{ textDecoration: "none", padding: "16px", background: "rgba(255,255,255,0.03)", border: `1px solid ${cat.color}30`, borderRadius: "12px", display: "block" }}>
-                  <div style={{ fontSize: "20px", marginBottom: "6px" }}>
+                <Link key={key} href={`/?kategorie=${cat.slug}`} style={{ textDecoration: "none", padding: "18px", background: "rgba(255,255,255,0.03)", border: `1px solid ${cat.color}30`, borderRadius: "14px", display: "block" }}>
+                  <div style={{ fontSize: "22px", marginBottom: "8px" }}>
                     {key === "KUENSTLER" ? "🎵" : key === "SPORTLER" ? "⚽" : key === "UNTERNEHMER" ? "💼" : "📱"}
                   </div>
                   <div style={{ fontSize: "14px", fontWeight: 700, color: cat.color, marginBottom: "4px" }}>{cat.label}</div>
-                  <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>
-                    {key === "KUENSTLER" ? "Musiker, Schauspieler, Sänger" : key === "SPORTLER" ? "Fußball, Tennis, Formel 1" : key === "UNTERNEHMER" ? "Start-ups, Milliardäre" : "YouTube, Instagram, TikTok"}
+                  <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>
+                    {key === "KUENSTLER" ? "Musiker, Schauspieler, Sänger & mehr" : key === "SPORTLER" ? "Fußball, Tennis, Formel 1 & Co." : key === "UNTERNEHMER" ? "Tech-Milliardäre & Start-up-Gründer" : "YouTube, Instagram, TikTok-Stars"}
                   </div>
                 </Link>
               ))}
             </div>
+
+            {/* FAQ SEO block */}
+            <h2 style={{ fontSize: "clamp(20px,4vw,26px)", fontWeight: 800, color: "#fff", marginBottom: "20px" }}>
+              Häufige Fragen zum Nettovermögen von Stars
+            </h2>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "40px" }}>
+              {[
+                {
+                  q: "Was ist das Nettovermögen (Net Worth)?",
+                  a: "Das Nettovermögen (englisch: Net Worth) ist der Gesamtwert aller Vermögenswerte einer Person – also Immobilien, Aktien, Bargeld und andere Assets – abzüglich aller Verbindlichkeiten wie Schulden und Kredite. Es zeigt, wie viel jemand wert wäre, wenn alle Besitztümer zu aktuellen Marktwerten verkauft und alle Schulden beglichen würden."
+                },
+                {
+                  q: "Wie werden die Vermögenswerte auf Networth Status ermittelt?",
+                  a: "Unsere Redaktion wertet öffentlich zugängliche Quellen aus: Forbes Real-Time Billionaires, Bloomberg Billionaires Index, SEC-Filings (für börsennotierte Beteiligungen), Immobilienregister, Unternehmensberichte und seriöse Wirtschaftsmedien. Alle Angaben sind Schätzungen und können von den tatsächlichen Werten abweichen."
+                },
+                {
+                  q: "Warum schwanken die Vermögensangaben so stark?",
+                  a: "Das Vermögen von Milliardären und Stars ist stark an volatile Vermögenswerte geknüpft: Aktienkurse, Immobilienmärkte oder Kryptowährungen können täglich um Milliarden schwanken. Ein 10%-Rückgang der Meta-Aktie bedeutet für Mark Zuckerberg z.B. einen Vermögensverlust von über 20 Milliarden Dollar – auf dem Papier, über Nacht."
+                },
+                {
+                  q: "Welche Stars haben das größte Nettovermögen in Deutschland?",
+                  a: "Zu den vermögendsten deutschen Prominenten zählen u.a. Dieter Schwarz (Lidl, über 40 Mrd. €), Klaus-Michael Kühne (Logistik), Dietmar Hopp (SAP-Mitgründer) sowie im Entertainment-Bereich Herbert Grönemeyer und Til Schweiger. International führen Tech-Milliardäre wie Elon Musk, Jeff Bezos und Mark Zuckerberg die Listen an."
+                },
+              ].map((item, i) => (
+                <details key={i} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "12px", padding: "16px 18px" }}>
+                  <summary style={{ fontSize: "15px", fontWeight: 700, color: "#fff", cursor: "pointer", listStyle: "none", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+                    {item.q}
+                    <span aria-hidden="true" style={{ color: "#a855f7", flexShrink: 0, fontSize: "18px" }}>+</span>
+                  </summary>
+                  <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.55)", lineHeight: 1.8, marginTop: "12px" }}>{item.a}</p>
+                </details>
+              ))}
+            </div>
+
+            {/* Trust signals */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px" }}>
+              {[
+                { icon: "🔬", title: "Faktenbasiert", text: "Verifizierte Quellen: Forbes, Bloomberg, SEC-Filings" },
+                { icon: "🔄", title: "Täglich aktualisiert", text: "Vermögensangaben immer auf dem neuesten Stand" },
+                { icon: "🎯", title: "Unabhängig", text: "Keine PR-Aufträge, keine gesponserten Inhalte" },
+                { icon: "🇩🇪", title: "Auf Deutsch", text: "Die führende deutschsprachige Net-Worth-Plattform" },
+              ].map((item) => (
+                <div key={item.title} style={{ background: "rgba(168,85,247,0.05)", border: "1px solid rgba(168,85,247,0.12)", borderRadius: "12px", padding: "14px 16px", display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                  <span aria-hidden="true" style={{ fontSize: "20px", flexShrink: 0 }}>{item.icon}</span>
+                  <div>
+                    <p style={{ fontSize: "13px", fontWeight: 700, color: "#c084fc", marginBottom: "3px" }}>{item.title}</p>
+                    <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>{item.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
           </div>
         </section>
 
