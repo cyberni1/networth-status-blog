@@ -253,7 +253,7 @@ function SearchContent() {
 
       <footer role="contentinfo" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "20px 16px", textAlign: "center" }}>
         <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.3)", maxWidth: "700px", margin: "0 auto", lineHeight: 1.6 }}>
-          © {new Date().getFullYear()} Networth Status &nbsp;·&nbsp;
+          © {new Date().getFullYear()} PROMIVERMÖGEN &nbsp;·&nbsp;
           <strong style={{ color: "rgba(255,255,255,0.4)" }}>Alle Vermögensangaben sind Schätzungen</strong> basierend auf öffentlichen Quellen. Keine Anlageberatung.
         </p>
       </footer>

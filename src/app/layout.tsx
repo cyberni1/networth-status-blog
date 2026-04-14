@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 
-const SITE_URL = "https://networth-status-blog.vercel.app";
+const SITE_URL = "https://promivermögen.com";
 
 export const metadata: Metadata = {
   title: {
-    default: "Networth Status – Das Vermögen der Reichen & Berühmten",
-    template: "%s | Networth Status",
+    default: "PROMIVERMÖGEN – Das Vermögen der Reichen & Berühmten",
+    template: "%s | PROMIVERMÖGEN",
   },
   description:
     "Entdecke das aktuelle Nettovermögen deiner Lieblingsstars. Alle Zahlen zu Künstlern, Sportlern, Unternehmern & Influencern – fundiert, aktuell und auf Deutsch.",
@@ -17,33 +17,33 @@ export const metadata: Metadata = {
     "Künstler Nettovermögen", "Sportler Gehalt", "Unternehmer Vermögen",
     "Influencer Einkommen", "Forbes Liste Deutschland", "Bloomberg Milliardäre",
   ],
-  authors: [{ name: "Networth Status Redaktion" }],
-  creator: "Networth Status",
-  publisher: "Networth Status",
+  authors: [{ name: "PROMIVERMÖGEN Redaktion" }],
+  creator: "PROMIVERMÖGEN",
+  publisher: "PROMIVERMÖGEN",
   alternates: { canonical: SITE_URL },
   openGraph: {
     type: "website",
     locale: "de_DE",
     url: SITE_URL,
-    siteName: "Networth Status",
-    title: "Networth Status – Das Vermögen der Reichen & Berühmten",
+    siteName: "PROMIVERMÖGEN",
+    title: "PROMIVERMÖGEN – Das Vermögen der Reichen & Berühmten",
     description:
       "Entdecke das aktuelle Nettovermögen deiner Lieblingsstars. Fundierte Analysen zu Künstlern, Sportlern, Unternehmern & Influencern.",
     images: [
       {
-        url: `${SITE_URL}/api/og?title=Networth+Status&category=UNTERNEHMER`,
+        url: `${SITE_URL}/api/og?title=PROMIVERM%C3%96GEN&category=UNTERNEHMER`,
         width: 1200,
         height: 630,
-        alt: "Networth Status – Das Vermögen der Reichen & Berühmten",
+        alt: "PROMIVERMÖGEN – Das Vermögen der Reichen & Berühmten",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Networth Status – Das Vermögen der Reichen & Berühmten",
+    title: "PROMIVERMÖGEN – Das Vermögen der Reichen & Berühmten",
     description:
       "Entdecke das aktuelle Nettovermögen deiner Lieblingsstars. Fundierte Analysen zu Künstlern, Sportlern, Unternehmern & Influencern.",
-    images: [`${SITE_URL}/api/og?title=Networth+Status&category=UNTERNEHMER`],
+    images: [`${SITE_URL}/api/og?title=PROMIVERM%C3%96GEN&category=UNTERNEHMER`],
   },
   robots: {
     index: true,

@@ -1,9 +1,15 @@
-# Networth Status Blog — Projektgedächtnis
+# PROMIVERMÖGEN — Projektgedächtnis
+
+## Branding
+- **Alter Name:** Networth Status
+- **Neuer Name:** PROMIVERMÖGEN
+- **Domain:** promivermögen.com (in Vercel verknüpfen!)
 
 ## Vercel
 - Projekt: `networth-status-blog`
-- URL: https://networth-status-blog.vercel.app
-- Branch für Deployment: `claude/setup-gws-auth-GeK9J` (wird in main gemergt)
+- Bisherige URL: https://networth-status-blog.vercel.app
+- Neue Domain: https://promivermögen.com (Custom Domain in Vercel Settings eintragen)
+- Branch für Deployment: `main`
 
 ## Vercel Env Vars — alle eingetragen ✅
 - `AUTH_SECRET` ✅

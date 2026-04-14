@@ -41,7 +41,7 @@ export default function Navbar() {
               fontWeight: 800, fontSize: "14px", letterSpacing: "0.5px",
               background: "linear-gradient(135deg, #f5c842, #c084fc)",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
-            }}>NETWORTH STATUS</span>
+            }}>PROMIVERMÖGEN</span>
           </Link>
 
           {/* Desktop: Category links */}

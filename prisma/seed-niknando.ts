@@ -205,7 +205,7 @@ async function main() {
   let user = await prisma.user.findFirst({ where: { role: "ADMIN" } });
   if (!user) {
     user = await prisma.user.create({
-      data: { email: "admin@networth-status.de", name: "Networth Status", role: "ADMIN" },
+      data: { email: "admin@networth-status.de", name: "PROMIVERMÖGEN", role: "ADMIN" },
     });
   }
 

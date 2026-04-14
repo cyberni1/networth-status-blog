@@ -56,9 +56,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </div>
 
             <h1 id="hero-heading" className="hero-h1" style={{ fontWeight: 900, lineHeight: 1.0, letterSpacing: "-2px", marginBottom: "20px" }}>
-              <span style={{ background: "linear-gradient(135deg, #f5c842 0%, #c084fc 55%, #60a5fa 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>NETWORTH</span>
+              <span style={{ background: "linear-gradient(135deg, #f5c842 0%, #c084fc 55%, #60a5fa 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>PROMI</span>
               <br />
-              <span style={{ color: "#fff" }}>STATUS</span>
+              <span style={{ color: "#fff" }}>VERMÖGEN</span>
             </h1>
 
             <p className="hero-desc" style={{ fontSize: "clamp(14px,3.5vw,18px)", color: "rgba(255,255,255,0.5)", maxWidth: "520px", margin: "0 auto 32px", lineHeight: 1.6 }}>
@@ -157,7 +157,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </h2>
 
             <p style={{ fontSize: "clamp(14px,2.5vw,16px)", color: "rgba(255,255,255,0.6)", lineHeight: 1.9, marginBottom: "18px" }}>
-              <strong style={{ color: "rgba(255,255,255,0.85)" }}>Networth Status</strong> ist die führende deutschsprachige Quelle für fundierte Vermögensschätzungen, Einkommensanalysen und Karriere-Hintergründe der bekanntesten Persönlichkeiten der Welt. Unsere Redaktion recherchiert täglich auf Basis öffentlicher Quellen wie <strong style={{ color: "rgba(255,255,255,0.85)" }}>Forbes, Bloomberg, SEC-Filings und Unternehmensberichten</strong> – und liefert dir aktuelle, transparente Einblicke, wie reich Stars, Sportler, Unternehmer und Influencer wirklich sind.
+              <strong style={{ color: "rgba(255,255,255,0.85)" }}>PROMIVERMÖGEN</strong> ist die führende deutschsprachige Quelle für fundierte Vermögensschätzungen, Einkommensanalysen und Karriere-Hintergründe der bekanntesten Persönlichkeiten der Welt. Unsere Redaktion recherchiert täglich auf Basis öffentlicher Quellen wie <strong style={{ color: "rgba(255,255,255,0.85)" }}>Forbes, Bloomberg, SEC-Filings und Unternehmensberichten</strong> – und liefert dir aktuelle, transparente Einblicke, wie reich Stars, Sportler, Unternehmer und Influencer wirklich sind.
             </p>
 
             <p style={{ fontSize: "clamp(14px,2.5vw,16px)", color: "rgba(255,255,255,0.6)", lineHeight: 1.9, marginBottom: "18px" }}>
@@ -165,7 +165,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </p>
 
             <p style={{ fontSize: "clamp(14px,2.5vw,16px)", color: "rgba(255,255,255,0.6)", lineHeight: 1.9, marginBottom: "32px" }}>
-              Unser einzigartiges <strong style={{ color: "rgba(255,255,255,0.85)" }}>Vermögens-Dashboard</strong> visualisiert Nettovermögen in Echtzeit – inklusive Live-Ticker, Vermögensmix-Analyse und Jahreswachstum. So macht Networth Status aus abstrakten Milliardenzahlen erlebbare, vergleichbare Daten.
+              Unser einzigartiges <strong style={{ color: "rgba(255,255,255,0.85)" }}>Vermögens-Dashboard</strong> visualisiert Nettovermögen in Echtzeit – inklusive Live-Ticker, Vermögensmix-Analyse und Jahreswachstum. So macht PROMIVERMÖGEN aus abstrakten Milliardenzahlen erlebbare, vergleichbare Daten.
             </p>
 
             {/* Category boxes */}
@@ -195,7 +195,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   a: "Das Nettovermögen (englisch: Net Worth) ist der Gesamtwert aller Vermögenswerte einer Person – also Immobilien, Aktien, Bargeld und andere Assets – abzüglich aller Verbindlichkeiten wie Schulden und Kredite. Es zeigt, wie viel jemand wert wäre, wenn alle Besitztümer zu aktuellen Marktwerten verkauft und alle Schulden beglichen würden."
                 },
                 {
-                  q: "Wie werden die Vermögenswerte auf Networth Status ermittelt?",
+                  q: "Wie werden die Vermögenswerte auf PROMIVERMÖGEN ermittelt?",
                   a: "Unsere Redaktion wertet öffentlich zugängliche Quellen aus: Forbes Real-Time Billionaires, Bloomberg Billionaires Index, SEC-Filings (für börsennotierte Beteiligungen), Immobilienregister, Unternehmensberichte und seriöse Wirtschaftsmedien. Alle Angaben sind Schätzungen und können von den tatsächlichen Werten abweichen."
                 },
                 {
@@ -253,7 +253,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               ))}
             </nav>
             <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.25)", lineHeight: 1.6 }}>
-              © {new Date().getFullYear()} Networth Status &nbsp;·&nbsp;
+              © {new Date().getFullYear()} PROMIVERMÖGEN &nbsp;·&nbsp;
               <strong style={{ color: "rgba(255,255,255,0.35)" }}>Alle Vermögensangaben sind Schätzungen</strong> basierend auf öffentlichen Quellen. Keine Anlageberatung.
             </p>
           </div>

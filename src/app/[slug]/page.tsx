@@ -15,7 +15,7 @@ import WealthDashboard, { type WealthData } from "@/components/WealthDashboard";
 import VoteWidget from "@/components/VoteWidget";
 import PdfButton from "@/components/PdfButton";
 
-const SITE_URL = "https://networth-status-blog.vercel.app";
+const SITE_URL = "https://promivermögen.com";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -102,8 +102,8 @@ export default async function PostPage({ params }: Props) {
     headline: post.metaTitle || post.title,
     description: post.metaDescription || post.excerpt || "",
     image: post.coverImage ? `${SITE_URL}${post.coverImage}` : `${SITE_URL}/api/og?title=${encodeURIComponent(post.title)}&category=${post.category}`,
-    author: { "@type": "Person", name: post.author?.name ?? "Networth Status" },
-    publisher: { "@type": "Organization", name: "Networth Status", url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` } },
+    author: { "@type": "Person", name: post.author?.name ?? "PROMIVERMÖGEN" },
+    publisher: { "@type": "Organization", name: "PROMIVERMÖGEN", url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` } },
     datePublished: post.publishedAt?.toISOString(),
     dateModified: post.updatedAt.toISOString(),
     url: postUrl,
@@ -321,7 +321,7 @@ export default async function PostPage({ params }: Props) {
         {/* Footer */}
         <footer role="contentinfo" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "20px 16px", textAlign: "center" }}>
           <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.3)", maxWidth: "700px", margin: "0 auto", lineHeight: 1.6 }}>
-            © {new Date().getFullYear()} Networth Status &nbsp;·&nbsp;
+            © {new Date().getFullYear()} PROMIVERMÖGEN &nbsp;·&nbsp;
             <strong style={{ color: "rgba(255,255,255,0.4)" }}>Alle Vermögensangaben sind Schätzungen</strong> basierend auf öffentlichen Quellen (Forbes, Bloomberg, Unternehmensberichte). Keine Anlageberatung.
           </p>
         </footer>

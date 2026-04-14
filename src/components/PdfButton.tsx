@@ -4,7 +4,7 @@ export default function PdfButton({ title }: { title: string }) {
   function handlePrint() {
     // Set a custom title for the print dialog
     const original = document.title;
-    document.title = title + " – Vermögens-Zusammenfassung | Networth Status";
+    document.title = title + " – Vermögens-Zusammenfassung | PROMIVERMÖGEN";
     window.print();
     document.title = original;
   }

@@ -27,7 +27,7 @@ export async function GET(req: Request) {
 
   try {
     const summaryRes = await fetch(summaryUrl, {
-      headers: { "User-Agent": "NetworthStatus/1.0 (https://networth-status-blog.vercel.app)" },
+      headers: { "User-Agent": "NetworthStatus/1.0 (https://promivermögen.com)" },
     });
 
     if (!summaryRes.ok) {

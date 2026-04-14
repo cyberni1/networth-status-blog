@@ -158,7 +158,7 @@ export async function GET(req: NextRequest) {
             }}
           />
           <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "16px" }}>
-            networth-status-blog.vercel.app
+            promivermögen.com
           </span>
         </div>
       </div>

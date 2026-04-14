@@ -3,8 +3,8 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "Über uns – Das Team hinter Networth Status",
-  description: "Lerne das Team hinter Networth Status kennen. Gründer, Redakteure und Analysten, die täglich die Vermögen der globalen Elite recherchieren und aufbereiten.",
+  title: "Über uns – Das Team hinter PROMIVERMÖGEN",
+  description: "Lerne das Team hinter PROMIVERMÖGEN kennen. Gründer, Redakteure und Analysten, die täglich die Vermögen der globalen Elite recherchieren und aufbereiten.",
 };
 
 const team = [
@@ -13,7 +13,7 @@ const team = [
     initials: "JT",
     role: "Founder & CEO",
     emoji: "🎯",
-    bio: "Als Visionär an der Schnittstelle von Wirtschaft und Entertainment hat Julian von Thalberg Networth Status ins Leben gerufen. Mit seinem Hintergrund in der strategischen Unternehmensentwicklung versteht er es, den Wert einer Marke – egal ob Firma oder Person – präzise einzuschätzen. Unter seiner Leitung hat sich das Portal zur ersten Adresse für exklusive Insights in die Welt des Erfolgs entwickelt.",
+    bio: "Als Visionär an der Schnittstelle von Wirtschaft und Entertainment hat Julian von Thalberg PROMIVERMÖGEN ins Leben gerufen. Mit seinem Hintergrund in der strategischen Unternehmensentwicklung versteht er es, den Wert einer Marke – egal ob Firma oder Person – präzise einzuschätzen. Unter seiner Leitung hat sich das Portal zur ersten Adresse für exklusive Insights in die Welt des Erfolgs entwickelt.",
     gradient: "linear-gradient(135deg, #f5c842, #a855f7)",
     accent: "#f5c842",
   },
@@ -22,7 +22,7 @@ const team = [
     initials: "LN",
     role: "Chefredakteurin",
     emoji: "✍️",
-    bio: 'Leni ist die operative Schaltzentrale unserer Redaktion. Mit ihrem unvergleichlichen Gespür für gesellschaftliche Strömungen und einem Netzwerk, das keine Grenzen kennt, kuratiert sie die Inhalte, die unsere Leser bewegen. Sie trennt die Spreu vom Weizen und sorgt dafür, dass Networth Status immer am Puls der Zeit bleibt.',
+    bio: 'Leni ist die operative Schaltzentrale unserer Redaktion. Mit ihrem unvergleichlichen Gespür für gesellschaftliche Strömungen und einem Netzwerk, das keine Grenzen kennt, kuratiert sie die Inhalte, die unsere Leser bewegen. Sie trennt die Spreu vom Weizen und sorgt dafür, dass PROMIVERMÖGEN immer am Puls der Zeit bleibt.',
     gradient: "linear-gradient(135deg, #ec4899, #a855f7)",
     accent: "#ec4899",
   },
@@ -49,7 +49,7 @@ const team = [
     initials: "SW",
     role: "Director of Analytics & Tech",
     emoji: "📊",
-    bio: "Daten lügen nicht. Simon Wu ist der Architekt hinter unseren Analyse-Tools. Er wertet komplexe Datenströme aus, um die Entwicklung von Marktwerten und Trends vorherzusagen. Dank seiner technischen Expertise bietet Networth Status mehr als nur News – wir bieten datengestützte Orientierung in einer glitzernden Welt.",
+    bio: "Daten lügen nicht. Simon Wu ist der Architekt hinter unseren Analyse-Tools. Er wertet komplexe Datenströme aus, um die Entwicklung von Marktwerten und Trends vorherzusagen. Dank seiner technischen Expertise bietet PROMIVERMÖGEN mehr als nur News – wir bieten datengestützte Orientierung in einer glitzernden Welt.",
     gradient: "linear-gradient(135deg, #10b981, #3b82f6)",
     accent: "#10b981",
   },
@@ -87,11 +87,11 @@ export default function TeamPage() {
               </div>
 
               <h1 id="team-hero-heading" style={{ fontSize: "clamp(32px,7vw,64px)", fontWeight: 900, lineHeight: 1.1, letterSpacing: "-1px", marginBottom: "20px" }}>
-                <span style={{ background: "linear-gradient(135deg, #f5c842, #c084fc, #60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Über Networth Status</span>
+                <span style={{ background: "linear-gradient(135deg, #f5c842, #c084fc, #60a5fa)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Über PROMIVERMÖGEN</span>
               </h1>
 
               <p style={{ fontSize: "clamp(15px,3vw,18px)", color: "rgba(255,255,255,0.55)", lineHeight: 1.8, maxWidth: "600px", margin: "0 auto" }}>
-                Wer hat den Erfolg gepachtet? Wer bestimmt die Trends von morgen? Networth Status ist die führende digitale Instanz für die Analyse von Ruhm, Reichtum und dem Lifestyle der globalen Elite. Wir blicken über den roten Teppich hinaus – und liefern fundierte Einblicke in die Welt derer, die es geschafft haben.
+                Wer hat den Erfolg gepachtet? Wer bestimmt die Trends von morgen? PROMIVERMÖGEN ist die führende digitale Instanz für die Analyse von Ruhm, Reichtum und dem Lifestyle der globalen Elite. Wir blicken über den roten Teppich hinaus – und liefern fundierte Einblicke in die Welt derer, die es geschafft haben.
               </p>
             </div>
           </section>
@@ -111,7 +111,7 @@ export default function TeamPage() {
           <section aria-labelledby="team-section-heading" style={{ padding: "0 16px 80px", maxWidth: "1100px", margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: "40px" }}>
               <h2 id="team-section-heading" style={{ fontSize: "clamp(24px,5vw,36px)", fontWeight: 800, color: "#fff", marginBottom: "10px" }}>
-                Die Köpfe hinter Networth Status
+                Die Köpfe hinter PROMIVERMÖGEN
               </h2>
               <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.4)" }}>
                 Fünf Experten. Eine Mission. Die Welt des Erfolgs entschlüsseln.
@@ -173,7 +173,7 @@ export default function TeamPage() {
                   Unsere Philosophie
                 </h2>
                 <p style={{ fontSize: "clamp(15px,3vw,18px)", color: "rgba(255,255,255,0.55)", lineHeight: 1.8, maxWidth: "650px", margin: "0 auto" }}>
-                  Networth Status ist mehr als ein Magazin. Wir sind der <strong style={{ color: "rgba(255,255,255,0.8)" }}>Kompass in einer Welt des Überflusses</strong>. Unser Ziel ist es, Erfolg greifbar zu machen und unseren Lesern eine fundierte Perspektive auf die einflussreichsten Persönlichkeiten unserer Zeit zu bieten – objektiv, exklusiv und immer einen Schritt voraus.
+                  PROMIVERMÖGEN ist mehr als ein Magazin. Wir sind der <strong style={{ color: "rgba(255,255,255,0.8)" }}>Kompass in einer Welt des Überflusses</strong>. Unser Ziel ist es, Erfolg greifbar zu machen und unseren Lesern eine fundierte Perspektive auf die einflussreichsten Persönlichkeiten unserer Zeit zu bieten – objektiv, exklusiv und immer einen Schritt voraus.
                 </p>
               </div>
 
@@ -198,7 +198,7 @@ export default function TeamPage() {
           {/* ── CTA ── */}
           <section style={{ padding: "clamp(48px,7vw,80px) 16px", textAlign: "center" }}>
             <h2 style={{ fontSize: "clamp(22px,4vw,30px)", fontWeight: 800, color: "#fff", marginBottom: "12px" }}>
-              Networth Status – <span style={{ background: "linear-gradient(135deg,#f5c842,#c084fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Wissen, was Erfolg wert ist.</span>
+              PROMIVERMÖGEN – <span style={{ background: "linear-gradient(135deg,#f5c842,#c084fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Wissen, was Erfolg wert ist.</span>
             </h2>
             <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.4)", marginBottom: "28px" }}>
               Entdecke die aktuellsten Vermögensanalysen.
@@ -212,7 +212,7 @@ export default function TeamPage() {
 
         <footer role="contentinfo" style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "24px 16px", textAlign: "center" }}>
           <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.3)", maxWidth: "700px", margin: "0 auto", lineHeight: 1.6 }}>
-            © {new Date().getFullYear()} Networth Status &nbsp;·&nbsp;
+            © {new Date().getFullYear()} PROMIVERMÖGEN &nbsp;·&nbsp;
             <strong style={{ color: "rgba(255,255,255,0.4)" }}>Alle Vermögensangaben sind Schätzungen</strong> basierend auf öffentlichen Quellen (Forbes, Bloomberg). Keine Anlageberatung.
           </p>
         </footer>

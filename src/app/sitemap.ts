@@ -4,7 +4,7 @@ import { CATEGORIES } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
 
-const SITE_URL = "https://networth-status-blog.vercel.app";
+const SITE_URL = "https://promivermögen.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await prisma.post.findMany({

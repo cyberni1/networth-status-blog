@@ -195,7 +195,7 @@ async function main() {
     user = await prisma.user.create({
       data: {
         email: "admin@networth-status.de",
-        name: "Networth Status",
+        name: "PROMIVERMÖGEN",
         role: "ADMIN",
       },
     });

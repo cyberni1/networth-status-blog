@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-const SITE_URL = "https://networth-status-blog.vercel.app";
+const SITE_URL = "https://promivermögen.com";
 
 export default function robots(): MetadataRoute.Robots {
   return {

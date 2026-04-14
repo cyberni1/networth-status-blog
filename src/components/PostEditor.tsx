@@ -517,7 +517,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
               placeholder="url-freundlicher-slug"
               className="input-glass font-mono text-sm"
             />
-            <p className="text-xs text-white/30 mt-1">networth-status-blog.vercel.app/{data.slug || "slug"}</p>
+            <p className="text-xs text-white/30 mt-1">promivermögen.com/{data.slug || "slug"}</p>
           </div>
 
           <div>
@@ -575,7 +575,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
                   {data.metaTitle || data.title}
                 </p>
                 <p className="text-[#bdc1c6] text-xs">
-                  networth-status-blog.vercel.app › {data.slug || "beitrag"}
+                  promivermögen.com › {data.slug || "beitrag"}
                 </p>
                 <p className="text-[#bdc1c6] text-sm">
                   {data.metaDescription || data.excerpt || "Keine Beschreibung vorhanden."}
