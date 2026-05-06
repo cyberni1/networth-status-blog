@@ -12,6 +12,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.88.0",
     "@biomejs/biome": "1.9.4",
+    "@distube/ytdl-core": "^4.16.12",
     "@prisma/client": "^6.8.2",
     "@tiptap/extension-character-count": "^3.22.3",
     "@tiptap/extension-code-block-lowlight": "^3.22.3",
