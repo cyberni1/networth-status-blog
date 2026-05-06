@@ -22,12 +22,7 @@ type VideoInfo = {
 };
 
 function formatLabel(f: Format): string {
-  const parts: string[] = [];
-  if (f.hasVideo && f.hasAudio) parts.push("Video + Audio");
-  else if (f.hasVideo) parts.push("Nur Video");
-  else parts.push("Nur Audio");
-  parts.push(f.quality);
-  parts.push(f.container.toUpperCase());
+  const parts: string[] = [f.quality, f.container.toUpperCase()];
   if (f.filesizeMB) parts.push(`~${f.filesizeMB} MB`);
   return parts.join(" · ");
 }

@@ -35,25 +35,18 @@ async function fetchYouTube(url: string): Promise<VideoInfo> {
   const info = await ytdl.getInfo(url);
   const v = info.videoDetails;
 
+  // Nur fertige Videos mit Ton (kein Audio-only, kein Video-ohne-Ton)
   const formats: Format[] = info.formats
-    .filter((f) => f.url && (f.hasVideo || f.hasAudio))
+    .filter((f) => f.url && f.hasVideo && f.hasAudio)
     .map((f) => ({
       url: f.url as string,
-      quality: f.qualityLabel || (f.audioBitrate ? `${f.audioBitrate}kbps Audio` : "unbekannt"),
+      quality: f.qualityLabel || "unbekannt",
       container: f.container || "mp4",
-      hasAudio: !!f.hasAudio,
-      hasVideo: !!f.hasVideo,
+      hasAudio: true,
+      hasVideo: true,
       filesizeMB: f.contentLength ? Math.round(Number(f.contentLength) / 1024 / 1024) : undefined,
     }))
-    .sort((a, b) => {
-      // Best combined formats first (video + audio)
-      const aCombined = a.hasAudio && a.hasVideo;
-      const bCombined = b.hasAudio && b.hasVideo;
-      if (aCombined !== bCombined) return aCombined ? -1 : 1;
-      const aQ = parseInt(a.quality) || 0;
-      const bQ = parseInt(b.quality) || 0;
-      return bQ - aQ;
-    });
+    .sort((a, b) => (parseInt(b.quality) || 0) - (parseInt(a.quality) || 0));
 
   return {
     platform: "youtube",
