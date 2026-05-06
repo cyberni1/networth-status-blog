@@ -12,7 +12,6 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.88.0",
     "@biomejs/biome": "1.9.4",
-    "@distube/ytdl-core": "^4.16.12",
     "@prisma/client": "^6.8.2",
     "@tiptap/extension-character-count": "^3.22.3",
     "@tiptap/extension-code-block-lowlight": "^3.22.3",
@@ -39,7 +38,8 @@
     "sharp": "^0.34.5",
     "slugify": "^1.6.9",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "youtubei.js": "^17.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",

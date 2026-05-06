@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import ytdl from "@distube/ytdl-core";
+import { Innertube, UniversalCache } from "youtubei.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,29 +31,57 @@ function detectPlatform(url: string): VideoInfo["platform"] | null {
   return null;
 }
 
-async function fetchYouTube(url: string): Promise<VideoInfo> {
-  const info = await ytdl.getInfo(url);
-  const v = info.videoDetails;
+function extractYouTubeId(url: string): string | null {
+  const match = url.match(
+    /(?:v=|youtu\.be\/|\/embed\/|\/shorts\/|\/v\/)([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+}
 
-  // Nur fertige Videos mit Ton (kein Audio-only, kein Video-ohne-Ton)
-  const formats: Format[] = info.formats
-    .filter((f) => f.url && f.hasVideo && f.hasAudio)
+async function fetchYouTube(url: string): Promise<VideoInfo> {
+  const videoId = extractYouTubeId(url);
+  if (!videoId) throw new Error("YouTube: Video-ID konnte nicht extrahiert werden");
+
+  const yt = await Innertube.create({
+    cache: new UniversalCache(false),
+    generate_session_locally: true,
+  });
+
+  // IOS Client umgeht YouTubes Bot-Schutz oft besser als WEB; URLs sind
+  // dort außerdem direkt nutzbar (kein Cipher-Decoding nötig).
+  // biome-ignore lint/suspicious/noExplicitAny: youtubei.js client option types are too restrictive
+  const info = await yt.getBasicInfo(videoId, { client: "IOS" } as any);
+
+  const combined = info.streaming_data?.formats || [];
+
+  const formats: Format[] = combined
+    .filter((f) => f.has_audio && f.has_video && f.url)
     .map((f) => ({
       url: f.url as string,
-      quality: f.qualityLabel || "unbekannt",
-      container: f.container || "mp4",
+      quality: f.quality_label || "unbekannt",
+      container: f.mime_type?.split("/")[1]?.split(";")[0] || "mp4",
       hasAudio: true,
       hasVideo: true,
-      filesizeMB: f.contentLength ? Math.round(Number(f.contentLength) / 1024 / 1024) : undefined,
+      filesizeMB: f.content_length
+        ? Math.round(Number(f.content_length) / 1024 / 1024)
+        : undefined,
     }))
     .sort((a, b) => (parseInt(b.quality) || 0) - (parseInt(a.quality) || 0));
 
+  if (formats.length === 0) {
+    throw new Error(
+      "YouTube: Keine kombinierten Video+Audio-Formate verfügbar. " +
+        "Ein VPS mit yt-dlp wäre für dieses Video nötig."
+    );
+  }
+
+  const thumbs = info.basic_info.thumbnail || [];
   return {
     platform: "youtube",
-    title: v.title,
-    thumbnail: v.thumbnails[v.thumbnails.length - 1]?.url || "",
-    duration: parseInt(v.lengthSeconds, 10),
-    author: v.author?.name,
+    title: info.basic_info.title || "YouTube Video",
+    thumbnail: thumbs[thumbs.length - 1]?.url || "",
+    duration: info.basic_info.duration,
+    author: info.basic_info.author,
     formats,
   };
 }
