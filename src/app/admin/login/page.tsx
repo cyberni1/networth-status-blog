@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
+            placeholder="Passwort eingeben"
             autoFocus
             style={{
               width: "100%", boxSizing: "border-box",
