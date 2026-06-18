@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { Innertube, UniversalCache } from "youtubei.js";
 
 export const runtime = "nodejs";
@@ -170,11 +169,6 @@ async function fetchInstagram(url: string): Promise<VideoInfo> {
 }
 
 export async function POST(req: NextRequest) {
-  const cookieStore = await cookies();
-  if (!cookieStore.get("adminToken")?.value) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
     const { url } = await req.json();
     if (!url || typeof url !== "string") {

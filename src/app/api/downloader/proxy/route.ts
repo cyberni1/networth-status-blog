@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { cookies } from "next/headers";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,11 +8,6 @@ export const maxDuration = 60;
 // Nötig, weil TikTok/Instagram Direktlinks oft Referer-Header verlangen,
 // und um saubere Dateinamen + Content-Disposition zu setzen.
 export async function GET(req: NextRequest) {
-  const cookieStore = await cookies();
-  if (!cookieStore.get("adminToken")?.value) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
   const { searchParams } = new URL(req.url);
   const target = searchParams.get("url");
   const filename = searchParams.get("filename") || "video.mp4";
