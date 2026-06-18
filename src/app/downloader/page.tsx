@@ -43,7 +43,7 @@ export default function DownloaderPage() {
     setInfo(null);
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/downloader/info", {
+      const res = await fetch("/api/downloader/info", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
@@ -66,7 +66,7 @@ export default function DownloaderPage() {
       filename,
       platform: info?.platform || "",
     });
-    return `/api/admin/downloader/proxy?${params.toString()}`;
+    return `/api/downloader/proxy?${params.toString()}`;
   }
 
   return (
@@ -74,7 +74,7 @@ export default function DownloaderPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white">Video Downloader</h1>
         <p className="text-white/50 text-sm mt-1">
-          YouTube · TikTok · Instagram — nur für persönliche Nutzung
+          YouTube · TikTok · Instagram
         </p>
       </div>
 

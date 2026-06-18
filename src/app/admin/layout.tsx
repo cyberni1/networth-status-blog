@@ -8,7 +8,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin", icon: "📊", label: "Dashboard" },
     { href: "/admin/posts", icon: "📝", label: "Alle Beiträge" },
     { href: "/admin/posts/new", icon: "➕", label: "Neuer Beitrag" },
-    { href: "/admin/downloader", icon: "⬇️", label: "Downloader" },
+    { href: "/downloader", icon: "⬇️", label: "Downloader" },
   ];
 
   return (
