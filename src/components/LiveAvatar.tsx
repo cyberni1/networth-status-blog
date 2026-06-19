@@ -161,9 +161,15 @@ export default function LiveAvatar() {
 				playsInline
 				preload="auto"
 				aria-label="Animierter Sprecher-Avatar"
+				poster="/avatar/poster.jpg"
+				width={944}
+				height={960}
 				style={{
-					maxWidth: "min(90vw, 480px)",
+					width: "min(90vw, 480px)",
+					height: "auto",
 					maxHeight: "85vh",
+					aspectRatio: "944 / 960",
+					objectFit: "contain",
 					filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.35))",
 				}}
 			>
