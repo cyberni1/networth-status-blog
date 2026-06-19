@@ -7,7 +7,7 @@ type MicStatus = "idle" | "requesting" | "listening" | "error";
 
 const SILENCE_THRESHOLD = 0.04;
 const AUDIO_GAIN = 3.2;
-const HAIR_STRANDS = [0, 1, 2, 3];
+const HAIR_STRANDS = [0, 1];
 
 export default function LiveAvatar() {
 	const [status, setStatus] = useState<MicStatus>("idle");
@@ -18,9 +18,10 @@ export default function LiveAvatar() {
 	const headRef = useRef<SVGGElement | null>(null);
 	const hairBackRef = useRef<SVGEllipseElement | null>(null);
 	const hairStrandRefs = useRef<(SVGGElement | null)[]>([]);
-	const shoulderRef = useRef<SVGPathElement | null>(null);
+	const shoulderRef = useRef<SVGGElement | null>(null);
 	const eyesRef = useRef<SVGGElement | null>(null);
 	const mouthRef = useRef<SVGEllipseElement | null>(null);
+	const accentLightsRef = useRef<SVGGElement | null>(null);
 	const meterRef = useRef<HTMLDivElement | null>(null);
 
 	const rafRef = useRef<number | null>(null);
@@ -124,6 +125,11 @@ export default function LiveAvatar() {
 					: "scaleY(1)";
 			}
 
+			if (accentLightsRef.current) {
+				const pulse = 0.55 + 0.15 * Math.sin(t * 1.2) + vol * 0.4;
+				accentLightsRef.current.style.opacity = `${Math.min(1, pulse)}`;
+			}
+
 			if (meterRef.current) {
 				meterRef.current.style.width = `${Math.round(vol * 100)}%`;
 			}
@@ -212,31 +218,191 @@ export default function LiveAvatar() {
 				aria-label="Animierter Sprecher-Avatar"
 			>
 				<title>Animierter Sprecher-Avatar</title>
-				<path
-					ref={shoulderRef}
-					d="M70,520 L70,445 Q70,375 150,365 L250,365 Q330,375 330,445 L330,520 Z"
-					fill="#a855f7"
-					style={{ transformBox: "fill-box", transformOrigin: "50% 100%" }}
-				/>
+
+				<defs>
+					<filter id="blueGlow" x="-150%" y="-150%" width="400%" height="400%">
+						<feGaussianBlur stdDeviation="3.2" result="blur" />
+						<feMerge>
+							<feMergeNode in="blur" />
+							<feMergeNode in="SourceGraphic" />
+						</feMerge>
+					</filter>
+				</defs>
+
 				<ellipse
 					ref={hairBackRef}
 					cx="200"
-					cy="215"
-					rx="125"
-					ry="135"
-					fill="#1f1830"
+					cy="195"
+					rx="115"
+					ry="118"
+					fill="#cdd2da"
 					style={{ transformBox: "fill-box", transformOrigin: "50% 0%" }}
 				/>
-				<rect x="178" y="320" width="44" height="65" rx="14" fill="#e8b894" />
+
+				<g
+					ref={shoulderRef}
+					style={{ transformBox: "fill-box", transformOrigin: "50% 100%" }}
+				>
+					{/* white plated body */}
+					<path
+						d="M70,520 L70,445 Q70,375 150,365 L250,365 Q330,375 330,445 L330,520 Z"
+						fill="#f0f2f5"
+						stroke="#c7ccd3"
+						strokeWidth="2"
+					/>
+					<path
+						d="M70,470 L70,445 Q70,375 150,365 L160,365 L95,470 Z"
+						fill="#ffffff"
+						opacity="0.5"
+					/>
+
+					{/* dark mechanical collar */}
+					<path
+						d="M152,366 L184,332 L200,348 L216,332 L248,366 L234,398 L166,398 Z"
+						fill="#2c2f36"
+						stroke="#1a1c21"
+						strokeWidth="1.5"
+					/>
+					<rect x="178" y="322" width="44" height="62" rx="10" fill="#2c2f36" />
+
+					{/* crossed mechanical arms */}
+					<g>
+						<circle
+							cx="292"
+							cy="408"
+							r="15"
+							fill="#dfe2e6"
+							stroke="#9aa1ab"
+							strokeWidth="2"
+						/>
+						<rect
+							x="165"
+							y="403"
+							width="120"
+							height="38"
+							rx="19"
+							fill="#e4e7eb"
+							stroke="#9aa1ab"
+							strokeWidth="2"
+							transform="rotate(22 225 422)"
+						/>
+						<circle
+							cx="190"
+							cy="433"
+							r="9"
+							fill="#2c2f36"
+							transform="rotate(22 225 422)"
+						/>
+						<ellipse
+							cx="163"
+							cy="443"
+							rx="27"
+							ry="19"
+							fill="#f8f9fa"
+							stroke="#9aa1ab"
+							strokeWidth="2"
+							transform="rotate(22 225 422)"
+						/>
+						<line
+							x1="150"
+							y1="436"
+							x2="176"
+							y2="436"
+							stroke="#9aa1ab"
+							strokeWidth="2"
+							transform="rotate(22 225 422)"
+						/>
+						<line
+							x1="150"
+							y1="450"
+							x2="176"
+							y2="450"
+							stroke="#9aa1ab"
+							strokeWidth="2"
+							transform="rotate(22 225 422)"
+						/>
+
+						<circle
+							cx="108"
+							cy="412"
+							r="15"
+							fill="#dfe2e6"
+							stroke="#9aa1ab"
+							strokeWidth="2"
+						/>
+						<rect
+							x="115"
+							y="406"
+							width="120"
+							height="38"
+							rx="19"
+							fill="#eef0f3"
+							stroke="#9aa1ab"
+							strokeWidth="2"
+							transform="rotate(-22 175 425)"
+						/>
+						<circle
+							cx="210"
+							cy="436"
+							r="9"
+							fill="#2c2f36"
+							transform="rotate(-22 175 425)"
+						/>
+						<ellipse
+							cx="237"
+							cy="446"
+							rx="27"
+							ry="19"
+							fill="#fbfcfd"
+							stroke="#9aa1ab"
+							strokeWidth="2"
+							transform="rotate(-22 175 425)"
+						/>
+						<line
+							x1="224"
+							y1="439"
+							x2="250"
+							y2="439"
+							stroke="#9aa1ab"
+							strokeWidth="2"
+							transform="rotate(-22 175 425)"
+						/>
+						<line
+							x1="224"
+							y1="453"
+							x2="250"
+							y2="453"
+							stroke="#9aa1ab"
+							strokeWidth="2"
+							transform="rotate(-22 175 425)"
+						/>
+					</g>
+
+					<g ref={accentLightsRef} filter="url(#blueGlow)">
+						<rect x="180" y="386" width="11" height="6" rx="3" fill="#3ecbff" />
+						<rect
+							x="194.5"
+							y="389"
+							width="11"
+							height="6"
+							rx="3"
+							fill="#3ecbff"
+						/>
+						<rect x="209" y="386" width="11" height="6" rx="3" fill="#3ecbff" />
+						<circle cx="95" cy="420" r="5" fill="#3ecbff" />
+						<circle cx="305" cy="420" r="5" fill="#3ecbff" />
+					</g>
+				</g>
 
 				<g
 					ref={headRef}
 					style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }}
 				>
-					<circle cx="200" cy="235" r="100" fill="#e8b894" />
+					<ellipse cx="200" cy="235" rx="92" ry="105" fill="#f6ddc9" />
 
 					{HAIR_STRANDS.map((i) => {
-						const cx = 130 + i * 50;
+						const side = i === 0 ? -1 : 1;
+						const cx = 200 + side * 100;
 						return (
 							<g
 								key={i}
@@ -245,27 +411,33 @@ export default function LiveAvatar() {
 								}}
 								style={{
 									transformBox: "fill-box",
-									transformOrigin: `${cx}px 145px`,
+									transformOrigin: `${cx}px 165px`,
 								}}
 							>
 								<path
-									d={`M${cx - 22},150 Q${cx},90 ${cx + 22},150 Q${cx},170 ${cx - 22},150 Z`}
-									fill="#1f1830"
+									d={`M${cx},165 Q${cx + side * 18},210 ${cx + side * 6},245`}
+									stroke="#cdd2da"
+									strokeWidth="9"
+									strokeLinecap="round"
+									fill="none"
 								/>
 							</g>
 						);
 					})}
 
+					<ellipse cx="200" cy="118" rx="56" ry="42" fill="#d7dbe1" />
+					<ellipse cx="200" cy="96" rx="34" ry="26" fill="#c3c8d0" />
+
 					<path
 						d="M148,205 Q165,192 182,203"
-						stroke="#1f1830"
+						stroke="#aab0b8"
 						strokeWidth="5"
 						strokeLinecap="round"
 						fill="none"
 					/>
 					<path
 						d="M218,203 Q235,192 252,205"
-						stroke="#1f1830"
+						stroke="#aab0b8"
 						strokeWidth="5"
 						strokeLinecap="round"
 						fill="none"
@@ -277,8 +449,10 @@ export default function LiveAvatar() {
 					>
 						<ellipse cx="165" cy="230" rx="13" ry="15" fill="#fff" />
 						<ellipse cx="235" cy="230" rx="13" ry="15" fill="#fff" />
-						<circle cx="167" cy="232" r="6.5" fill="#1f1830" />
-						<circle cx="237" cy="232" r="6.5" fill="#1f1830" />
+						<circle cx="167" cy="232" r="6.5" fill="#4a90d9" />
+						<circle cx="237" cy="232" r="6.5" fill="#4a90d9" />
+						<circle cx="167" cy="232" r="2.5" fill="#162636" />
+						<circle cx="237" cy="232" r="2.5" fill="#162636" />
 					</g>
 
 					<ellipse
@@ -287,7 +461,7 @@ export default function LiveAvatar() {
 						cy="282"
 						rx="24"
 						ry="7"
-						fill="#7a3b3b"
+						fill="#c98f8f"
 						style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }}
 					/>
 				</g>
