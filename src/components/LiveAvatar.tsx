@@ -17,6 +17,11 @@ const TALK_OFF_HANGOVER_MS = 350;
 // showing.
 const MOUTH_CLOSED_ANCHORS_S = [0, 2.6, 4.3, 5.1, 7.6, 9.5];
 
+// Once playback reaches a closed-mouth anchor, keep playing this much longer
+// before cutting to idle. Stopping exactly on the anchor frame reads as an
+// abrupt freeze; a short settle lets the closing motion finish naturally.
+const CLOSE_SETTLE_MS = 180;
+
 // talking-loop.mp4 only has a single keyframe (at t=0), so seeking into it
 // repeatedly (as the old idle implementation did every ~0.5s) forces a full
 // decode from frame 0 each time and causes visible stutter. Idle motion is
@@ -44,6 +49,7 @@ export default function LiveAvatar() {
 	const isTalkingRef = useRef(false);
 	const talkPhaseRef = useRef<"talking" | "closing" | "idle">("idle");
 	const closingTargetRef = useRef(0);
+	const closingReachedAtRef = useRef<number | null>(null);
 	const prevVideoTimeRef = useRef(0);
 	// Set once on the first successful start, never reset on stop — once the
 	// avatar has been started, it should keep its idle motion (mouth closes
@@ -119,6 +125,7 @@ export default function LiveAvatar() {
 						// (t=0), so restarting there is instant and seek-free.
 						if (talkPhaseRef.current === "idle") video.currentTime = 0;
 						talkPhaseRef.current = "talking";
+						closingReachedAtRef.current = null;
 						video.style.opacity = "1";
 						if (idleVideo) idleVideo.style.opacity = "0";
 					}
@@ -127,6 +134,7 @@ export default function LiveAvatar() {
 					// Mic just went quiet: don't freeze mid-word. Keep playing
 					// until the next moment the mouth is naturally closed.
 					talkPhaseRef.current = "closing";
+					closingReachedAtRef.current = null;
 					const next = MOUTH_CLOSED_ANCHORS_S.find((a) => a > t + 0.05);
 					closingTargetRef.current = next ?? MOUTH_CLOSED_ANCHORS_S[0];
 					if (video.paused) video.play().catch(() => {});
@@ -135,7 +143,17 @@ export default function LiveAvatar() {
 					const reachedTarget =
 						closingTargetRef.current <= t ||
 						(wrapped && closingTargetRef.current <= MOUTH_CLOSED_ANCHORS_S[0]);
-					if (reachedTarget) {
+					if (reachedTarget && closingReachedAtRef.current === null) {
+						closingReachedAtRef.current = timeMs;
+					}
+					// Keep playing a little past the closed-mouth anchor instead
+					// of cutting on the exact frame, so the closing motion reads
+					// as finishing naturally rather than freezing abruptly.
+					if (
+						closingReachedAtRef.current !== null &&
+						timeMs - closingReachedAtRef.current >= CLOSE_SETTLE_MS
+					) {
+						closingReachedAtRef.current = null;
 						talkPhaseRef.current = "idle";
 						// The idle clip loops natively (no JS seeking needed),
 						// which avoids the keyframe-decode stutter entirely.
