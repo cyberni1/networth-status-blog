@@ -44,6 +44,7 @@ export default function LiveAvatar() {
 	const [hasStarted, setHasStarted] = useState(false);
 	const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
 	const [selectedDeviceId, setSelectedDeviceId] = useState("");
+	const [rawAudio, setRawAudio] = useState(false);
 
 	const videoRef = useRef<HTMLVideoElement | null>(null);
 	const idleVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -241,9 +242,18 @@ export default function LiveAvatar() {
 			const stream = await navigator.mediaDevices.getUserMedia({
 				audio: {
 					deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
-					echoCancellation: true,
-					noiseSuppression: true,
-					autoGainControl: true,
+					// Echo cancellation/noise suppression/AGC are tuned for a
+					// real microphone picking up a human voice in a room. Fed
+					// with a virtual-cable loopback (e.g. VB-Audio Cable
+					// carrying a TTS voice), Chrome's echo canceller can
+					// recognize the signal as an echo of audio already
+					// playing on the same machine and suppress it almost
+					// entirely - the avatar then never sees enough volume to
+					// "talk". The raw-audio toggle disables all three for
+					// exactly that case.
+					echoCancellation: !rawAudio,
+					noiseSuppression: !rawAudio,
+					autoGainControl: !rawAudio,
 				},
 			});
 			const audioCtx = new AudioContext();
@@ -270,7 +280,7 @@ export default function LiveAvatar() {
 				err instanceof Error ? err.message : "Mikrofonzugriff fehlgeschlagen.",
 			);
 		}
-	}, [selectedDeviceId]);
+	}, [selectedDeviceId, rawAudio]);
 
 	useEffect(() => {
 		return () => {
@@ -470,6 +480,28 @@ export default function LiveAvatar() {
 							</option>
 						))}
 					</select>
+
+					<label
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: "6px",
+							color: "rgba(255,255,255,0.7)",
+							fontSize: "11px",
+							cursor:
+								status === "listening" || status === "requesting"
+									? "default"
+									: "pointer",
+						}}
+					>
+						<input
+							type="checkbox"
+							checked={rawAudio}
+							onChange={(e) => setRawAudio(e.target.checked)}
+							disabled={status === "listening" || status === "requesting"}
+						/>
+						Rohsignal (für virtuelles Audiokabel, z. B. VB-Cable)
+					</label>
 
 					<div
 						style={{
