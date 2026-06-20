@@ -10,17 +10,25 @@ const AUDIO_GAIN = 4.5;
 const TALK_ON_VOLUME = 0.12;
 const TALK_OFF_HANGOVER_MS = 350;
 
-// Seconds into talking-loop.mp4 where the mouth is closed (verified by
-// sampling mouth-region darkness across all 241 frames). Used so that when
-// the mic goes quiet, playback keeps going until the next closed-mouth
-// moment instead of freezing mid-word on whatever frame happens to be
-// showing.
-const MOUTH_CLOSED_ANCHORS_S = [0, 2.6, 4.3, 5.1, 7.6, 9.5];
+// Seconds into talking-loop.mp4 where the mouth is closed, verified frame by
+// frame (not just by a darkness heuristic, which had false positives where
+// teeth/open mouth read as "dark" too). The footage has two long stretches
+// (~0.8s-3.8s and ~6.6s-9.8s) of continuous talking with no closed-mouth
+// frame at all, so gaps here can't be fully eliminated - see
+// MAX_CLOSE_WAIT_MS below for the bound on how long we wait regardless.
+const MOUTH_CLOSED_ANCHORS_S = [0, 0.83, 3.79, 4.3, 4.83, 6.17, 6.58, 9.83];
 
 // Once playback reaches a closed-mouth anchor, keep playing this much longer
 // before cutting to idle. Stopping exactly on the anchor frame reads as an
 // abrupt freeze; a short settle lets the closing motion finish naturally.
 const CLOSE_SETTLE_MS = 180;
+
+// Hard cap on how long we wait for a closed-mouth anchor after the mic goes
+// quiet. The source footage has multi-second stretches with no closed-mouth
+// frame, so waiting for a "perfect" anchor can take seconds and reads as the
+// avatar talking long after the person stopped. If no anchor is reached in
+// time, crossfade to idle anyway - the opacity transition hides the cut.
+const MAX_CLOSE_WAIT_MS = 600;
 
 // talking-loop.mp4 only has a single keyframe (at t=0), so seeking into it
 // repeatedly (as the old idle implementation did every ~0.5s) forces a full
@@ -52,6 +60,7 @@ export default function LiveAvatar() {
 	const talkPhaseRef = useRef<"talking" | "closing" | "idle">("idle");
 	const closingTargetRef = useRef(0);
 	const closingReachedAtRef = useRef<number | null>(null);
+	const closingStartedAtRef = useRef(0);
 	const prevVideoTimeRef = useRef(0);
 	// Set once on the first successful start, never reset on stop — once the
 	// avatar has been started, it should keep its idle motion (mouth closes
@@ -156,6 +165,7 @@ export default function LiveAvatar() {
 					// until the next moment the mouth is naturally closed.
 					talkPhaseRef.current = "closing";
 					closingReachedAtRef.current = null;
+					closingStartedAtRef.current = timeMs;
 					const next = MOUTH_CLOSED_ANCHORS_S.find((a) => a > t + 0.05);
 					closingTargetRef.current = next ?? MOUTH_CLOSED_ANCHORS_S[0];
 					if (video.paused) video.play().catch(() => {});
@@ -164,15 +174,22 @@ export default function LiveAvatar() {
 					const reachedTarget =
 						closingTargetRef.current <= t ||
 						(wrapped && closingTargetRef.current <= MOUTH_CLOSED_ANCHORS_S[0]);
-					if (reachedTarget && closingReachedAtRef.current === null) {
+					const timedOut =
+						timeMs - closingStartedAtRef.current >= MAX_CLOSE_WAIT_MS;
+					if (
+						(reachedTarget || timedOut) &&
+						closingReachedAtRef.current === null
+					) {
 						closingReachedAtRef.current = timeMs;
 					}
 					// Keep playing a little past the closed-mouth anchor instead
 					// of cutting on the exact frame, so the closing motion reads
-					// as finishing naturally rather than freezing abruptly.
+					// as finishing naturally rather than freezing abruptly. Skip
+					// the extra settle once we've already timed out waiting.
 					if (
 						closingReachedAtRef.current !== null &&
-						timeMs - closingReachedAtRef.current >= CLOSE_SETTLE_MS
+						(timedOut ||
+							timeMs - closingReachedAtRef.current >= CLOSE_SETTLE_MS)
 					) {
 						closingReachedAtRef.current = null;
 						talkPhaseRef.current = "idle";
