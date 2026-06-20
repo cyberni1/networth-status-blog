@@ -180,7 +180,7 @@ export default function LiveAvatar() {
 
 	const bgColor =
 		bgMode === "white"
-			? "#ffffff"
+			? "#fcfcfc"
 			: bgMode === "dark"
 				? "#080810"
 				: bgMode === "green"
@@ -215,7 +215,6 @@ export default function LiveAvatar() {
 					maxHeight: "85vh",
 					aspectRatio: "944 / 960",
 					objectFit: "contain",
-					filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.35))",
 				}}
 			>
 				<source src="/avatar/talking-loop.mp4" type="video/mp4" />
