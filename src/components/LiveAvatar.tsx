@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-type BgMode = "dark" | "green" | "transparent";
+type BgMode = "white" | "dark" | "green" | "transparent";
 type MicStatus = "idle" | "requesting" | "listening" | "error";
 
 const SILENCE_THRESHOLD = 0.025;
@@ -10,10 +10,19 @@ const AUDIO_GAIN = 4.5;
 const TALK_ON_VOLUME = 0.12;
 const TALK_OFF_HANGOVER_MS = 350;
 
+// Seconds into talking-loop.mp4 where the mouth is closed (verified by
+// sampling mouth-region darkness across all 241 frames). Used so that when
+// the mic goes quiet, playback keeps going until the next closed-mouth
+// moment instead of freezing mid-word on whatever frame happens to be
+// showing.
+const MOUTH_CLOSED_ANCHORS_S = [0, 2.6, 4.3, 5.1, 7.6, 9.5];
+const IDLE_LOOP_START_S = 9.5;
+const IDLE_LOOP_END_S = 9.98;
+
 export default function LiveAvatar() {
 	const [status, setStatus] = useState<MicStatus>("idle");
 	const [errorMsg, setErrorMsg] = useState("");
-	const [bgMode, setBgMode] = useState<BgMode>("dark");
+	const [bgMode, setBgMode] = useState<BgMode>("white");
 	const [controlsHidden, setControlsHidden] = useState(false);
 
 	const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -27,11 +36,20 @@ export default function LiveAvatar() {
 	const smoothedVolumeRef = useRef(0);
 	const lastLoudAtRef = useRef(0);
 	const isTalkingRef = useRef(false);
+	const talkPhaseRef = useRef<"talking" | "closing" | "idle">("idle");
+	const closingTargetRef = useRef(0);
+	const prevVideoTimeRef = useRef(0);
 
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
 		const bg = params.get("bg");
-		if (bg === "green" || bg === "transparent" || bg === "dark") setBgMode(bg);
+		if (
+			bg === "green" ||
+			bg === "transparent" ||
+			bg === "dark" ||
+			bg === "white"
+		)
+			setBgMode(bg);
 		if (params.get("hideControls") === "1") setControlsHidden(true);
 	}, []);
 
@@ -64,11 +82,37 @@ export default function LiveAvatar() {
 				timeMs - lastLoudAtRef.current < TALK_OFF_HANGOVER_MS;
 
 			const video = videoRef.current;
-			if (video) {
-				if (isTalkingRef.current && video.paused) {
-					video.play().catch(() => {});
-				} else if (!isTalkingRef.current && !video.paused) {
-					video.pause();
+			if (video && video.readyState >= 1) {
+				const t = video.currentTime;
+				const wrapped = t < prevVideoTimeRef.current - 0.2;
+				prevVideoTimeRef.current = t;
+
+				if (isTalkingRef.current) {
+					talkPhaseRef.current = "talking";
+					if (video.paused) video.play().catch(() => {});
+				} else if (talkPhaseRef.current === "talking") {
+					// Mic just went quiet: don't freeze mid-word. Keep playing
+					// until the next moment the mouth is naturally closed.
+					talkPhaseRef.current = "closing";
+					const next = MOUTH_CLOSED_ANCHORS_S.find((a) => a > t + 0.05);
+					closingTargetRef.current = next ?? MOUTH_CLOSED_ANCHORS_S[0];
+					if (video.paused) video.play().catch(() => {});
+				} else if (talkPhaseRef.current === "closing") {
+					if (video.paused) video.play().catch(() => {});
+					const reachedTarget =
+						closingTargetRef.current <= t ||
+						(wrapped && closingTargetRef.current <= MOUTH_CLOSED_ANCHORS_S[0]);
+					if (reachedTarget) {
+						talkPhaseRef.current = "idle";
+						video.currentTime = IDLE_LOOP_START_S;
+					}
+				} else {
+					// idle: loop a short closed-mouth segment so she keeps
+					// breathing/shifting instead of showing a frozen frame.
+					if (video.paused) video.play().catch(() => {});
+					if (t >= IDLE_LOOP_END_S || t < IDLE_LOOP_START_S - 0.5) {
+						video.currentTime = IDLE_LOOP_START_S;
+					}
 				}
 			}
 
@@ -94,7 +138,6 @@ export default function LiveAvatar() {
 		dataArrayRef.current = null;
 		smoothedVolumeRef.current = 0;
 		isTalkingRef.current = false;
-		videoRef.current?.pause();
 		setStatus("idle");
 	}, []);
 
@@ -136,11 +179,13 @@ export default function LiveAvatar() {
 	}, []);
 
 	const bgColor =
-		bgMode === "dark"
-			? "#080810"
-			: bgMode === "green"
-				? "#00ff00"
-				: "transparent";
+		bgMode === "white"
+			? "#ffffff"
+			: bgMode === "dark"
+				? "#080810"
+				: bgMode === "green"
+					? "#00ff00"
+					: "transparent";
 
 	return (
 		<div
@@ -223,22 +268,26 @@ export default function LiveAvatar() {
 								{status === "requesting" ? "Verbinde…" : "🎙 Avatar starten"}
 							</button>
 						)}
-						{(["dark", "green", "transparent"] as BgMode[]).map((mode) => (
-							<button
-								key={mode}
-								type="button"
-								onClick={() => setBgMode(mode)}
-								style={btnStyle(
-									bgMode === mode ? "#a855f7" : "rgba(255,255,255,0.1)",
-								)}
-							>
-								{mode === "dark"
-									? "Dunkel"
-									: mode === "green"
-										? "Greenscreen"
-										: "Transparent"}
-							</button>
-						))}
+						{(["white", "dark", "green", "transparent"] as BgMode[]).map(
+							(mode) => (
+								<button
+									key={mode}
+									type="button"
+									onClick={() => setBgMode(mode)}
+									style={btnStyle(
+										bgMode === mode ? "#a855f7" : "rgba(255,255,255,0.1)",
+									)}
+								>
+									{mode === "white"
+										? "Weiß"
+										: mode === "dark"
+											? "Dunkel"
+											: mode === "green"
+												? "Greenscreen"
+												: "Transparent"}
+								</button>
+							),
+						)}
 						<button
 							type="button"
 							onClick={() => setControlsHidden(true)}
