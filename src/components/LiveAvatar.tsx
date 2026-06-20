@@ -34,6 +34,8 @@ export default function LiveAvatar() {
 	const [bgMode, setBgMode] = useState<BgMode>("white");
 	const [controlsHidden, setControlsHidden] = useState(false);
 	const [hasStarted, setHasStarted] = useState(false);
+	const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
+	const [selectedDeviceId, setSelectedDeviceId] = useState("");
 
 	const videoRef = useRef<HTMLVideoElement | null>(null);
 	const idleVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -56,6 +58,25 @@ export default function LiveAvatar() {
 	// naturally, idle loop keeps playing) even after the mic is stopped.
 	// Only before the very first start should it sit on the static poster.
 	const hasStartedRef = useRef(false);
+
+	useEffect(() => {
+		const refreshDevices = async () => {
+			try {
+				const devices = await navigator.mediaDevices.enumerateDevices();
+				setAudioDevices(devices.filter((d) => d.kind === "audioinput"));
+			} catch {
+				// Device enumeration can fail before permission is granted in
+				// some browsers; the dropdown just stays empty until then.
+			}
+		};
+		refreshDevices();
+		navigator.mediaDevices.addEventListener("devicechange", refreshDevices);
+		return () =>
+			navigator.mediaDevices.removeEventListener(
+				"devicechange",
+				refreshDevices,
+			);
+	}, []);
 
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
@@ -202,6 +223,7 @@ export default function LiveAvatar() {
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({
 				audio: {
+					deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
 					echoCancellation: true,
 					noiseSuppression: true,
 					autoGainControl: true,
@@ -220,13 +242,18 @@ export default function LiveAvatar() {
 			hasStartedRef.current = true;
 			setHasStarted(true);
 			setStatus("listening");
+
+			// Device labels are only populated once permission is granted, so
+			// refresh the list now to show real names instead of blank ones.
+			const devices = await navigator.mediaDevices.enumerateDevices();
+			setAudioDevices(devices.filter((d) => d.kind === "audioinput"));
 		} catch (err) {
 			setStatus("error");
 			setErrorMsg(
 				err instanceof Error ? err.message : "Mikrofonzugriff fehlgeschlagen.",
 			);
 		}
-	}, []);
+	}, [selectedDeviceId]);
 
 	useEffect(() => {
 		return () => {
@@ -397,6 +424,35 @@ export default function LiveAvatar() {
 							Steuerung ausblenden
 						</button>
 					</div>
+
+					<select
+						value={selectedDeviceId}
+						onChange={(e) => setSelectedDeviceId(e.target.value)}
+						disabled={status === "listening" || status === "requesting"}
+						style={{
+							width: "100%",
+							maxWidth: "320px",
+							padding: "8px 10px",
+							borderRadius: "8px",
+							border: "1px solid rgba(255,255,255,0.15)",
+							background: "rgba(255,255,255,0.08)",
+							color: "#fff",
+							fontSize: "12px",
+						}}
+					>
+						<option value="" style={{ color: "#000" }}>
+							Standardmikrofon
+						</option>
+						{audioDevices.map((d, i) => (
+							<option
+								key={d.deviceId}
+								value={d.deviceId}
+								style={{ color: "#000" }}
+							>
+								{d.label || `Mikrofon ${i + 1}`}
+							</option>
+						))}
+					</select>
 
 					<div
 						style={{
