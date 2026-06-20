@@ -488,9 +488,11 @@ export default function LiveAvatar() {
 							gap: "6px",
 							color: "rgba(255,255,255,0.7)",
 							fontSize: "11px",
+							opacity:
+								status === "listening" || status === "requesting" ? 0.4 : 1,
 							cursor:
 								status === "listening" || status === "requesting"
-									? "default"
+									? "not-allowed"
 									: "pointer",
 						}}
 					>
@@ -501,6 +503,11 @@ export default function LiveAvatar() {
 							disabled={status === "listening" || status === "requesting"}
 						/>
 						Rohsignal (für virtuelles Audiokabel, z. B. VB-Cable)
+						{(status === "listening" || status === "requesting") && (
+							<span style={{ fontStyle: "italic" }}>
+								— zum Ändern erst Mikrofon stoppen
+							</span>
+						)}
 					</label>
 
 					<div
