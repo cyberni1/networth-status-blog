@@ -16,8 +16,12 @@ const TALK_OFF_HANGOVER_MS = 350;
 // moment instead of freezing mid-word on whatever frame happens to be
 // showing.
 const MOUTH_CLOSED_ANCHORS_S = [0, 2.6, 4.3, 5.1, 7.6, 9.5];
-const IDLE_LOOP_START_S = 9.5;
-const IDLE_LOOP_END_S = 9.98;
+
+// talking-loop.mp4 only has a single keyframe (at t=0), so seeking into it
+// repeatedly (as the old idle implementation did every ~0.5s) forces a full
+// decode from frame 0 each time and causes visible stutter. Idle motion is
+// therefore handled by a separate, short, natively-looping clip instead.
+const CROSSFADE_MS = 220;
 
 export default function LiveAvatar() {
 	const [status, setStatus] = useState<MicStatus>("idle");
@@ -26,6 +30,7 @@ export default function LiveAvatar() {
 	const [controlsHidden, setControlsHidden] = useState(false);
 
 	const videoRef = useRef<HTMLVideoElement | null>(null);
+	const idleVideoRef = useRef<HTMLVideoElement | null>(null);
 	const meterRef = useRef<HTMLDivElement | null>(null);
 
 	const rafRef = useRef<number | null>(null);
@@ -82,13 +87,21 @@ export default function LiveAvatar() {
 				timeMs - lastLoudAtRef.current < TALK_OFF_HANGOVER_MS;
 
 			const video = videoRef.current;
+			const idleVideo = idleVideoRef.current;
 			if (video && video.readyState >= 1) {
 				const t = video.currentTime;
 				const wrapped = t < prevVideoTimeRef.current - 0.2;
 				prevVideoTimeRef.current = t;
 
 				if (isTalkingRef.current) {
-					talkPhaseRef.current = "talking";
+					if (talkPhaseRef.current !== "talking") {
+						// Coming from idle: the talk clip only has one keyframe
+						// (t=0), so restarting there is instant and seek-free.
+						if (talkPhaseRef.current === "idle") video.currentTime = 0;
+						talkPhaseRef.current = "talking";
+						video.style.opacity = "1";
+						if (idleVideo) idleVideo.style.opacity = "0";
+					}
 					if (video.paused) video.play().catch(() => {});
 				} else if (talkPhaseRef.current === "talking") {
 					// Mic just went quiet: don't freeze mid-word. Keep playing
@@ -104,14 +117,14 @@ export default function LiveAvatar() {
 						(wrapped && closingTargetRef.current <= MOUTH_CLOSED_ANCHORS_S[0]);
 					if (reachedTarget) {
 						talkPhaseRef.current = "idle";
-						video.currentTime = IDLE_LOOP_START_S;
-					}
-				} else {
-					// idle: loop a short closed-mouth segment so she keeps
-					// breathing/shifting instead of showing a frozen frame.
-					if (video.paused) video.play().catch(() => {});
-					if (t >= IDLE_LOOP_END_S || t < IDLE_LOOP_START_S - 0.5) {
-						video.currentTime = IDLE_LOOP_START_S;
+						// The idle clip loops natively (no JS seeking needed),
+						// which avoids the keyframe-decode stutter entirely.
+						if (idleVideo) {
+							if (idleVideo.paused) idleVideo.play().catch(() => {});
+							idleVideo.style.opacity = "1";
+						}
+						video.style.opacity = "0";
+						video.pause();
 					}
 				}
 			}
@@ -199,28 +212,69 @@ export default function LiveAvatar() {
 				overflow: "hidden",
 			}}
 		>
-			<video
-				ref={videoRef}
-				muted
-				loop
-				playsInline
-				preload="auto"
-				aria-label="Animierter Sprecher-Avatar"
-				poster="/avatar/poster.jpg"
-				width={944}
-				height={960}
+			<style>{`
+				@keyframes avatarBreathe {
+					0%, 100% { transform: scale(1) translateY(0); }
+					50% { transform: scale(1.008) translateY(-2px); }
+				}
+			`}</style>
+			<div
 				style={{
+					position: "relative",
 					width: "min(90vw, 480px)",
-					height: "auto",
 					maxHeight: "85vh",
 					aspectRatio: "944 / 960",
-					objectFit: "contain",
+					animation: "avatarBreathe 4.5s ease-in-out infinite",
 				}}
 			>
-				<source src="/avatar/talking-loop.mp4" type="video/mp4" />
-				<source src="/avatar/talking-loop.webm" type="video/webm" />
-				<track kind="captions" />
-			</video>
+				<video
+					ref={idleVideoRef}
+					muted
+					loop
+					autoPlay
+					playsInline
+					preload="auto"
+					tabIndex={-1}
+					poster="/avatar/poster.jpg"
+					width={944}
+					height={960}
+					style={{
+						position: "absolute",
+						inset: 0,
+						width: "100%",
+						height: "100%",
+						objectFit: "contain",
+						opacity: 1,
+						transition: `opacity ${CROSSFADE_MS}ms ease`,
+					}}
+				>
+					<source src="/avatar/idle-loop.mp4" type="video/mp4" />
+					<source src="/avatar/idle-loop.webm" type="video/webm" />
+				</video>
+				<video
+					ref={videoRef}
+					muted
+					playsInline
+					preload="auto"
+					aria-label="Animierter Sprecher-Avatar"
+					poster="/avatar/poster.jpg"
+					width={944}
+					height={960}
+					style={{
+						position: "absolute",
+						inset: 0,
+						width: "100%",
+						height: "100%",
+						objectFit: "contain",
+						opacity: 0,
+						transition: `opacity ${CROSSFADE_MS}ms ease`,
+					}}
+				>
+					<source src="/avatar/talking-loop.mp4" type="video/mp4" />
+					<source src="/avatar/talking-loop.webm" type="video/webm" />
+					<track kind="captions" />
+				</video>
+			</div>
 
 			{!controlsHidden && (
 				<div
