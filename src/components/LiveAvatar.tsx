@@ -28,6 +28,7 @@ export default function LiveAvatar() {
 	const [errorMsg, setErrorMsg] = useState("");
 	const [bgMode, setBgMode] = useState<BgMode>("white");
 	const [controlsHidden, setControlsHidden] = useState(false);
+	const [hasStarted, setHasStarted] = useState(false);
 
 	const videoRef = useRef<HTMLVideoElement | null>(null);
 	const idleVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -44,6 +45,11 @@ export default function LiveAvatar() {
 	const talkPhaseRef = useRef<"talking" | "closing" | "idle">("idle");
 	const closingTargetRef = useRef(0);
 	const prevVideoTimeRef = useRef(0);
+	// Set once on the first successful start, never reset on stop — once the
+	// avatar has been started, it should keep its idle motion (mouth closes
+	// naturally, idle loop keeps playing) even after the mic is stopped.
+	// Only before the very first start should it sit on the static poster.
+	const hasStartedRef = useRef(false);
 
 	useEffect(() => {
 		const params = new URLSearchParams(window.location.search);
@@ -60,6 +66,20 @@ export default function LiveAvatar() {
 
 	useEffect(() => {
 		const loop = (timeMs: number) => {
+			if (!hasStartedRef.current) {
+				// Avatar hasn't been started yet: stay on the static poster
+				// frame instead of auto-playing any loop.
+				const idleVideo = idleVideoRef.current;
+				if (idleVideo && !idleVideo.paused) {
+					idleVideo.pause();
+					idleVideo.currentTime = 0;
+				}
+				const video = videoRef.current;
+				if (video && !video.paused) video.pause();
+				rafRef.current = requestAnimationFrame(loop);
+				return;
+			}
+
 			let rms = 0;
 			const analyser = analyserRef.current;
 			const dataArray = dataArrayRef.current;
@@ -126,6 +146,9 @@ export default function LiveAvatar() {
 						video.style.opacity = "0";
 						video.pause();
 					}
+				} else if (idleVideo?.paused) {
+					// Mic just started: kick off the idle loop.
+					idleVideo.play().catch(() => {});
 				}
 			}
 
@@ -149,8 +172,9 @@ export default function LiveAvatar() {
 		audioCtxRef.current = null;
 		analyserRef.current = null;
 		dataArrayRef.current = null;
-		smoothedVolumeRef.current = 0;
-		isTalkingRef.current = false;
+		// Don't touch talkPhaseRef/hasStartedRef here: the rAF loop will see
+		// silence (no analyser) and let the mouth close naturally, then keep
+		// the idle loop running, instead of freezing mid-word.
 		setStatus("idle");
 	}, []);
 
@@ -175,6 +199,8 @@ export default function LiveAvatar() {
 			audioCtxRef.current = audioCtx;
 			analyserRef.current = analyser;
 			dataArrayRef.current = new Uint8Array(analyser.fftSize);
+			hasStartedRef.current = true;
+			setHasStarted(true);
 			setStatus("listening");
 		} catch (err) {
 			setStatus("error");
@@ -213,9 +239,11 @@ export default function LiveAvatar() {
 			}}
 		>
 			<style>{`
-				@keyframes avatarBreathe {
-					0%, 100% { transform: scale(1) translateY(0); }
-					50% { transform: scale(1.008) translateY(-2px); }
+				@keyframes avatarIdleSway {
+					0%, 100% { transform: rotate(0deg) translate(0, 0); }
+					25% { transform: rotate(0.6deg) translate(1px, -1px); }
+					50% { transform: rotate(0deg) translate(0, -2px); }
+					75% { transform: rotate(-0.5deg) translate(-1px, -1px); }
 				}
 			`}</style>
 			<div
@@ -224,14 +252,16 @@ export default function LiveAvatar() {
 					width: "min(90vw, 480px)",
 					maxHeight: "85vh",
 					aspectRatio: "944 / 960",
-					animation: "avatarBreathe 4.5s ease-in-out infinite",
+					transformOrigin: "50% 100%",
+					animation: hasStarted
+						? "avatarIdleSway 6s ease-in-out infinite"
+						: "none",
 				}}
 			>
 				<video
 					ref={idleVideoRef}
 					muted
 					loop
-					autoPlay
 					playsInline
 					preload="auto"
 					tabIndex={-1}
