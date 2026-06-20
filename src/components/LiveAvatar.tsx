@@ -54,6 +54,8 @@ export default function LiveAvatar() {
 	const audioCtxRef = useRef<AudioContext | null>(null);
 	const analyserRef = useRef<AnalyserNode | null>(null);
 	const dataArrayRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
+	const processorRef = useRef<ScriptProcessorNode | null>(null);
+	const silentGainRef = useRef<GainNode | null>(null);
 	const streamRef = useRef<MediaStream | null>(null);
 	const smoothedVolumeRef = useRef(0);
 	const lastLoudAtRef = useRef(0);
@@ -101,118 +103,128 @@ export default function LiveAvatar() {
 		if (params.get("hideControls") === "1") setControlsHidden(true);
 	}, []);
 
+	// Runs the talk/idle state machine for one frame. Called from rAF for the
+	// pre-start poster state, and additionally from a Web Audio processing
+	// node while listening (see startMic) - rAF gets throttled or fully
+	// paused by the browser once this tab is backgrounded or loses focus,
+	// which is the normal case here (the AI voice source, e.g. an emulator
+	// window, is the focused window while this page reacts in the
+	// background). Audio-graph processing isn't subject to that throttling,
+	// so driving the state machine from there too keeps the avatar
+	// responsive even when its own tab isn't the active one.
+	const evaluateAudioFrame = useCallback((timeMs: number) => {
+		if (!hasStartedRef.current) {
+			// Avatar hasn't been started yet: stay on the static poster
+			// frame instead of auto-playing any loop.
+			const idleVideo = idleVideoRef.current;
+			if (idleVideo && !idleVideo.paused) {
+				idleVideo.pause();
+				idleVideo.currentTime = 0;
+			}
+			const video = videoRef.current;
+			if (video && !video.paused) video.pause();
+			return;
+		}
+
+		let rms = 0;
+		const analyser = analyserRef.current;
+		const dataArray = dataArrayRef.current;
+		if (analyser && dataArray) {
+			analyser.getByteTimeDomainData(dataArray);
+			let sum = 0;
+			for (let i = 0; i < dataArray.length; i++) {
+				const v = (dataArray[i] - 128) / 128;
+				sum += v * v;
+			}
+			rms = Math.sqrt(sum / dataArray.length);
+		}
+
+		const target =
+			rms > SILENCE_THRESHOLD
+				? Math.min(1, (rms - SILENCE_THRESHOLD) * AUDIO_GAIN)
+				: 0;
+		const smoothing = target > smoothedVolumeRef.current ? 0.6 : 0.18;
+		smoothedVolumeRef.current +=
+			(target - smoothedVolumeRef.current) * smoothing;
+		const vol = smoothedVolumeRef.current;
+
+		if (vol > TALK_ON_VOLUME) lastLoudAtRef.current = timeMs;
+		isTalkingRef.current =
+			timeMs - lastLoudAtRef.current < TALK_OFF_HANGOVER_MS;
+
+		const video = videoRef.current;
+		const idleVideo = idleVideoRef.current;
+		if (video && video.readyState >= 1) {
+			const t = video.currentTime;
+			const wrapped = t < prevVideoTimeRef.current - 0.2;
+			prevVideoTimeRef.current = t;
+
+			if (isTalkingRef.current) {
+				if (talkPhaseRef.current !== "talking") {
+					// Coming from idle: the talk clip only has one keyframe
+					// (t=0), so restarting there is instant and seek-free.
+					if (talkPhaseRef.current === "idle") video.currentTime = 0;
+					talkPhaseRef.current = "talking";
+					closingReachedAtRef.current = null;
+					video.style.opacity = "1";
+					if (idleVideo) idleVideo.style.opacity = "0";
+				}
+				if (video.paused) video.play().catch(() => {});
+			} else if (talkPhaseRef.current === "talking") {
+				// Mic just went quiet: don't freeze mid-word. Keep playing
+				// until the next moment the mouth is naturally closed.
+				talkPhaseRef.current = "closing";
+				closingReachedAtRef.current = null;
+				closingStartedAtRef.current = timeMs;
+				const next = MOUTH_CLOSED_ANCHORS_S.find((a) => a > t + 0.05);
+				closingTargetRef.current = next ?? MOUTH_CLOSED_ANCHORS_S[0];
+				if (video.paused) video.play().catch(() => {});
+			} else if (talkPhaseRef.current === "closing") {
+				if (video.paused) video.play().catch(() => {});
+				const reachedTarget =
+					closingTargetRef.current <= t ||
+					(wrapped && closingTargetRef.current <= MOUTH_CLOSED_ANCHORS_S[0]);
+				const timedOut =
+					timeMs - closingStartedAtRef.current >= MAX_CLOSE_WAIT_MS;
+				if (
+					(reachedTarget || timedOut) &&
+					closingReachedAtRef.current === null
+				) {
+					closingReachedAtRef.current = timeMs;
+				}
+				// Keep playing a little past the closed-mouth anchor instead
+				// of cutting on the exact frame, so the closing motion reads
+				// as finishing naturally rather than freezing abruptly. Skip
+				// the extra settle once we've already timed out waiting.
+				if (
+					closingReachedAtRef.current !== null &&
+					(timedOut || timeMs - closingReachedAtRef.current >= CLOSE_SETTLE_MS)
+				) {
+					closingReachedAtRef.current = null;
+					talkPhaseRef.current = "idle";
+					// The idle clip loops natively (no JS seeking needed),
+					// which avoids the keyframe-decode stutter entirely.
+					if (idleVideo) {
+						if (idleVideo.paused) idleVideo.play().catch(() => {});
+						idleVideo.style.opacity = "1";
+					}
+					video.style.opacity = "0";
+					video.pause();
+				}
+			} else if (idleVideo?.paused) {
+				// Mic just started: kick off the idle loop.
+				idleVideo.play().catch(() => {});
+			}
+		}
+
+		if (meterRef.current) {
+			meterRef.current.style.width = `${Math.round(vol * 100)}%`;
+		}
+	}, []);
+
 	useEffect(() => {
 		const loop = (timeMs: number) => {
-			if (!hasStartedRef.current) {
-				// Avatar hasn't been started yet: stay on the static poster
-				// frame instead of auto-playing any loop.
-				const idleVideo = idleVideoRef.current;
-				if (idleVideo && !idleVideo.paused) {
-					idleVideo.pause();
-					idleVideo.currentTime = 0;
-				}
-				const video = videoRef.current;
-				if (video && !video.paused) video.pause();
-				rafRef.current = requestAnimationFrame(loop);
-				return;
-			}
-
-			let rms = 0;
-			const analyser = analyserRef.current;
-			const dataArray = dataArrayRef.current;
-			if (analyser && dataArray) {
-				analyser.getByteTimeDomainData(dataArray);
-				let sum = 0;
-				for (let i = 0; i < dataArray.length; i++) {
-					const v = (dataArray[i] - 128) / 128;
-					sum += v * v;
-				}
-				rms = Math.sqrt(sum / dataArray.length);
-			}
-
-			const target =
-				rms > SILENCE_THRESHOLD
-					? Math.min(1, (rms - SILENCE_THRESHOLD) * AUDIO_GAIN)
-					: 0;
-			const smoothing = target > smoothedVolumeRef.current ? 0.6 : 0.18;
-			smoothedVolumeRef.current +=
-				(target - smoothedVolumeRef.current) * smoothing;
-			const vol = smoothedVolumeRef.current;
-
-			if (vol > TALK_ON_VOLUME) lastLoudAtRef.current = timeMs;
-			isTalkingRef.current =
-				timeMs - lastLoudAtRef.current < TALK_OFF_HANGOVER_MS;
-
-			const video = videoRef.current;
-			const idleVideo = idleVideoRef.current;
-			if (video && video.readyState >= 1) {
-				const t = video.currentTime;
-				const wrapped = t < prevVideoTimeRef.current - 0.2;
-				prevVideoTimeRef.current = t;
-
-				if (isTalkingRef.current) {
-					if (talkPhaseRef.current !== "talking") {
-						// Coming from idle: the talk clip only has one keyframe
-						// (t=0), so restarting there is instant and seek-free.
-						if (talkPhaseRef.current === "idle") video.currentTime = 0;
-						talkPhaseRef.current = "talking";
-						closingReachedAtRef.current = null;
-						video.style.opacity = "1";
-						if (idleVideo) idleVideo.style.opacity = "0";
-					}
-					if (video.paused) video.play().catch(() => {});
-				} else if (talkPhaseRef.current === "talking") {
-					// Mic just went quiet: don't freeze mid-word. Keep playing
-					// until the next moment the mouth is naturally closed.
-					talkPhaseRef.current = "closing";
-					closingReachedAtRef.current = null;
-					closingStartedAtRef.current = timeMs;
-					const next = MOUTH_CLOSED_ANCHORS_S.find((a) => a > t + 0.05);
-					closingTargetRef.current = next ?? MOUTH_CLOSED_ANCHORS_S[0];
-					if (video.paused) video.play().catch(() => {});
-				} else if (talkPhaseRef.current === "closing") {
-					if (video.paused) video.play().catch(() => {});
-					const reachedTarget =
-						closingTargetRef.current <= t ||
-						(wrapped && closingTargetRef.current <= MOUTH_CLOSED_ANCHORS_S[0]);
-					const timedOut =
-						timeMs - closingStartedAtRef.current >= MAX_CLOSE_WAIT_MS;
-					if (
-						(reachedTarget || timedOut) &&
-						closingReachedAtRef.current === null
-					) {
-						closingReachedAtRef.current = timeMs;
-					}
-					// Keep playing a little past the closed-mouth anchor instead
-					// of cutting on the exact frame, so the closing motion reads
-					// as finishing naturally rather than freezing abruptly. Skip
-					// the extra settle once we've already timed out waiting.
-					if (
-						closingReachedAtRef.current !== null &&
-						(timedOut ||
-							timeMs - closingReachedAtRef.current >= CLOSE_SETTLE_MS)
-					) {
-						closingReachedAtRef.current = null;
-						talkPhaseRef.current = "idle";
-						// The idle clip loops natively (no JS seeking needed),
-						// which avoids the keyframe-decode stutter entirely.
-						if (idleVideo) {
-							if (idleVideo.paused) idleVideo.play().catch(() => {});
-							idleVideo.style.opacity = "1";
-						}
-						video.style.opacity = "0";
-						video.pause();
-					}
-				} else if (idleVideo?.paused) {
-					// Mic just started: kick off the idle loop.
-					idleVideo.play().catch(() => {});
-				}
-			}
-
-			if (meterRef.current) {
-				meterRef.current.style.width = `${Math.round(vol * 100)}%`;
-			}
-
+			evaluateAudioFrame(timeMs);
 			rafRef.current = requestAnimationFrame(loop);
 		};
 
@@ -220,11 +232,15 @@ export default function LiveAvatar() {
 		return () => {
 			if (rafRef.current) cancelAnimationFrame(rafRef.current);
 		};
-	}, []);
+	}, [evaluateAudioFrame]);
 
 	const stopMic = useCallback(() => {
 		for (const track of streamRef.current?.getTracks() ?? []) track.stop();
 		streamRef.current = null;
+		processorRef.current?.disconnect();
+		processorRef.current = null;
+		silentGainRef.current?.disconnect();
+		silentGainRef.current = null;
 		audioCtxRef.current?.close().catch(() => {});
 		audioCtxRef.current = null;
 		analyserRef.current = null;
@@ -262,10 +278,25 @@ export default function LiveAvatar() {
 			analyser.fftSize = 1024;
 			source.connect(analyser);
 
+			// Pull the analyser via a (silent) script processor instead of
+			// relying solely on rAF: Web Audio processing keeps running even
+			// when this tab is backgrounded, so the state machine stays
+			// responsive while e.g. an emulator window has focus.
+			const processor = audioCtx.createScriptProcessor(2048, 1, 1);
+			analyser.connect(processor);
+			const silentGain = audioCtx.createGain();
+			silentGain.gain.value = 0;
+			processor.connect(silentGain);
+			silentGain.connect(audioCtx.destination);
+			processor.onaudioprocess = () =>
+				evaluateAudioFrame(audioCtx.currentTime * 1000);
+
 			streamRef.current = stream;
 			audioCtxRef.current = audioCtx;
 			analyserRef.current = analyser;
 			dataArrayRef.current = new Uint8Array(analyser.fftSize);
+			processorRef.current = processor;
+			silentGainRef.current = silentGain;
 			hasStartedRef.current = true;
 			setHasStarted(true);
 			setStatus("listening");
@@ -280,11 +311,12 @@ export default function LiveAvatar() {
 				err instanceof Error ? err.message : "Mikrofonzugriff fehlgeschlagen.",
 			);
 		}
-	}, [selectedDeviceId, rawAudio]);
+	}, [selectedDeviceId, rawAudio, evaluateAudioFrame]);
 
 	useEffect(() => {
 		return () => {
 			for (const track of streamRef.current?.getTracks() ?? []) track.stop();
+			processorRef.current?.disconnect();
 			audioCtxRef.current?.close().catch(() => {});
 		};
 	}, []);
