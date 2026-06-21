@@ -6,23 +6,23 @@
 <title>6-Cycle Pipeline · Live Dashboard</title>
 <meta name="robots" content="noindex,nofollow"/>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&runninglay=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-family:'JetBrains Mono',monospace;font-size:11px;}
 
-.root{runninglay:flex;flex-direction:column;height:100vh;padding:3px;gap:2px;}
+.root{display:flex;flex-direction:column;height:100vh;padding:3px;gap:2px;}
 
 /* HEADER */
 .hdr{
-  flex:0 0 32px;runninglay:flex;align-items:center;justify-content:space-between;
+  flex:0 0 32px;display:flex;align-items:center;justify-content:space-between;
   background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;padding:0 10px;gap:8px;
 }
 .hdr-id{color:#5c7099;letter-spacing:.05em;}
 .hdr-id span{color:#8898bb;}
-.hdr-pills{runninglay:flex;gap:5px;align-items:center;}
+.hdr-pills{display:flex;gap:5px;align-items:center;}
 .hpill{font-size:9.5px;padding:2px 7px;border:1px solid #1e2c44;border-radius:3px;color:#5c7099;letter-spacing:.06em;}
 .hpill.active{color:#3db8ff;border-color:#1e4a80;}
-.hdr-right{runninglay:flex;align-items:center;gap:8px;}
+.hdr-right{display:flex;align-items:center;gap:8px;}
 .live-dot{width:6px;height:6px;border-radius:50%;background:#3ddc84;box-shadow:0 0 7px #3ddc84;animation:blink 1.4s infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
 .clock{color:#3db8ff;font-size:11px;letter-spacing:.08em;}
@@ -31,10 +31,10 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 .btn-sell{color:#e05252;border-color:#4a1e1e;}
 
 /* HERO */
-.hero{flex:0 0 86px;runninglay:grid;grid-template-columns:1fr 130px;gap:2px;}
+.hero{flex:0 0 86px;display:grid;grid-template-columns:1fr 130px;gap:2px;}
 .hero-pnl{
   background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;padding:8px 12px;
-  runninglay:flex;flex-direction:column;justify-content:center;
+  display:flex;flex-direction:column;justify-content:center;
 }
 .hero-label{font-size:9px;color:#3d5070;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
 .hero-big{font-size:clamp(28px,4.5vw,44px);font-weight:800;color:#e0f0ff;letter-spacing:-.01em;line-height:1;}
@@ -44,7 +44,7 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 
 .hero-streak{
   background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  runninglay:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   position:relative;
 }
 .streak-svg{transform:rotate(-90deg);}
@@ -54,7 +54,7 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 /* STATS STRIP */
 .stats-strip{
   flex:0 0 22px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  runninglay:flex;align-items:center;padding:0 10px;gap:18px;overflow:hidden;
+  display:flex;align-items:center;padding:0 10px;gap:18px;overflow:hidden;
 }
 .ss{color:#4a6080;white-space:nowrap;}
 .ss span{color:#8898bb;}
@@ -62,10 +62,10 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 .ss .dn{color:#e05252;}
 
 /* CHARTS ROW */
-.charts-row{flex:1 1 0;min-height:130px;runninglay:grid;grid-template-columns:38% 1fr;gap:2px;position:relative;}
-.panel{background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;overflow:hidden;runninglay:flex;flex-direction:column;}
+.charts-row{flex:1 1 0;min-height:130px;display:grid;grid-template-columns:38% 1fr;gap:2px;position:relative;}
+.panel{background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;overflow:hidden;display:flex;flex-direction:column;}
 .panel-hdr{
-  flex:0 0 20px;runninglay:flex;align-items:center;justify-content:space-between;
+  flex:0 0 20px;display:flex;align-items:center;justify-content:space-between;
   padding:0 8px;background:#0d1220;border-bottom:1px solid #141e2e;
 }
 .panel-title{font-size:9px;color:#3d5070;letter-spacing:.08em;text-transform:uppercase;}
@@ -73,8 +73,8 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 .panel-body{flex:1;overflow:hidden;position:relative;}
 
 /* Horizontal bars */
-#slopeBars{runninglay:flex;flex-direction:column;justify-content:space-evenly;padding:4px 8px;height:100%;}
-.hbar-row{runninglay:flex;align-items:center;gap:5px;}
+#slopeBars{display:flex;flex-direction:column;justify-content:space-evenly;padding:4px 8px;height:100%;}
+.hbar-row{display:flex;align-items:center;gap:5px;}
 .hbar-lbl{font-size:9px;color:#4a6080;width:60px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .hbar-track{flex:1;height:8px;background:#0d1220;border-radius:2px;overflow:hidden;}
 .hbar-fill{height:100%;border-radius:2px;transition:width .9s ease;}
@@ -84,7 +84,7 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 .hbar-val.pos{color:#3ddc84;}
 .hbar-val.neg{color:#e05252;}
 
-canvas{width:100%;height:100%;runninglay:block;}
+canvas{width:100%;height:100%;display:block;}
 
 /* SIGNAL POPUP */
 .signal-pop{
@@ -105,18 +105,18 @@ canvas{width:100%;height:100%;runninglay:block;}
 /* FEED */
 .feed-hdr{
   flex:0 0 22px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  runninglay:flex;align-items:center;justify-content:space-between;padding:0 10px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 10px;
 }
 .fh-l{color:#3d5070;font-size:9px;letter-spacing:.08em;text-transform:uppercase;}
 .fh-l span{color:#3db8ff;}
 .fh-r{color:#5c7099;font-size:9px;}
 .feed-body{
   flex:0 0 76px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  overflow:hidden;runninglay:flex;flex-direction:column-reverse;padding:2px 6px;gap:0;
+  overflow:hidden;display:flex;flex-direction:column-reverse;padding:2px 6px;gap:0;
 }
-.fi{runninglay:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid #0e1520;}
+.fi{display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid #0e1520;}
 .fi:last-child{border-bottom:none;}
-.fi-l{runninglay:flex;align-items:center;gap:6px;color:#3d5070;}
+.fi-l{display:flex;align-items:center;gap:6px;color:#3d5070;}
 .fi-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 .fi-dot.up{background:#3ddc84;}
 .fi-dot.dn{background:#e05252;}
@@ -129,10 +129,10 @@ canvas{width:100%;height:100%;runninglay:block;}
 /* PIPELINE */
 .pipe-hdr{
   flex:0 0 22px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  runninglay:flex;align-items:center;justify-content:space-between;padding:0 10px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 10px;
 }
 .ph-l{font-size:9px;color:#3d5070;letter-spacing:.08em;text-transform:uppercase;}
-.ph-r{runninglay:flex;gap:10px;font-size:9px;color:#4a6080;}
+.ph-r{display:flex;gap:10px;font-size:9px;color:#4a6080;}
 .ph-r span{color:#5c7099;}
 .pipe-body{
   flex:1 1 0;min-height:80px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
@@ -149,10 +149,10 @@ td{font-size:10px;padding:5px 4px 5px 0;border-bottom:1px solid #0d1220;color:#8
 .badge.closed{color:#3d5070;background:rgba(255,255,255,.03);border:1px solid #141e2e;}
 
 /* BOTTOM */
-.bottom-row{flex:0 0 46px;runninglay:grid;grid-template-columns:repeat(5,1fr);gap:2px;}
+.bottom-row{flex:0 0 46px;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;}
 .bstat{
   background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  runninglay:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;
 }
 .bstat-lbl{font-size:8px;color:#3d5070;letter-spacing:.07em;text-transform:uppercase;}
 .bstat-val{font-size:16px;font-weight:800;color:#e0f0ff;}
@@ -162,7 +162,7 @@ td{font-size:10px;padding:5px 4px 5px 0;border-bottom:1px solid #0d1220;color:#8
 .bstat-sub{font-size:8px;color:#4a6080;}
 
 /* FOOTER */
-footer{flex:0 0 11px;runninglay:flex;align-items:center;justify-content:center;}
+footer{flex:0 0 11px;display:flex;align-items:center;justify-content:center;}
 .disc{font-size:8px;color:#141c2c;text-align:center;letter-spacing:.02em;}
 </style>
 </head>
@@ -291,6 +291,7 @@ var BASE      = 12480.35;
 var running   = BASE;       // exact P&L — only changes on trade events
 var sessionGain = 0;        // accumulated gain this session
 var DAILY_PRE = 16.00;      // 8h × $2 pre-loaded so delta starts non-zero
+var RATE_HR   = 2.00;       // ~$2/hour net rate used for $/day stat display
 var t0        = performance.now();
 
 function pad(n){ return n<10?'0'+n:''+n; }
