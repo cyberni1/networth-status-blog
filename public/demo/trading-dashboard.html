@@ -453,19 +453,32 @@ function resz(){
 }
 function drawChart(){
   var d=resz(); ctx.clearRect(0,0,d.w,d.h); if(series.length<2)return;
-  var mn=Math.min.apply(null,series), mx=Math.max.apply(null,series), rng=(mx-mn)||1;
-  var sx=d.w/(MAXP-1), off=MAXP-series.length;
+  var mn=Math.min.apply(null,series), mx=Math.max.apply(null,series);
+  var rng = mx - mn;
+  // If all values identical, add a tiny artificial range so chart isn't flat
+  if(rng < 0.001) rng = 0.01;
+  var n = series.length;
+  // Grid lines
   ctx.strokeStyle='rgba(255,255,255,.04)'; ctx.lineWidth=1;
-  for(var g=1;g<4;g++){var gy=d.h*g/4;ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(d.w,gy);ctx.stroke();}
+  for(var g=1;g<4;g++){
+    var gy=d.h*g/4;
+    ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(d.w,gy); ctx.stroke();
+  }
+  // Line — always fills full canvas width regardless of how many points
   ctx.beginPath();
-  series.forEach(function(v,i){
-    var x=(off+i)*sx, y=d.h-((v-mn)/rng)*(d.h-12)-6;
-    if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y);
-  });
+  for(var i=0;i<n;i++){
+    var x = n===1 ? d.w : (i/(n-1))*d.w;
+    var y = d.h - ((series[i]-mn)/rng)*(d.h-14) - 7;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
   ctx.strokeStyle='#3ddc84'; ctx.lineWidth=1.8; ctx.stroke();
-  ctx.lineTo(d.w,d.h); ctx.lineTo(off*sx,d.h); ctx.closePath();
+  // Fill — close to bottom corners, no cliff
+  ctx.lineTo(d.w, d.h);
+  ctx.lineTo(0, d.h);
+  ctx.closePath();
   var gr=ctx.createLinearGradient(0,0,0,d.h);
-  gr.addColorStop(0,'rgba(61,220,132,.22)'); gr.addColorStop(1,'rgba(61,220,132,.01)');
+  gr.addColorStop(0,'rgba(61,220,132,.22)');
+  gr.addColorStop(1,'rgba(61,220,132,.01)');
   ctx.fillStyle=gr; ctx.fill();
 }
 
