@@ -285,13 +285,17 @@ footer{flex:0 0 11px;display:flex;align-items:center;justify-content:center;}
 "use strict";
 
 /* ── Config ── */
-var RATE_HR = 50;                     // $ net per hour
-var RATE_MS = RATE_HR / 3600000;
-var BASE    = 12480.35;
-var t0      = performance.now();
-var disp    = BASE;
-var prev    = BASE;
-var lastTick= t0;
+var RATE_HR   = 50;                   // $ net per hour
+var RATE_MS   = RATE_HR / 3600000;
+var BASE      = 12480.35;
+var t0        = performance.now();
+var disp      = BASE;
+var prev      = BASE;
+var lastTick  = t0;
+// Pre-load 8 h of today's session so delta starts at ~$400 and keeps growing
+var DAILY_PRE = 8 * RATE_HR;         // $400
+var dnoise    = 0;                    // display noise for delta (mean-reverting)
+var tDeltaUpd = 0;
 
 function pad(n){ return n<10?'0'+n:''+n; }
 
@@ -509,9 +513,19 @@ function frame(now){
   var delta=v-prev; prev=v;
   var up=delta>=0;
 
-  eBig.textContent   = fmtBig(v);
-  eDelta.textContent = fmtDelta(delta);
-  eDelta.className   = 'hero-delta '+(up?'up':'dn');
+  eBig.textContent = fmtBig(v);
+
+  // Delta: today's gain (pre-loaded 8h + live session) with small display noise
+  if(now - tDeltaUpd > 250){
+    tDeltaUpd = now;
+    dnoise += (Math.random()-0.5)*0.55;
+    dnoise  *= 0.96;                          // mean-revert toward zero
+    dnoise   = Math.max(-5, Math.min(8, dnoise));
+    var todayGain = DAILY_PRE + (v - BASE) + dnoise;
+    var dUp = todayGain >= 0;
+    eDelta.textContent = (dUp?'+$':'-$') + Math.abs(todayGain).toFixed(2);
+    eDelta.className   = 'hero-delta '+(dUp?'up':'dn');
+  }
   bumpStreak(up);
   updateStats(now);
   eBTrend.textContent  = up?'UP':'DOWN';
