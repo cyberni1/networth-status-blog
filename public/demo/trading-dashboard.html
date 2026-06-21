@@ -6,23 +6,23 @@
 <title>6-Cycle Pipeline · Live Dashboard</title>
 <meta name="robots" content="noindex,nofollow"/>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&runninglay=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-family:'JetBrains Mono',monospace;font-size:11px;}
 
-.root{display:flex;flex-direction:column;height:100vh;padding:3px;gap:2px;}
+.root{runninglay:flex;flex-direction:column;height:100vh;padding:3px;gap:2px;}
 
 /* HEADER */
 .hdr{
-  flex:0 0 32px;display:flex;align-items:center;justify-content:space-between;
+  flex:0 0 32px;runninglay:flex;align-items:center;justify-content:space-between;
   background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;padding:0 10px;gap:8px;
 }
 .hdr-id{color:#5c7099;letter-spacing:.05em;}
 .hdr-id span{color:#8898bb;}
-.hdr-pills{display:flex;gap:5px;align-items:center;}
+.hdr-pills{runninglay:flex;gap:5px;align-items:center;}
 .hpill{font-size:9.5px;padding:2px 7px;border:1px solid #1e2c44;border-radius:3px;color:#5c7099;letter-spacing:.06em;}
 .hpill.active{color:#3db8ff;border-color:#1e4a80;}
-.hdr-right{display:flex;align-items:center;gap:8px;}
+.hdr-right{runninglay:flex;align-items:center;gap:8px;}
 .live-dot{width:6px;height:6px;border-radius:50%;background:#3ddc84;box-shadow:0 0 7px #3ddc84;animation:blink 1.4s infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
 .clock{color:#3db8ff;font-size:11px;letter-spacing:.08em;}
@@ -31,10 +31,10 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 .btn-sell{color:#e05252;border-color:#4a1e1e;}
 
 /* HERO */
-.hero{flex:0 0 86px;display:grid;grid-template-columns:1fr 130px;gap:2px;}
+.hero{flex:0 0 86px;runninglay:grid;grid-template-columns:1fr 130px;gap:2px;}
 .hero-pnl{
   background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;padding:8px 12px;
-  display:flex;flex-direction:column;justify-content:center;
+  runninglay:flex;flex-direction:column;justify-content:center;
 }
 .hero-label{font-size:9px;color:#3d5070;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
 .hero-big{font-size:clamp(28px,4.5vw,44px);font-weight:800;color:#e0f0ff;letter-spacing:-.01em;line-height:1;}
@@ -44,7 +44,7 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 
 .hero-streak{
   background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  runninglay:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   position:relative;
 }
 .streak-svg{transform:rotate(-90deg);}
@@ -54,7 +54,7 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 /* STATS STRIP */
 .stats-strip{
   flex:0 0 22px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  display:flex;align-items:center;padding:0 10px;gap:18px;overflow:hidden;
+  runninglay:flex;align-items:center;padding:0 10px;gap:18px;overflow:hidden;
 }
 .ss{color:#4a6080;white-space:nowrap;}
 .ss span{color:#8898bb;}
@@ -62,10 +62,10 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 .ss .dn{color:#e05252;}
 
 /* CHARTS ROW */
-.charts-row{flex:1 1 0;min-height:130px;display:grid;grid-template-columns:38% 1fr;gap:2px;position:relative;}
-.panel{background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;overflow:hidden;display:flex;flex-direction:column;}
+.charts-row{flex:1 1 0;min-height:130px;runninglay:grid;grid-template-columns:38% 1fr;gap:2px;position:relative;}
+.panel{background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;overflow:hidden;runninglay:flex;flex-direction:column;}
 .panel-hdr{
-  flex:0 0 20px;display:flex;align-items:center;justify-content:space-between;
+  flex:0 0 20px;runninglay:flex;align-items:center;justify-content:space-between;
   padding:0 8px;background:#0d1220;border-bottom:1px solid #141e2e;
 }
 .panel-title{font-size:9px;color:#3d5070;letter-spacing:.08em;text-transform:uppercase;}
@@ -73,8 +73,8 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 .panel-body{flex:1;overflow:hidden;position:relative;}
 
 /* Horizontal bars */
-#slopeBars{display:flex;flex-direction:column;justify-content:space-evenly;padding:4px 8px;height:100%;}
-.hbar-row{display:flex;align-items:center;gap:5px;}
+#slopeBars{runninglay:flex;flex-direction:column;justify-content:space-evenly;padding:4px 8px;height:100%;}
+.hbar-row{runninglay:flex;align-items:center;gap:5px;}
 .hbar-lbl{font-size:9px;color:#4a6080;width:60px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .hbar-track{flex:1;height:8px;background:#0d1220;border-radius:2px;overflow:hidden;}
 .hbar-fill{height:100%;border-radius:2px;transition:width .9s ease;}
@@ -84,7 +84,7 @@ html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-fam
 .hbar-val.pos{color:#3ddc84;}
 .hbar-val.neg{color:#e05252;}
 
-canvas{width:100%;height:100%;display:block;}
+canvas{width:100%;height:100%;runninglay:block;}
 
 /* SIGNAL POPUP */
 .signal-pop{
@@ -105,18 +105,18 @@ canvas{width:100%;height:100%;display:block;}
 /* FEED */
 .feed-hdr{
   flex:0 0 22px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  display:flex;align-items:center;justify-content:space-between;padding:0 10px;
+  runninglay:flex;align-items:center;justify-content:space-between;padding:0 10px;
 }
 .fh-l{color:#3d5070;font-size:9px;letter-spacing:.08em;text-transform:uppercase;}
 .fh-l span{color:#3db8ff;}
 .fh-r{color:#5c7099;font-size:9px;}
 .feed-body{
   flex:0 0 76px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  overflow:hidden;display:flex;flex-direction:column-reverse;padding:2px 6px;gap:0;
+  overflow:hidden;runninglay:flex;flex-direction:column-reverse;padding:2px 6px;gap:0;
 }
-.fi{display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid #0e1520;}
+.fi{runninglay:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid #0e1520;}
 .fi:last-child{border-bottom:none;}
-.fi-l{display:flex;align-items:center;gap:6px;color:#3d5070;}
+.fi-l{runninglay:flex;align-items:center;gap:6px;color:#3d5070;}
 .fi-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 .fi-dot.up{background:#3ddc84;}
 .fi-dot.dn{background:#e05252;}
@@ -129,10 +129,10 @@ canvas{width:100%;height:100%;display:block;}
 /* PIPELINE */
 .pipe-hdr{
   flex:0 0 22px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  display:flex;align-items:center;justify-content:space-between;padding:0 10px;
+  runninglay:flex;align-items:center;justify-content:space-between;padding:0 10px;
 }
 .ph-l{font-size:9px;color:#3d5070;letter-spacing:.08em;text-transform:uppercase;}
-.ph-r{display:flex;gap:10px;font-size:9px;color:#4a6080;}
+.ph-r{runninglay:flex;gap:10px;font-size:9px;color:#4a6080;}
 .ph-r span{color:#5c7099;}
 .pipe-body{
   flex:1 1 0;min-height:80px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
@@ -149,10 +149,10 @@ td{font-size:10px;padding:5px 4px 5px 0;border-bottom:1px solid #0d1220;color:#8
 .badge.closed{color:#3d5070;background:rgba(255,255,255,.03);border:1px solid #141e2e;}
 
 /* BOTTOM */
-.bottom-row{flex:0 0 46px;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;}
+.bottom-row{flex:0 0 46px;runninglay:grid;grid-template-columns:repeat(5,1fr);gap:2px;}
 .bstat{
   background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
-  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;
+  runninglay:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;
 }
 .bstat-lbl{font-size:8px;color:#3d5070;letter-spacing:.07em;text-transform:uppercase;}
 .bstat-val{font-size:16px;font-weight:800;color:#e0f0ff;}
@@ -162,7 +162,7 @@ td{font-size:10px;padding:5px 4px 5px 0;border-bottom:1px solid #0d1220;color:#8
 .bstat-sub{font-size:8px;color:#4a6080;}
 
 /* FOOTER */
-footer{flex:0 0 11px;display:flex;align-items:center;justify-content:center;}
+footer{flex:0 0 11px;runninglay:flex;align-items:center;justify-content:center;}
 .disc{font-size:8px;color:#141c2c;text-align:center;letter-spacing:.02em;}
 </style>
 </head>
@@ -285,37 +285,38 @@ footer{flex:0 0 11px;display:flex;align-items:center;justify-content:center;}
 "use strict";
 
 /* ── Config ── */
-var RATE_HR   = 50;                   // $ net per hour
-var RATE_MS   = RATE_HR / 3600000;
+// Net rate: ~$2/hour from discrete micro-trades
+// All three numbers (counter, popup, feed) come from the same trade event.
 var BASE      = 12480.35;
+var running   = BASE;       // exact P&L — only changes on trade events
+var sessionGain = 0;        // accumulated gain this session
+var DAILY_PRE = 16.00;      // 8h × $2 pre-loaded so delta starts non-zero
 var t0        = performance.now();
-var disp      = BASE;
-var prev      = BASE;
-var lastTick  = t0;
-// Pre-load 8 h of today's session so delta starts at ~$400 and keeps growing
-var DAILY_PRE = 8 * RATE_HR;         // $400
-var dnoise    = 0;                    // display noise for delta (mean-reverting)
-var tDeltaUpd = 0;
 
 function pad(n){ return n<10?'0'+n:''+n; }
 
+// Show cents in the main counter so micro-changes are visible
 function fmtBig(v){
-  return '$' + Math.floor(v).toLocaleString('en-US');
-}
-function fmtDelta(d){
-  return (d>=0?'+$':'-$') + Math.abs(d).toFixed(2);
+  return '$' + v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
-/* ── Counter: biased random walk, mean-reverts to $50/h line ── */
-function tickVal(now){
-  var dt = now - lastTick; lastTick = now;
-  var target = BASE + (now-t0)*RATE_MS;
-  var step = Math.random()<.66
-    ?  Math.random()*0.055*(dt/1000)
-    : -Math.random()*0.025*(dt/1000);
-  disp += step;
-  disp += (target-disp)*0.015;
-  return disp;
+/* ── Trade generator: calibrated for ~$2/hour net ──
+   Fires every 8-12 s → ~360 trades/hour
+   Win (65%): +$0.004–$0.016 avg $0.010
+   Loss (35%): -$0.002–$0.008 avg -$0.005
+   Net/trade: 0.65×0.010 − 0.35×0.005 = 0.00475
+   Net/hour:  360 × 0.00475 ≈ $1.71 ≈ $2 ✓
+*/
+var tTrade = 0;
+function nextTradeInterval(){ return 8000 + Math.random()*4000; }
+var nextTrade = nextTradeInterval();
+
+function generateTrade(){
+  var up = Math.random() < 0.65;
+  var raw = up
+    ? (0.004 + Math.random()*0.012)   // +$0.004–$0.016
+    : -(0.002 + Math.random()*0.006); // −$0.002–$0.008
+  return parseFloat(raw.toFixed(3));
 }
 
 /* ── DOM ── */
@@ -363,10 +364,10 @@ function updateStats(now){
   eTrades.textContent = trades.toLocaleString('en-US');
   eWin.textContent    = winRate.toFixed(1)+'%';
   eDay.textContent    = '$'+(RATE_HR*24).toFixed(0);
-  eReinv.textContent  = '$'+(disp*0.015).toFixed(0);
+  eReinv.textContent  = '$'+(running*0.015).toFixed(0);
   eUptime.textContent = hr.toFixed(1)+'h';
-  eSlope.textContent  = fmtBig(disp);
-  eChart.textContent  = fmtBig(disp);
+  eSlope.textContent  = fmtBig(running);
+  eChart.textContent  = fmtBig(running);
   eLatMs.textContent  = (2.5+Math.random()*2.5).toFixed(1)+'ms';
   eBVola.textContent  = vola.toFixed(1);
   eBVolaS.textContent = vola>70?'elevated':vola<25?'low':'nominal';
@@ -438,10 +439,10 @@ function drawChart(){
 var SYMS=['BTC','ETH','SOL','BNB','XRP','ADA','DOT','AVAX'];
 var PRICE={BTC:67240,ETH:3512,SOL:148,BNB:590,XRP:0.52,ADA:0.44,DOT:7.1,AVAX:34};
 var feedVol=76889;
-function pushFeed(up){
+function pushFeed(amt){
+  var up = amt >= 0;
   var sym=SYMS[Math.floor(Math.random()*SYMS.length)];
   var px=PRICE[sym]*(1+(Math.random()-.5)*.001);
-  var chg=up?(Math.random()*.14+.01):-(Math.random()*.07+.005);
   var now=new Date();
   var el=document.createElement('div'); el.className='fi';
   el.innerHTML=
@@ -449,10 +450,10 @@ function pushFeed(up){
     pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds())+
     ' <span class="fi-sym">'+sym+'</span>'+
     ' <span class="fi-price">$'+px.toFixed(sym==='XRP'||sym==='ADA'?4:2)+'</span></span>'+
-    '<span class="fi-amt '+(up?'up':'dn')+'">'+(chg>=0?'+$':'-$')+Math.abs(chg).toFixed(2)+'</span>';
+    '<span class="fi-amt '+(up?'up':'dn')+'">'+(up?'+$':'-$')+Math.abs(amt).toFixed(3)+'</span>';
   eFeedBody.insertBefore(el,eFeedBody.firstChild);
   while(eFeedBody.children.length>14) eFeedBody.removeChild(eFeedBody.lastChild);
-  feedVol+=Math.abs(chg)*90;
+  feedVol+=Math.abs(amt)*400;
   eFeedVol.textContent='$'+Math.floor(feedVol).toLocaleString('en-US')+' V · to go';
 }
 
@@ -494,49 +495,64 @@ function jitterPipe(){
   renderPipe();
 }
 
-/* ── Signal popup ── */
-var sigTimer=null, lastSig=0;
-function showSig(up){
-  var amt=up?(Math.random()*90+20).toFixed(2):(Math.random()*38+8).toFixed(2);
+/* ── Signal popup — receives the exact trade amount ── */
+var sigTimer=null;
+function showSig(amt){
+  var up = amt >= 0;
   eSigPop.className='signal-pop '+(up?'up':'dn');
-  eSigAmt.textContent=(up?'+$':'-$')+amt;
+  eSigAmt.textContent=(up?'+$':'-$')+Math.abs(amt).toFixed(3);
   requestAnimationFrame(function(){eSigPop.classList.add('show');});
   if(sigTimer) clearTimeout(sigTimer);
   sigTimer=setTimeout(function(){eSigPop.classList.remove('show');},1900);
 }
 
 /* ── Main loop ── */
-var tFeed=0, tSig=0, tPipe=0, tBar=0;
+var tPipe=0, tBar=0, lastUp=true, sigCount=0;
 function frame(now){
   if(!now) now=performance.now();
-  var v=tickVal(now);
-  var delta=v-prev; prev=v;
-  var up=delta>=0;
 
-  eBig.textContent = fmtBig(v);
+  /* ── Discrete trade event ── */
+  if(now - tTrade >= nextTrade){
+    tTrade = now;
+    nextTrade = nextTradeInterval();
+    var amt = generateTrade();
+    var up  = amt >= 0;
 
-  // Delta: today's gain (pre-loaded 8h + live session) with small display noise
-  if(now - tDeltaUpd > 250){
-    tDeltaUpd = now;
-    dnoise += (Math.random()-0.5)*0.55;
-    dnoise  *= 0.96;                          // mean-revert toward zero
-    dnoise   = Math.max(-5, Math.min(8, dnoise));
-    var todayGain = DAILY_PRE + (v - BASE) + dnoise;
-    var dUp = todayGain >= 0;
-    eDelta.textContent = (dUp?'+$':'-$') + Math.abs(todayGain).toFixed(2);
-    eDelta.className   = 'hero-delta '+(dUp?'up':'dn');
+    // 1) Update the ONE source of truth
+    running      += amt;
+    sessionGain  += amt;
+    lastUp        = up;
+
+    // 2) Feed always gets the trade
+    pushFeed(amt);
+
+    // 3) Popup: show every 3rd–5th trade so it fires every ~30–50 s
+    sigCount++;
+    if(sigCount >= 3 + Math.floor(Math.random()*3)){
+      sigCount = 0;
+      showSig(amt);
+    }
+
+    bumpStreak(up);
   }
-  bumpStreak(up);
-  updateStats(now);
-  eBTrend.textContent  = up?'UP':'DOWN';
-  eBTrend.className    = 'bstat-val '+(up?'up':'dn');
-  eBTrendS.textContent = up?'↑ bullish':'↓ bearish';
 
-  series.push(v); if(series.length>MAXP) series.shift();
+  // Main counter: exact running value (shows cents)
+  eBig.textContent = fmtBig(running);
+
+  // Delta: DAILY_PRE + this session's real accumulated gain
+  var todayGain = DAILY_PRE + sessionGain;
+  var dUp = todayGain >= 0;
+  eDelta.textContent = (dUp?'+$':'-$') + Math.abs(todayGain).toFixed(2);
+  eDelta.className   = 'hero-delta '+(dUp?'up':'dn');
+
+  updateStats(now);
+  eBTrend.textContent  = lastUp?'UP':'DOWN';
+  eBTrend.className    = 'bstat-val '+(lastUp?'up':'dn');
+  eBTrendS.textContent = lastUp?'↑ bullish':'↓ bearish';
+
+  series.push(running); if(series.length>MAXP) series.shift();
   drawChart();
 
-  if(now-tFeed > 1400+Math.random()*900){ tFeed=now; pushFeed(Math.random()<.65); }
-  if(now-tSig  > 7000+Math.random()*6000){ tSig=now; showSig(Math.random()<.65); }
   if(now-tPipe > 2200){ tPipe=now; jitterPipe(); }
   if(now-tBar  > 1900){ tBar=now; jitterBars(); }
 
