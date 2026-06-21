@@ -319,264 +319,333 @@ footer{flex:0 0 11px;display:flex;align-items:center;justify-content:center;}
 "use strict";
 
 /* ── Config ── */
-// Net rate: ~$2/hour from discrete micro-trades
-// All three numbers (counter, popup, feed) come from the same trade event.
+var RATE_HR   = 2;          // $2/hour net rate
 var BASE      = 12480.35;
-var running   = BASE;       // exact P&L — only changes on trade events
+var running   = BASE;       // exact running P&L — updated only on trade events
 var sessionGain = 0;        // accumulated gain this session
-var DAILY_PRE = 16.00;      // 8h × $2 pre-loaded so delta starts non-zero
-var RATE_HR   = 2.00;       // ~$2/hour net rate used for $/day stat display
+var DAILY_PRE = 16;         // 8h × $2 pre-loaded so delta starts non-zero
 var t0        = performance.now();
 
-function pad(n){ return n<10?'0'+n:''+n; }
+/* ── Helpers ── */
+function pad(n){ return n < 10 ? '0' + n : '' + n; }
 
-// Show cents in the main counter so micro-changes are visible
 function fmtBig(v){
-  return '$' + v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return '$' + v.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
-/* ── Trade generator: calibrated for ~$2/hour net ──
-   Fires every 8-12 s → ~360 trades/hour
-   Win (65%): +$0.004–$0.016 avg $0.010
-   Loss (35%): -$0.002–$0.008 avg -$0.005
-   Net/trade: 0.65×0.010 − 0.35×0.005 = 0.00475
-   Net/hour:  360 × 0.00475 ≈ $1.71 ≈ $2 ✓
-*/
-var tTrade = 0;
-function nextTradeInterval(){ return 8000 + Math.random()*4000; }
-var nextTrade = nextTradeInterval();
+/* ── Trade timing: every 8-12 seconds ── */
+var tTrade    = 0;          // timestamp of last trade (0 = not fired yet)
+var nextTrade = 8000 + Math.random() * 4000;
 
+function nextTradeInterval(){ return 8000 + Math.random() * 4000; }
+
+/* ── Trade generator: calibrated for ~$2/hour net ──
+   ~360 trades/hour × (0.65×$0.010 − 0.35×$0.005) = ~$1.71/hr ≈ $2 ✓  */
 function generateTrade(){
-  var up = Math.random() < 0.65;
-  var raw = up
-    ? (0.004 + Math.random()*0.012)   // +$0.004–$0.016
-    : -(0.002 + Math.random()*0.006); // −$0.002–$0.008
+  var win = Math.random() < 0.65;
+  var raw = win
+    ? (0.004 + Math.random() * 0.012)    // +$0.004–$0.016
+    : -(0.002 + Math.random() * 0.006);  // −$0.002–$0.008
   return parseFloat(raw.toFixed(3));
 }
 
-/* ── DOM ── */
-var eClock   = document.getElementById('clock');
-var eBig     = document.getElementById('pnlBig');
-var eDelta   = document.getElementById('pnlDelta');
-var eStreak  = document.getElementById('streakNum');
-var eRing    = document.getElementById('sRing');
-var eTrades  = document.getElementById('sTrades');
-var eWin     = document.getElementById('sWin');
-var eDay     = document.getElementById('sDay');
-var eReinv   = document.getElementById('sReinv');
-var eUptime  = document.getElementById('sUptime');
-var eSlope   = document.getElementById('slopePnl');
-var eChart   = document.getElementById('chartPnl');
-var eFeedVol = document.getElementById('feedVol');
-var eFeedBody= document.getElementById('feedBody');
-var eLatMs   = document.getElementById('latMs');
-var ePipeBody= document.getElementById('pipeBody');
-var eBPos    = document.getElementById('bPos');
-var eBStrain = document.getElementById('bStrain');
-var eBTrend  = document.getElementById('bTrend');
-var eBTrendS = document.getElementById('bTrendSub');
-var eBCyc    = document.getElementById('bCyc');
-var eBVola   = document.getElementById('bVola');
-var eBVolaS  = document.getElementById('bVolaSub');
-var eSigPop  = document.getElementById('sigPop');
-var eSigAmt  = document.getElementById('sigAmt');
+/* ── DOM refs ── */
+var eClock    = document.getElementById('clock');
+var eBig      = document.getElementById('pnlBig');
+var eDelta    = document.getElementById('pnlDelta');
+var eStreak   = document.getElementById('streakNum');
+var eRing     = document.getElementById('sRing');
+var eTrades   = document.getElementById('sTrades');
+var eWin      = document.getElementById('sWin');
+var eDay      = document.getElementById('sDay');
+var eReinv    = document.getElementById('sReinv');
+var eUptime   = document.getElementById('sUptime');
+var eSlope    = document.getElementById('slopePnl');
+var eChartPnl = document.getElementById('chartPnl');
+var eFeedVol  = document.getElementById('feedVol');
+var eFeedBody = document.getElementById('feedBody');
+var eLatMs    = document.getElementById('latMs');
+var ePipeBody = document.getElementById('pipeBody');
+var eBPosDom  = document.getElementById('bPos');
+var eBStrain  = document.getElementById('bStrain');
+var eBTrend   = document.getElementById('bTrend');
+var eBTrendS  = document.getElementById('bTrendSub');
+var eBCyc     = document.getElementById('bCyc');
+var eBVola    = document.getElementById('bVola');
+var eBVolaS   = document.getElementById('bVolaSub');
+var eSigPop   = document.getElementById('sigPop');
+var eSigAmt   = document.getElementById('sigAmt');
 
 /* ── Win streak ── */
-var streak = 24; var CIRC = 2*Math.PI*36;
+var streak = 24;
+var CIRC   = 2 * Math.PI * 36; // circumference of r=36 circle
+
 function bumpStreak(up){
-  streak = up ? Math.min(streak+1,99) : Math.max(streak-2,0);
+  streak = up ? Math.min(streak + 1, 99) : Math.max(streak - 2, 0);
   eStreak.textContent = streak;
-  eRing.style.strokeDashoffset = (CIRC*(1-Math.min(streak/50,1))).toFixed(1);
+  eRing.style.strokeDashoffset = (CIRC * (1 - Math.min(streak / 50, 1))).toFixed(1);
 }
 
-/* ── Stats ── */
-var trades=1200, winRate=68.4, vola=43.9;
+/* ── Stats strip ── */
+var trades  = 1200;
+var winRate = 68.4;
+var vola    = 43.9;
+
 function updateStats(now){
-  var hr = (now-t0)/3600000;
-  if(Math.random()<.025) trades++;
-  winRate += (Math.random()-.45)*.12; winRate=Math.max(55,Math.min(84,winRate));
-  vola    += (Math.random()-.5)*1.1;  vola   =Math.max(8,Math.min(95,vola));
-  eTrades.textContent = trades.toLocaleString('en-US');
-  eWin.textContent    = winRate.toFixed(1)+'%';
-  eDay.textContent    = '$'+(RATE_HR*24).toFixed(0);
-  eReinv.textContent  = '$'+(running*0.015).toFixed(0);
-  eUptime.textContent = hr.toFixed(1)+'h';
-  eSlope.textContent  = fmtBig(running);
-  eChart.textContent  = fmtBig(running);
-  eLatMs.textContent  = (2.5+Math.random()*2.5).toFixed(1)+'ms';
-  eBVola.textContent  = vola.toFixed(1);
-  eBVolaS.textContent = vola>70?'elevated':vola<25?'low':'nominal';
-  eBCyc.textContent   = (2.2+Math.random()*.9).toFixed(1);
-  var d=new Date();
-  eClock.textContent  = pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  var hr = (now - t0) / 3600000;
+  if(Math.random() < 0.025) trades++;
+  winRate += (Math.random() - 0.45) * 0.12;
+  winRate  = Math.max(55, Math.min(84, winRate));
+  vola    += (Math.random() - 0.5) * 1.1;
+  vola     = Math.max(8, Math.min(95, vola));
+
+  eTrades.textContent  = trades.toLocaleString('en-US');
+  eWin.textContent     = winRate.toFixed(1) + '%';
+  eDay.textContent     = '$' + (RATE_HR * 24).toFixed(0);
+  eReinv.textContent   = '$' + (running * 0.015).toFixed(0);
+  eUptime.textContent  = hr.toFixed(1) + 'h';
+  eSlope.textContent   = fmtBig(running);
+  eChartPnl.textContent = fmtBig(running);
+  eLatMs.textContent   = (2.5 + Math.random() * 2.5).toFixed(1) + 'ms';
+  eBVola.textContent   = vola.toFixed(1);
+  eBVolaS.textContent  = vola > 70 ? 'elevated' : vola < 25 ? 'low' : 'nominal';
+  eBCyc.textContent    = (2.2 + Math.random() * 0.9).toFixed(1);
+  var now2 = new Date();
+  eClock.textContent   = pad(now2.getHours()) + ':' + pad(now2.getMinutes()) + ':' + pad(now2.getSeconds());
 }
 
-/* ── Slope bars ── */
-var PAIRS=['BTC/USDT','ETH/USDT','SOL/USDT','BNB/USDT','XRP/USDT','ADA/USDT','MATIC  ','AVAX   '];
-var bPct=PAIRS.map(function(){return 15+Math.random()*70;});
-var bPos=PAIRS.map(function(){return Math.random()>.28;});
-var sbEl=document.getElementById('slopeBars');
+/* ── Slope bars (left panel) ── */
+var PAIRS = ['BTC/USDT','ETH/USDT','SOL/USDT','BNB/USDT','XRP/USDT','ADA/USDT','MATIC  ','AVAX   '];
+var barPct = PAIRS.map(function(){ return 15 + Math.random() * 70; });
+var barPos = PAIRS.map(function(){ return Math.random() > 0.28; });
+var sbEl   = document.getElementById('slopeBars');
+
 function buildBars(){
-  sbEl.innerHTML='';
-  PAIRS.forEach(function(p,i){
-    var d=document.createElement('div'); d.className='hbar-row'; d.id='hb'+i;
-    var pos=bPos[i]; var val=(pos?1:-1)*(0.004+bPct[i]/100*0.012);
-    d.innerHTML='<span class="hbar-lbl">'+p+'</span>'+
-      '<div class="hbar-track"><div class="hbar-fill '+(pos?'pos':'neg')+'" style="width:'+bPct[i]+'%"></div></div>'+
-      '<span class="hbar-val '+(pos?'pos':'neg')+'">'+(val>=0?'+$':'-$')+Math.abs(val).toFixed(3)+'</span>';
-    sbEl.appendChild(d);
+  sbEl.innerHTML = '';
+  PAIRS.forEach(function(p, i){
+    var row = document.createElement('div');
+    row.className = 'hbar-row';
+    row.id = 'hb' + i;
+    var pos = barPos[i];
+    var val = (pos ? 1 : -1) * (0.004 + barPct[i] / 100 * 0.012);
+    row.innerHTML =
+      '<span class="hbar-lbl">' + p + '</span>' +
+      '<div class="hbar-track"><div class="hbar-fill ' + (pos ? 'pos' : 'neg') +
+        '" style="width:' + barPct[i].toFixed(1) + '%"></div></div>' +
+      '<span class="hbar-val ' + (pos ? 'pos' : 'neg') + '">' +
+        (val >= 0 ? '+$' : '-$') + Math.abs(val).toFixed(3) + '</span>';
+    sbEl.appendChild(row);
   });
 }
 buildBars();
+
 function jitterBars(){
-  PAIRS.forEach(function(_,i){
-    if(Math.random()<.38){
-      bPct[i]=Math.max(5,Math.min(96,bPct[i]+(Math.random()*12-5)));
-      if(Math.random()<.07) bPos[i]=!bPos[i];
-      var row=document.getElementById('hb'+i); if(!row)return;
-      var fill=row.querySelector('.hbar-fill'), val=row.querySelector('.hbar-val');
-      fill.style.width=bPct[i]+'%';
-      fill.className='hbar-fill '+(bPos[i]?'pos':'neg');
-      val.className ='hbar-val '+(bPos[i]?'pos':'neg');
-      var v=(bPos[i]?1:-1)*(0.004+bPct[i]/100*0.012);
-      val.textContent=(v>=0?'+$':'-$')+Math.abs(v).toFixed(3);
+  PAIRS.forEach(function(_, i){
+    if(Math.random() < 0.38){
+      barPct[i] = Math.max(5, Math.min(96, barPct[i] + (Math.random() * 12 - 5)));
+      if(Math.random() < 0.07) barPos[i] = !barPos[i];
+      var row  = document.getElementById('hb' + i);
+      if(!row) return;
+      var fill = row.querySelector('.hbar-fill');
+      var lbl  = row.querySelector('.hbar-val');
+      fill.style.width  = barPct[i].toFixed(1) + '%';
+      fill.className    = 'hbar-fill ' + (barPos[i] ? 'pos' : 'neg');
+      lbl.className     = 'hbar-val '  + (barPos[i] ? 'pos' : 'neg');
+      var v = (barPos[i] ? 1 : -1) * (0.004 + barPct[i] / 100 * 0.012);
+      lbl.textContent = (v >= 0 ? '+$' : '-$') + Math.abs(v).toFixed(3);
     }
   });
 }
 
 /* ── Line chart ── */
-var cvs=document.getElementById('lineChart');
-var ctx=cvs.getContext('2d');
-var series=[]; var MAXP=120;
-function resz(){
-  var r=window.devicePixelRatio||1, w=cvs.clientWidth, h=cvs.clientHeight||80;
-  cvs.width=w*r; cvs.height=h*r; ctx.setTransform(r,0,0,r,0,0); return{w:w,h:h};
+var cvs    = document.getElementById('lineChart');
+var ctx    = cvs.getContext('2d');
+var series = [];
+var MAXP   = 120;
+
+// Resize only when dimensions actually change — avoids clearing on every frame
+var _cW = 0, _cH = 0;
+function maybeResize(){
+  var r  = window.devicePixelRatio || 1;
+  var cw = cvs.clientWidth  || 200;
+  var ch = cvs.clientHeight || 80;
+  if(cw !== _cW || ch !== _cH){
+    _cW = cw; _cH = ch;
+    cvs.width  = cw * r;
+    cvs.height = ch * r;
+    ctx.setTransform(r, 0, 0, r, 0, 0);
+  }
+  return { w: cw, h: ch };
 }
+
 function drawChart(){
-  var d=resz(); ctx.clearRect(0,0,d.w,d.h); if(series.length<2)return;
-  var mn=Math.min.apply(null,series), mx=Math.max.apply(null,series);
+  var d = maybeResize();
+  var W = d.w, H = d.h;
+  ctx.clearRect(0, 0, W, H);
+  if(series.length < 2) return;
+
+  var mn  = series[0], mx = series[0];
+  for(var si = 1; si < series.length; si++){
+    if(series[si] < mn) mn = series[si];
+    if(series[si] > mx) mx = series[si];
+  }
   var rng = mx - mn;
-  // If all values identical, add a tiny artificial range so chart isn't flat
   if(rng < 0.001) rng = 0.01;
-  var n = series.length;
+
+  var n   = series.length;
+  var pad2 = 7;          // vertical padding (px) top and bottom
+
   // Grid lines
-  ctx.strokeStyle='rgba(255,255,255,.04)'; ctx.lineWidth=1;
-  for(var g=1;g<4;g++){
-    var gy=d.h*g/4;
-    ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(d.w,gy); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,.04)';
+  ctx.lineWidth   = 1;
+  for(var g = 1; g < 4; g++){
+    var gy = H * g / 4;
+    ctx.beginPath();
+    ctx.moveTo(0, gy);
+    ctx.lineTo(W, gy);
+    ctx.stroke();
   }
-  // Line — always fills full canvas width regardless of how many points
+
+  // Build line path — x spans full width [0 … W], no gap at either edge
   ctx.beginPath();
-  for(var i=0;i<n;i++){
-    var x = n===1 ? d.w : (i/(n-1))*d.w;
-    var y = d.h - ((series[i]-mn)/rng)*(d.h-14) - 7;
-    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  for(var i = 0; i < n; i++){
+    var x = (i / (n - 1)) * W;
+    var y = H - pad2 - ((series[i] - mn) / rng) * (H - pad2 * 2);
+    if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
-  ctx.strokeStyle='#3ddc84'; ctx.lineWidth=1.8; ctx.stroke();
-  // Fill — close to bottom corners, no cliff
-  ctx.lineTo(d.w, d.h);
-  ctx.lineTo(0, d.h);
+  ctx.strokeStyle = '#3ddc84';
+  ctx.lineWidth   = 1.8;
+  ctx.stroke();
+
+  // Filled area — continue from last point down to bottom-right, then bottom-left
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
   ctx.closePath();
-  var gr=ctx.createLinearGradient(0,0,0,d.h);
-  gr.addColorStop(0,'rgba(61,220,132,.22)');
-  gr.addColorStop(1,'rgba(61,220,132,.01)');
-  ctx.fillStyle=gr; ctx.fill();
+  var gr = ctx.createLinearGradient(0, 0, 0, H);
+  gr.addColorStop(0, 'rgba(61,220,132,.22)');
+  gr.addColorStop(1, 'rgba(61,220,132,.01)');
+  ctx.fillStyle = gr;
+  ctx.fill();
 }
 
-/* ── Feed ── */
-var SYMS=['BTC','ETH','SOL','BNB','XRP','ADA','DOT','AVAX'];
-var PRICE={BTC:67240,ETH:3512,SOL:148,BNB:590,XRP:0.52,ADA:0.44,DOT:7.1,AVAX:34};
-var feedVol=76889;
+/* ── Trade feed ── */
+var SYMS  = ['BTC','ETH','SOL','BNB','XRP','ADA','DOT','AVAX'];
+var PRICE = {BTC:67240, ETH:3512, SOL:148, BNB:590, XRP:0.52, ADA:0.44, DOT:7.1, AVAX:34};
+var feedVol = 76889;
+
 function pushFeed(amt){
-  var up = amt >= 0;
-  var sym=SYMS[Math.floor(Math.random()*SYMS.length)];
-  var px=PRICE[sym]*(1+(Math.random()-.5)*.001);
-  var now=new Date();
-  var el=document.createElement('div'); el.className='fi';
-  el.innerHTML=
-    '<span class="fi-l"><span class="fi-dot '+(up?'up':'dn')+'"></span>'+
-    pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds())+
-    ' <span class="fi-sym">'+sym+'</span>'+
-    ' <span class="fi-price">$'+px.toFixed(sym==='XRP'||sym==='ADA'?4:2)+'</span></span>'+
-    '<span class="fi-amt '+(up?'up':'dn')+'">'+(up?'+$':'-$')+Math.abs(amt).toFixed(3)+'</span>';
-  eFeedBody.insertBefore(el,eFeedBody.firstChild);
-  while(eFeedBody.children.length>14) eFeedBody.removeChild(eFeedBody.lastChild);
-  feedVol+=Math.abs(amt)*400;
-  eFeedVol.textContent='$'+Math.floor(feedVol).toLocaleString('en-US')+' V · to go';
+  var up  = amt >= 0;
+  var sym = SYMS[Math.floor(Math.random() * SYMS.length)];
+  var px  = PRICE[sym] * (1 + (Math.random() - 0.5) * 0.001);
+  var ts  = new Date();
+  var el  = document.createElement('div');
+  el.className = 'fi';
+  el.innerHTML =
+    '<span class="fi-l">' +
+      '<span class="fi-dot ' + (up ? 'up' : 'dn') + '"></span>' +
+      pad(ts.getHours()) + ':' + pad(ts.getMinutes()) + ':' + pad(ts.getSeconds()) +
+      ' <span class="fi-sym">' + sym + '</span>' +
+      ' <span class="fi-price">$' + px.toFixed(sym === 'XRP' || sym === 'ADA' ? 4 : 2) + '</span>' +
+    '</span>' +
+    '<span class="fi-amt ' + (up ? 'up' : 'dn') + '">' +
+      (up ? '+$' : '-$') + Math.abs(amt).toFixed(3) +
+    '</span>';
+  eFeedBody.insertBefore(el, eFeedBody.firstChild);
+  while(eFeedBody.children.length > 14){
+    eFeedBody.removeChild(eFeedBody.lastChild);
+  }
+  feedVol += Math.abs(amt) * 400;
+  eFeedVol.textContent = '$' + Math.floor(feedVol).toLocaleString('en-US') + ' V · to go';
 }
 
-/* ── Pipeline ── */
-var PSYM=['BTC/USDT','ETH/USDT','SOL/USDT','BNB/USDT','XRP/USDT','ADA/USDT'];
-var PRED=['Ramp Up','Ramp Down','Ramp Up','Ramp Up','Ramp Down','Ramp Up'];
-var PBASE={BTC:67240,ETH:3512,SOL:148,BNB:590,XRP:0.52,ADA:0.44};
-var pRows=PSYM.map(function(s,i){
-  var b=PBASE[s.split('/')[0]];
-  var o=b*(1+(Math.random()-.5)*.003);
-  var f=o*(1+(Math.random()-.5)*.0015);
-  return{sym:s,pred:PRED[i],open:o,fill:f,pl:(f-o)*0.001,delta:((f-o)/o)*100,
-    size:(1+Math.random()*3).toFixed(2),status:i<4?'open':'closed'};
+/* ── Pipeline table ── */
+var PSYM  = ['BTC/USDT','ETH/USDT','SOL/USDT','BNB/USDT','XRP/USDT','ADA/USDT'];
+var PRED  = ['Ramp Up','Ramp Down','Ramp Up','Ramp Up','Ramp Down','Ramp Up'];
+var PBASE = {BTC:67240, ETH:3512, SOL:148, BNB:590, XRP:0.52, ADA:0.44};
+
+var pRows = PSYM.map(function(s, i){
+  var b = PBASE[s.split('/')[0]];
+  var o = b * (1 + (Math.random() - 0.5) * 0.003);
+  var f = o * (1 + (Math.random() - 0.5) * 0.0015);
+  return {
+    sym: s, pred: PRED[i], open: o, fill: f,
+    pl: (f - o) * 0.001, delta: ((f - o) / o) * 100,
+    size: (1 + Math.random() * 3).toFixed(2),
+    status: i < 4 ? 'open' : 'closed'
+  };
 });
+
 function renderPipe(){
-  ePipeBody.innerHTML=pRows.map(function(r,i){
-    var up=r.pl>=0;
-    return'<tr>'+
-      '<td>'+(i+1)+'</td>'+
-      '<td style="color:'+(r.pred.indexOf('Up')>-1?'#3ddc84':'#e05252')+'">'+r.pred+'</td>'+
-      '<td>$'+r.open.toFixed(r.open<10?4:2)+'</td>'+
-      '<td>$'+r.fill.toFixed(r.fill<10?4:2)+'</td>'+
-      '<td class="td-pl '+(up?'up':'dn')+'">'+(up?'+$':'-$')+Math.abs(r.pl).toFixed(3)+'</td>'+
-      '<td class="td-pl '+(r.delta>=0?'up':'dn')+'">'+(r.delta>=0?'+':'')+r.delta.toFixed(3)+'%</td>'+
-      '<td>'+r.size+'</td>'+
-      '<td><span class="badge '+(r.status==='open'?(r.pl>0?'hot':'open'):'closed')+'">'+r.status.toUpperCase()+'</span></td>'+
+  ePipeBody.innerHTML = pRows.map(function(r, i){
+    var up = r.pl >= 0;
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td style="color:' + (r.pred.indexOf('Up') > -1 ? '#3ddc84' : '#e05252') + '">' + r.pred + '</td>' +
+      '<td>$' + r.open.toFixed(r.open < 10 ? 4 : 2) + '</td>' +
+      '<td>$' + r.fill.toFixed(r.fill < 10 ? 4 : 2) + '</td>' +
+      '<td class="td-pl ' + (up ? 'up' : 'dn') + '">' + (up ? '+$' : '-$') + Math.abs(r.pl).toFixed(3) + '</td>' +
+      '<td class="td-pl ' + (r.delta >= 0 ? 'up' : 'dn') + '">' + (r.delta >= 0 ? '+' : '') + r.delta.toFixed(3) + '%</td>' +
+      '<td>' + r.size + '</td>' +
+      '<td><span class="badge ' + (r.status === 'open' ? (r.pl > 0 ? 'hot' : 'open') : 'closed') + '">' +
+        r.status.toUpperCase() + '</span></td>' +
     '</tr>';
   }).join('');
 }
 renderPipe();
+
 function jitterPipe(){
   pRows.forEach(function(r){
-    if(Math.random()<.45){
-      r.fill*=(1+(Math.random()-.46)*.0018);
-      r.pl=(r.fill-r.open)*0.001; r.delta=((r.fill-r.open)/r.open)*100;
+    if(Math.random() < 0.45){
+      r.fill  *= (1 + (Math.random() - 0.46) * 0.0018);
+      r.pl     = (r.fill - r.open) * 0.001;
+      r.delta  = ((r.fill - r.open) / r.open) * 100;
     }
-    if(Math.random()<.06) r.status=r.status==='open'?'closed':'open';
+    if(Math.random() < 0.06) r.status = r.status === 'open' ? 'closed' : 'open';
   });
   renderPipe();
 }
 
-/* ── Signal popup — receives the exact trade amount ── */
-var sigTimer=null;
+/* ── Signal popup ── */
+var sigTimer  = null;
+var sigCount  = 0;
+
 function showSig(amt){
   var up = amt >= 0;
-  eSigPop.className='signal-pop '+(up?'up':'dn');
-  eSigAmt.textContent=(up?'+$':'-$')+Math.abs(amt).toFixed(3);
-  requestAnimationFrame(function(){eSigPop.classList.add('show');});
+  eSigPop.className = 'signal-pop ' + (up ? 'up' : 'dn');
+  eSigAmt.textContent = (up ? '+$' : '-$') + Math.abs(amt).toFixed(3);
+  // Use rAF to ensure class is set before adding 'show' (triggers CSS transition)
+  requestAnimationFrame(function(){ eSigPop.classList.add('show'); });
   if(sigTimer) clearTimeout(sigTimer);
-  sigTimer=setTimeout(function(){eSigPop.classList.remove('show');},1900);
+  sigTimer = setTimeout(function(){ eSigPop.classList.remove('show'); }, 1900);
 }
 
-/* ── Main loop ── */
-var tPipe=0, tBar=0, lastUp=true, sigCount=0;
-function frame(now){
-  if(!now) now=performance.now();
+/* ── Main animation loop ── */
+var tPipe   = 0;
+var tBar    = 0;
+var lastUp  = true;
 
-  /* ── Discrete trade event ── */
+function frame(now){
+  // Guard: if called without a timestamp (shouldn't happen with rAF) use perf.now
+  if(!now || now < 0) now = performance.now();
+
+  /* Trade event — fires every 8-12 seconds */
   if(now - tTrade >= nextTrade){
-    tTrade = now;
+    tTrade    = now;
     nextTrade = nextTradeInterval();
+
     var amt = generateTrade();
     var up  = amt >= 0;
 
-    // 1) Update the ONE source of truth
-    running      += amt;
-    sessionGain  += amt;
-    lastUp        = up;
+    // Update single source of truth
+    running     += amt;
+    sessionGain += amt;
+    lastUp       = up;
 
-    // 2) Feed always gets the trade
+    // Same amount goes to feed, popup (every 3rd-5th trade), and counter
     pushFeed(amt);
 
-    // 3) Popup: show every 3rd–5th trade so it fires every ~30–50 s
     sigCount++;
-    if(sigCount >= 3 + Math.floor(Math.random()*3)){
+    if(sigCount >= 3 + Math.floor(Math.random() * 3)){
       sigCount = 0;
       showSig(amt);
     }
@@ -584,41 +653,48 @@ function frame(now){
     bumpStreak(up);
   }
 
-  // Main counter: exact running value (shows cents)
+  // Main P&L counter
   eBig.textContent = fmtBig(running);
 
-  // Delta: DAILY_PRE + this session's real accumulated gain
+  // Delta row: pre-loaded 8h + live session gain
   var todayGain = DAILY_PRE + sessionGain;
   var dUp = todayGain >= 0;
-  eDelta.textContent = (dUp?'+$':'-$') + Math.abs(todayGain).toFixed(2);
-  eDelta.className   = 'hero-delta '+(dUp?'up':'dn');
+  eDelta.textContent = (dUp ? '+$' : '-$') + Math.abs(todayGain).toFixed(2);
+  eDelta.className   = 'hero-delta ' + (dUp ? 'up' : 'dn');
 
+  // Stats strip + clock
   updateStats(now);
-  eBTrend.textContent  = lastUp?'UP':'DOWN';
-  eBTrend.className    = 'bstat-val '+(lastUp?'up':'dn');
-  eBTrendS.textContent = lastUp?'↑ bullish':'↓ bearish';
 
-  series.push(running); if(series.length>MAXP) series.shift();
+  // Trend indicator
+  eBTrend.textContent  = lastUp ? 'UP' : 'DOWN';
+  eBTrend.className    = 'bstat-val ' + (lastUp ? 'up' : 'dn');
+  eBTrendS.textContent = lastUp ? '↑ bullish' : '↓ bearish';
+
+  // Chart: push current value, draw
+  series.push(running);
+  if(series.length > MAXP) series.shift();
   drawChart();
 
-  if(now-tPipe > 2200){ tPipe=now; jitterPipe(); }
-  if(now-tBar  > 1900){ tBar=now; jitterBars(); }
+  // Slower sub-animations
+  if(now - tPipe > 2200){ tPipe = now; jitterPipe(); }
+  if(now - tBar  > 1900){ tBar  = now; jitterBars(); }
 
   requestAnimationFrame(frame);
 }
 
-// Pre-populate chart with a simulated 24h uptrend so chart looks good immediately
-var PRE_N = 80;
-var simVal = BASE - (24 * 2.0); // 24h ago at $2/h rate
-for (var pi = 0; pi < PRE_N; pi++) {
-  var frac = pi / (PRE_N - 1);
-  simVal += (2.0 / PRE_N); // average upward drift
-  simVal += (Math.random() - 0.44) * 0.08; // natural noise (biased up)
+/* ── Pre-populate chart: 80-point uptrend so it looks good on load ── */
+var PRE_N  = 80;
+var simVal = BASE - (24 * RATE_HR); // start 24h ago
+for(var pi = 0; pi < PRE_N; pi++){
+  simVal += RATE_HR / PRE_N;                      // steady upward drift
+  simVal += (Math.random() - 0.44) * 0.08;        // slight upward bias noise
   series.push(simVal);
 }
 
+/* Kick off */
 window.addEventListener('resize', drawChart);
 requestAnimationFrame(frame);
+
 })();
 </script>
 </body>
