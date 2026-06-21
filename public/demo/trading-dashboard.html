@@ -45,7 +45,7 @@ html,body{height:100%;max-height:100vh;overflow:hidden;background:#06090f;color:
 .hero-streak{
   background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  position:relative;
+  position:relative;overflow:hidden;
 }
 .streak-svg{transform:rotate(-90deg);}
 .streak-num{position:absolute;font-size:22px;font-weight:800;color:#e0f0ff;top:50%;left:50%;transform:translate(-50%,-60%);}
@@ -174,7 +174,8 @@ footer{flex:0 0 11px;display:flex;align-items:center;justify-content:center;}
   .hero{grid-template-columns:1fr 80px;}
   .hero-big{font-size:clamp(22px,6vw,40px);}
   .streak-svg{width:70px!important;height:70px!important;}
-  .streak-num{font-size:18px;}
+  .streak-num { font-size: 18px; }
+  .hero-streak { overflow: hidden; }
 
   /* charts: narrower left panel */
   .charts-row{grid-template-columns:35% 1fr;}
@@ -512,7 +513,7 @@ var pRows=PSYM.map(function(s,i){
   var b=PBASE[s.split('/')[0]];
   var o=b*(1+(Math.random()-.5)*.003);
   var f=o*(1+(Math.random()-.5)*.0015);
-  return{sym:s,pred:PRED[i],open:o,fill:f,pl:(f-o)*12,delta:((f-o)/o)*100,
+  return{sym:s,pred:PRED[i],open:o,fill:f,pl:(f-o)*0.001,delta:((f-o)/o)*100,
     size:(1+Math.random()*3).toFixed(2),status:i<4?'open':'closed'};
 });
 function renderPipe(){
@@ -523,7 +524,7 @@ function renderPipe(){
       '<td style="color:'+(r.pred.indexOf('Up')>-1?'#3ddc84':'#e05252')+'">'+r.pred+'</td>'+
       '<td>$'+r.open.toFixed(r.open<10?4:2)+'</td>'+
       '<td>$'+r.fill.toFixed(r.fill<10?4:2)+'</td>'+
-      '<td class="td-pl '+(up?'up':'dn')+'">'+(up?'+$':'-$')+Math.abs(r.pl).toFixed(2)+'</td>'+
+      '<td class="td-pl '+(up?'up':'dn')+'">'+(up?'+$':'-$')+Math.abs(r.pl).toFixed(3)+'</td>'+
       '<td class="td-pl '+(r.delta>=0?'up':'dn')+'">'+(r.delta>=0?'+':'')+r.delta.toFixed(3)+'%</td>'+
       '<td>'+r.size+'</td>'+
       '<td><span class="badge '+(r.status==='open'?(r.pl>0?'hot':'open'):'closed')+'">'+r.status.toUpperCase()+'</span></td>'+
@@ -535,7 +536,7 @@ function jitterPipe(){
   pRows.forEach(function(r){
     if(Math.random()<.45){
       r.fill*=(1+(Math.random()-.46)*.0018);
-      r.pl=(r.fill-r.open)*12; r.delta=((r.fill-r.open)/r.open)*100;
+      r.pl=(r.fill-r.open)*0.001; r.delta=((r.fill-r.open)/r.open)*100;
     }
     if(Math.random()<.06) r.status=r.status==='open'?'closed':'open';
   });
@@ -604,6 +605,16 @@ function frame(now){
   if(now-tBar  > 1900){ tBar=now; jitterBars(); }
 
   requestAnimationFrame(frame);
+}
+
+// Pre-populate chart with a simulated 24h uptrend so chart looks good immediately
+var PRE_N = 80;
+var simVal = BASE - (24 * 2.0); // 24h ago at $2/h rate
+for (var pi = 0; pi < PRE_N; pi++) {
+  var frac = pi / (PRE_N - 1);
+  simVal += (2.0 / PRE_N); // average upward drift
+  simVal += (Math.random() - 0.44) * 0.08; // natural noise (biased up)
+  series.push(simVal);
 }
 
 window.addEventListener('resize', drawChart);
