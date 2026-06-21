@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simulation Dashboard — Demo</title>
+<meta name="robots" content="noindex, nofollow" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Space+Grotesk:wght@400;500;700&display=swap');
+
+  :root{
+    --bg:#080b13;
+    --panel:rgba(18,24,38,0.65);
+    --panel-border:rgba(255,255,255,0.07);
+    --green:#3ddc84;
+    --green-soft:rgba(61,220,132,0.15);
+    --red:#ff5c5c;
+    --red-soft:rgba(255,92,92,0.15);
+    --blue:#5b9bff;
+    --text:#e8ecf3;
+    --text-dim:#8b93a7;
+    --text-faint:#5a6175;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{
+    background:radial-gradient(circle at 20% -10%, #101a2e 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:'Space Grotesk', system-ui, sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+
+  .wrap{
+    flex:1;
+    max-width:1180px;
+    width:100%;
+    margin:0 auto;
+    padding:18px 18px 8px;
+  }
+
+  /* ---- Header ---- */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:10px 16px;
+    background:var(--panel);
+    border:1px solid var(--panel-border);
+    border-radius:14px;
+    backdrop-filter:blur(14px);
+    margin-bottom:14px;
+  }
+  .id-chip{
+    display:flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;color:var(--text-dim);
+  }
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 8px var(--green);
+    animation:pulse 1.6s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;} 50%{opacity:0.35;}
+  }
+  .pill{
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:999px;
+    border:1px solid var(--panel-border);
+    color:var(--text-dim);
+    letter-spacing:0.04em;
+  }
+  .pill.sim{
+    color:#ffc857;
+    border-color:rgba(255,200,87,0.35);
+    background:rgba(255,200,87,0.08);
+    font-weight:700;
+  }
+  .header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .clock{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-dim);}
+
+  /* ---- Hero ---- */
+  .hero{
+    display:grid;
+    grid-template-columns:1fr 150px;
+    gap:14px;
+    margin-bottom:14px;
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--panel-border);
+    border-radius:14px;
+    backdrop-filter:blur(14px);
+    padding:18px 20px;
+    position:relative;
+    overflow:hidden;
+  }
+  .label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--text-faint);
+    margin-bottom:6px;
+  }
+  .pnl-value{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:800;
+    font-size:clamp(34px,6vw,52px);
+    letter-spacing:-0.01em;
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .pnl-delta{
+    font-size:15px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:8px;
+  }
+  .pnl-delta.up{color:var(--green);background:var(--green-soft);}
+  .pnl-delta.down{color:var(--red);background:var(--red-soft);}
+
+  .streak{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;
+  }
+  .streak svg{transform:rotate(-90deg);}
+  .streak-num{
+    position:absolute;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:800;
+    font-size:26px;
+  }
+  .streak-label{
+    font-size:10px;color:var(--text-faint);
+    text-transform:uppercase;letter-spacing:0.06em;
+    margin-top:8px;text-align:center;
+  }
+
+  /* ---- Stats row ---- */
+  .stats-row{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:14px;
+  }
+  .stat-val{
+    font-family:'JetBrains Mono',monospace;
+    font-size:20px;font-weight:700;
+  }
+  .stat-sub{font-size:12px;color:var(--text-dim);margin-top:2px;}
+
+  /* ---- Charts row ---- */
+  .charts-row{
+    display:grid;
+    grid-template-columns:1fr 1.4fr;
+    gap:14px;
+    margin-bottom:14px;
+  }
+  .chart-title{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:10px;
+  }
+  canvas{width:100%;display:block;}
+
+  /* ---- Signal popup ---- */
+  .signal-pop{
+    position:fixed;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%) scale(0.85);
+    background:rgba(10,14,22,0.92);
+    border:1px solid var(--green);
+    box-shadow:0 0 30px rgba(61,220,132,0.35);
+    border-radius:16px;
+    padding:18px 28px;
+    text-align:center;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.35s ease, transform 0.35s ease;
+    z-index:50;
+  }
+  .signal-pop.down{border-color:var(--red);box-shadow:0 0 30px rgba(255,92,92,0.3);}
+  .signal-pop.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  .signal-pop .tag{
+    font-size:11px;letter-spacing:0.1em;color:var(--text-dim);
+    text-transform:uppercase;margin-bottom:6px;
+  }
+  .signal-pop .amt{
+    font-family:'JetBrains Mono',monospace;
+    font-size:28px;font-weight:800;
+  }
+  .signal-pop.up .amt{color:var(--green);}
+  .signal-pop.down .amt{color:var(--red);}
+
+  /* ---- Feed + Pipeline row ---- */
+  .lower-row{
+    display:grid;
+    grid-template-columns:1fr 1.6fr;
+    gap:14px;
+    margin-bottom:14px;
+  }
+  .feed-item{
+    display:flex;align-items:center;justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    padding:7px 0;
+    border-bottom:1px solid var(--panel-border);
+    opacity:0;
+    animation:feedIn 0.4s ease forwards;
+  }
+  @keyframes feedIn{ to{opacity:1;} }
+  .feed-item:last-child{border-bottom:none;}
+  .feed-left{display:flex;align-items:center;gap:8px;color:var(--text-dim);}
+  .feed-dot{width:6px;height:6px;border-radius:50%;}
+  .feed-dot.up{background:var(--green);}
+  .feed-dot.down{background:var(--red);}
+  .feed-amt.up{color:var(--green);}
+  .feed-amt.down{color:var(--red);}
+  #feedList{max-height:280px;overflow:hidden;display:flex;flex-direction:column-reverse;}
+
+  table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:12px;}
+  th{
+    text-align:left;color:var(--text-faint);font-weight:600;
+    text-transform:uppercase;letter-spacing:0.05em;font-size:10.5px;
+    padding-bottom:8px;border-bottom:1px solid var(--panel-border);
+  }
+  td{padding:9px 4px;border-bottom:1px solid var(--panel-border);color:var(--text);}
+  tr:last-child td{border-bottom:none;}
+  .status-badge{
+    font-size:10px;padding:2px 8px;border-radius:999px;font-weight:700;
+  }
+  .status-badge.open{color:var(--blue);background:rgba(91,155,255,0.12);}
+  .status-badge.closed{color:var(--text-dim);background:rgba(255,255,255,0.05);}
+  .pl-cell.up{color:var(--green);}
+  .pl-cell.down{color:var(--red);}
+
+  /* ---- Bottom stats ---- */
+  .bottom-row{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  }
+  .gauge-label{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.06em;}
+  .gauge-val{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;margin-top:4px;}
+
+  footer{
+    text-align:center;
+    padding:14px 18px 22px;
+  }
+  .disclaimer{
+    font-size:10.5px;
+    line-height:1.5;
+    color:var(--text-faint);
+    max-width:680px;
+    margin:0 auto;
+  }
+
+  @media (max-width:760px){
+    .hero{grid-template-columns:1fr;}
+    .streak{flex-direction:row;}
+    .stats-row{grid-template-columns:repeat(2,1fr);}
+    .charts-row{grid-template-columns:1fr;}
+    .lower-row{grid-template-columns:1fr;}
+    .bottom-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="id-chip">
+      <span class="dot"></span>
+      <span>0xSIM::DEMO</span>
+      <span class="pill sim">SIMULATION</span>
+    </div>
+    <div class="header-right">
+      <span class="pill">6-CYCLE PIPELINE</span>
+      <span class="clock" id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="panel">
+      <div class="label">Realized P&amp;L (Simulation)</div>
+      <div class="pnl-value">
+        <span id="pnlMain" class="mono">€0,00</span>
+        <span id="pnlDelta" class="pnl-delta up mono">+0,00</span>
+      </div>
+      <div class="stat-sub" id="rateLabel">Ø Zielrate: ca. 50,00 € / Stunde (simuliert)</div>
+    </div>
+    <div class="panel streak">
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <circle cx="55" cy="55" r="46" stroke="rgba(255,255,255,0.08)" stroke-width="8" fill="none"/>
+        <circle id="streakRing" cx="55" cy="55" r="46" stroke="#3ddc84" stroke-width="8" fill="none"
+          stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="80"/>
+      </svg>
+      <div class="streak-num" id="streakNum">0</div>
+      <div class="streak-label">Win Streak<br/>(sim.)</div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="panel">
+      <div class="label">24h Volumen (sim.)</div>
+      <div class="stat-val mono" id="volVal">€0</div>
+      <div class="stat-sub" id="volSub">+0,0%</div>
+    </div>
+    <div class="panel">
+      <div class="label">Aktive Positionen</div>
+      <div class="stat-val mono" id="posVal">6</div>
+      <div class="stat-sub">von 6 Zyklen belegt</div>
+    </div>
+    <div class="panel">
+      <div class="label">Ø Trefferquote (sim.)</div>
+      <div class="stat-val mono" id="hitVal">0%</div>
+      <div class="stat-sub">letzte 24h, simuliert</div>
+    </div>
+    <div class="panel">
+      <div class="label">Laufzeit Session</div>
+      <div class="stat-val mono" id="uptimeVal">00:00:00</div>
+      <div class="stat-sub">seit Seitenaufruf</div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="panel">
+      <div class="chart-title">
+        <span class="label" style="margin:0;">Stündliches Volumen (sim.)</span>
+      </div>
+      <canvas id="barChart" height="160"></canvas>
+    </div>
+    <div class="panel">
+      <div class="chart-title">
+        <span class="label" style="margin:0;">Equity-Kurve (simuliert)</span>
+        <span class="pill" style="font-size:10px;">LIVE-SIM</span>
+      </div>
+      <canvas id="lineChart" height="160"></canvas>
+    </div>
+  </div>
+
+  <div class="lower-row">
+    <div class="panel">
+      <div class="chart-title">
+        <span class="label" style="margin:0;">Live Feed (simuliert)</span>
+      </div>
+      <div id="feedList"></div>
+    </div>
+    <div class="panel">
+      <div class="chart-title">
+        <span class="label" style="margin:0;">6-Cycle Execution Pipeline (simuliert)</span>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Pos</th><th>Symbol</th><th>Entry</th><th>Exit</th><th>P&amp;L</th><th>Status</th></tr>
+        </thead>
+        <tbody id="pipelineBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+    <div class="panel">
+      <div class="gauge-label">Trend (sim.)</div>
+      <div class="gauge-val" id="trendVal" style="color:var(--green);">AUFWÄRTS</div>
+    </div>
+    <div class="panel">
+      <div class="gauge-label">Volatilität (sim.)</div>
+      <div class="gauge-val" id="volaVal">0,0</div>
+    </div>
+    <div class="panel">
+      <div class="gauge-label">Letztes Signal (sim.)</div>
+      <div class="gauge-val" id="lastSignalVal" style="font-size:16px;">—</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="signal-pop up" id="signalPop">
+  <div class="tag">Signal erkannt (Simulation)</div>
+  <div class="amt" id="signalAmt">+0,00 €</div>
+</div>
+
+<footer>
+  <p class="disclaimer">
+    Hinweis: Dies ist eine reine Simulation mit frei erzeugten, fiktiven Zahlen zu Demonstrations- und
+    Schulungszwecken. Es handelt sich um keinen echten Trading-Bot, keine echten Marktdaten, keine echten
+    Transaktionen und keine Finanzberatung. Es fließt kein reales Geld. Alle Werte auf dieser Seite werden
+    lokal im Browser berechnet und haben keinerlei Bezug zu realen Konten, Wallets oder Märkten.
+  </p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= Konfiguration ================= */
+  var RATE_PER_HOUR = 50;                  // Ziel-Drift: 50 € pro Stunde (im Mittel)
+  var RATE_PER_MS = RATE_PER_HOUR / 3600000;
+  var START_VALUE = 12480.35;              // willkürlicher Startwert für die Demo
+  var startTime = performance.now();
+  var displayed = START_VALUE;
+  var lastValueForDelta = START_VALUE;
+  var lastTickTime = startTime;
+
+  function fmtEUR(v, withSymbol){
+    var s = v.toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2});
+    return withSymbol === false ? s : '€' + s;
+  }
+  function fmtSigned(v){
+    var sign = v >= 0 ? '+' : '';
+    return sign + v.toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  /* ================= Hauptcounter: natürliches Auf & Ab, aber im Mittel +50€/h ================= */
+  function targetLine(now){
+    return START_VALUE + (now - startTime) * RATE_PER_MS;
+  }
+
+  function tickValue(now){
+    var dt = now - lastTickTime;
+    lastTickTime = now;
+    var target = targetLine(now);
+
+    // Zufallsschritt: häufiger und tendenziell etwas größer nach oben als nach unten,
+    // damit die Kurve "lebendig" wirkt, ohne die Stunden-Zielrate zu verfälschen.
+    var roll = Math.random();
+    var step;
+    if (roll < 0.66) {
+      step = Math.random() * 0.05 * (dt / 1000); // kleiner Aufwärtsschritt
+    } else {
+      step = -Math.random() * 0.025 * (dt / 1000); // kleinerer Abwärtsschritt
+    }
+    displayed += step;
+
+    // sanfte Rückführung zur exakten 50€/h-Ziellinie, damit der Durchschnitt stimmt
+    displayed += (target - displayed) * 0.015;
+
+    return displayed;
+  }
+
+  /* ================= Render: Hero P&L ================= */
+  var pnlMainEl = document.getElementById('pnlMain');
+  var pnlDeltaEl = document.getElementById('pnlDelta');
+
+  function renderHero(now){
+    var v = tickValue(now);
+    var delta = v - lastValueForDelta;
+    lastValueForDelta = v;
+
+    pnlMainEl.textContent = fmtEUR(v);
+    var up = delta >= 0;
+    pnlDeltaEl.textContent = fmtSigned(delta);
+    pnlDeltaEl.className = 'pnl-delta mono ' + (up ? 'up' : 'down');
+
+    return {v: v, delta: delta, up: up};
+  }
+
+  /* ================= Uhrzeit / Laufzeit ================= */
+  var clockEl = document.getElementById('clock');
+  var uptimeEl = document.getElementById('uptimeVal');
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+  function renderClock(now){
+    var d = new Date();
+    clockEl.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+    var elapsed = Math.floor((now - startTime) / 1000);
+    var h = Math.floor(elapsed / 3600), m = Math.floor((elapsed % 3600) / 60), s = elapsed % 60;
+    uptimeEl.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+  }
+
+  /* ================= Win-Streak Ring ================= */
+  var streakRing = document.getElementById('streakRing');
+  var streakNum = document.getElementById('streakNum');
+  var CIRC = 2 * Math.PI * 46;
+  var streak = 0;
+  function bumpStreak(up){
+    streak = up ? Math.min(streak + 1, 99) : Math.max(streak - 2, 0);
+    streakNum.textContent = streak;
+    var frac = Math.min(streak / 40, 1);
+    streakRing.style.strokeDashoffset = (CIRC * (1 - frac)).toFixed(1);
+  }
+
+  /* ================= Stats Row ================= */
+  var volVal = document.getElementById('volVal');
+  var volSub = document.getElementById('volSub');
+  var hitVal = document.getElementById('hitVal');
+  var posVal = document.getElementById('posVal');
+  var volume = 0;
+  var hitRate = 71;
+
+  function renderStats(delta){
+    volume += Math.abs(delta) * (4 + Math.random() * 3);
+    volVal.textContent = fmtEUR(volume);
+    var pct = Math.min(99, (volume / (START_VALUE * 0.6)) * 8);
+    volSub.textContent = '+' + pct.toFixed(1).replace('.', ',') + '%';
+
+    hitRate += (Math.random() - 0.45) * 0.4;
+    hitRate = Math.max(55, Math.min(88, hitRate));
+    hitVal.textContent = hitRate.toFixed(0) + '%';
+  }
+
+  /* ================= Bar Chart (stündliches Volumen, simuliert) ================= */
+  var barCanvas = document.getElementById('barChart');
+  var barCtx = barCanvas.getContext('2d');
+  var bars = [];
+  for (var i = 0; i < 16; i++){ bars.push(8 + Math.random() * 30); }
+
+  function resizeCanvas(canvas){
+    var ratio = window.devicePixelRatio || 1;
+    var w = canvas.clientWidth, h = canvas.clientHeight || 160;
+    canvas.width = w * ratio; canvas.height = h * ratio;
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+    return {w:w, h:h};
+  }
+
+  function drawBars(){
+    var dim = resizeCanvas(barCanvas);
+    barCtx.clearRect(0,0,dim.w,dim.h);
+    var n = bars.length;
+    var gap = 6;
+    var bw = (dim.w - gap * (n - 1)) / n;
+    var max = Math.max.apply(null, bars);
+    for (var i=0;i<n;i++){
+      var bh = (bars[i] / max) * (dim.h - 14);
+      var x = i * (bw + gap);
+      var y = dim.h - bh;
+      var grad = barCtx.createLinearGradient(0,y,0,dim.h);
+      grad.addColorStop(0,'rgba(61,220,132,0.9)');
+      grad.addColorStop(1,'rgba(61,220,132,0.15)');
+      barCtx.fillStyle = grad;
+      barCtx.beginPath();
+      barCtx.roundRect(x, y, bw, bh, 3);
+      barCtx.fill();
+    }
+  }
+
+  /* ================= Line Chart (Equity-Kurve, simuliert) ================= */
+  var lineCanvas = document.getElementById('lineChart');
+  var lineCtx = lineCanvas.getContext('2d');
+  var series = [];
+  var MAX_POINTS = 90;
+
+  function drawLine(){
+    var dim = resizeCanvas(lineCanvas);
+    lineCtx.clearRect(0,0,dim.w,dim.h);
+    if (series.length < 2) return;
+
+    var min = Math.min.apply(null, series);
+    var max = Math.max.apply(null, series);
+    var range = (max - min) || 1;
+    var stepX = dim.w / (MAX_POINTS - 1);
+    var offset = MAX_POINTS - series.length;
+
+    lineCtx.beginPath();
+    for (var i=0;i<series.length;i++){
+      var x = (offset + i) * stepX;
+      var y = dim.h - ((series[i] - min) / range) * (dim.h - 16) - 8;
+      if (i===0) lineCtx.moveTo(x,y); else lineCtx.lineTo(x,y);
+    }
+    lineCtx.strokeStyle = '#3ddc84';
+    lineCtx.lineWidth = 2;
+    lineCtx.stroke();
+
+    var last = lineCtx.currentPath || null;
+    lineCtx.lineTo(dim.w, dim.h);
+    lineCtx.lineTo((offset)*stepX, dim.h);
+    lineCtx.closePath();
+    var grad = lineCtx.createLinearGradient(0,0,0,dim.h);
+    grad.addColorStop(0,'rgba(61,220,132,0.25)');
+    grad.addColorStop(1,'rgba(61,220,132,0)');
+    lineCtx.fillStyle = grad;
+    lineCtx.fill();
+  }
+
+  /* ================= Live Feed ================= */
+  var feedList = document.getElementById('feedList');
+  var feedSymbols = ['SIM-ALPHA','SIM-BETA','SIM-GAMMA','SIM-DELTA','SIM-ZETA','SIM-OMEGA'];
+  function pushFeedItem(delta){
+    var up = delta >= 0;
+    var item = document.createElement('div');
+    item.className = 'feed-item';
+    var sym = feedSymbols[Math.floor(Math.random()*feedSymbols.length)];
+    var d = new Date();
+    item.innerHTML =
+      '<span class="feed-left"><span class="feed-dot ' + (up?'up':'down') + '"></span>' +
+      pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds()) + ' · ' + sym + '</span>' +
+      '<span class="feed-amt ' + (up?'up':'down') + '">' + fmtSigned(delta) + ' €</span>';
+    feedList.insertBefore(item, feedList.firstChild);
+    while (feedList.children.length > 24){
+      feedList.removeChild(feedList.lastChild);
+    }
+  }
+
+  /* ================= Execution Pipeline ================= */
+  var pipelineBody = document.getElementById('pipelineBody');
+  var pipelineSymbols = ['SIM-A','SIM-B','SIM-C','SIM-D','SIM-E','SIM-F'];
+  var pipelineRows = [];
+  function initPipeline(){
+    for (var i=0;i<6;i++){
+      var entry = 100 + Math.random()*900;
+      pipelineRows.push({
+        pos: i+1,
+        symbol: pipelineSymbols[i],
+        entry: entry,
+        exit: entry * (1 + (Math.random()*0.02 - 0.005)),
+        status: Math.random() > 0.4 ? 'open' : 'closed'
+      });
+    }
+    renderPipeline();
+  }
+  function renderPipeline(){
+    pipelineBody.innerHTML = pipelineRows.map(function(r){
+      var pl = r.exit - r.entry;
+      var up = pl >= 0;
+      return '<tr>' +
+        '<td>#' + r.pos + '</td>' +
+        '<td>' + r.symbol + '</td>' +
+        '<td>' + r.entry.toFixed(2) + '</td>' +
+        '<td>' + r.exit.toFixed(2) + '</td>' +
+        '<td class="pl-cell ' + (up?'up':'down') + '">' + fmtSigned(pl) + '</td>' +
+        '<td><span class="status-badge ' + r.status + '">' + (r.status==='open'?'OFFEN':'GESCHLOSSEN') + '</span></td>' +
+        '</tr>';
+    }).join('');
+  }
+  function jitterPipeline(){
+    var r = pipelineRows[Math.floor(Math.random()*pipelineRows.length)];
+    r.exit = r.exit * (1 + (Math.random()*0.01 - 0.004));
+    r.status = Math.random() > 0.5 ? 'open' : 'closed';
+    renderPipeline();
+  }
+
+  /* ================= Signal Popup ================= */
+  var signalPop = document.getElementById('signalPop');
+  var signalAmt = document.getElementById('signalAmt');
+  var lastSignalVal = document.getElementById('lastSignalVal');
+  function showSignal(delta){
+    var up = delta >= 0;
+    signalPop.className = 'signal-pop ' + (up?'up':'down');
+    signalAmt.textContent = fmtSigned(delta) + ' €';
+    requestAnimationFrame(function(){
+      signalPop.classList.add('show');
+    });
+    lastSignalVal.textContent = fmtSigned(delta) + ' €';
+    lastSignalVal.style.color = up ? 'var(--green)' : 'var(--red)';
+    setTimeout(function(){ signalPop.classList.remove('show'); }, 1600);
+  }
+
+  /* ================= Volatility / Trend ================= */
+  var volaVal = document.getElementById('volaVal');
+  var trendVal = document.getElementById('trendVal');
+  var vola = 30 + Math.random()*10;
+
+  /* ================= Main Loop ================= */
+  var lastFeed = 0, lastSignal = 0, lastPipelineJitter = 0, lastBarUpdate = 0;
+  var accForSeries = 0;
+
+  function frame(now){
+    if (!now) now = performance.now();
+
+    var hero = renderHero(now);
+    renderClock(now);
+    bumpStreak(hero.up);
+    renderStats(hero.delta);
+
+    series.push(hero.v);
+    if (series.length > MAX_POINTS) series.shift();
+    drawLine();
+
+    vola += (Math.random()-0.5)*1.2;
+    vola = Math.max(8, Math.min(95, vola));
+    volaVal.textContent = vola.toFixed(1).replace('.', ',');
+    trendVal.textContent = hero.delta >= 0 ? 'AUFWÄRTS' : 'ABWÄRTS';
+    trendVal.style.color = hero.delta >= 0 ? 'var(--green)' : 'var(--red)';
+
+    if (now - lastFeed > 1400 + Math.random()*1200){
+      lastFeed = now;
+      pushFeedItem(hero.delta * (1 + Math.random()));
+    }
+    if (now - lastSignal > 5000 + Math.random()*4000){
+      lastSignal = now;
+      showSignal(hero.delta * (6 + Math.random()*4));
+    }
+    if (now - lastPipelineJitter > 2200){
+      lastPipelineJitter = now;
+      jitterPipeline();
+    }
+    if (now - lastBarUpdate > 4000){
+      lastBarUpdate = now;
+      bars.shift();
+      bars.push(8 + Math.random()*30);
+      drawBars();
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('resize', function(){ drawBars(); drawLine(); });
+
+  initPipeline();
+  drawBars();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
