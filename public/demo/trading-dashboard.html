@@ -8,7 +8,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-family:'JetBrains Mono',monospace;font-size:11px;}
+html,body{height:100%;max-height:100vh;overflow:hidden;background:#06090f;color:#c8d4e8;font-family:'JetBrains Mono',monospace;font-size:11px;}
 
 .root{display:flex;flex-direction:column;height:100vh;padding:3px;gap:2px;}
 
@@ -111,7 +111,7 @@ canvas{width:100%;height:100%;display:block;}
 .fh-l span{color:#3db8ff;}
 .fh-r{color:#5c7099;font-size:9px;}
 .feed-body{
-  flex:0 0 76px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
+  flex:0 0 70px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
   overflow:hidden;display:flex;flex-direction:column-reverse;padding:2px 6px;gap:0;
 }
 .fi{display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid #0e1520;}
@@ -164,6 +164,39 @@ td{font-size:10px;padding:5px 4px 5px 0;border-bottom:1px solid #0d1220;color:#8
 /* FOOTER */
 footer{flex:0 0 11px;display:flex;align-items:center;justify-content:center;}
 .disc{font-size:8px;color:#141c2c;text-align:center;letter-spacing:.02em;}
+
+/* ── MOBILE (≤600px, e.g. iPhone SE 375×667) ── */
+@media(max-width:600px){
+  html,body{height:100vh;overflow:hidden;}
+  .root{padding:2px;gap:1px;}
+
+  /* hero: smaller streak column */
+  .hero{grid-template-columns:1fr 80px;}
+  .hero-big{font-size:clamp(22px,6vw,40px);}
+  .streak-svg{width:70px!important;height:70px!important;}
+  .streak-num{font-size:18px;}
+
+  /* charts: narrower left panel */
+  .charts-row{grid-template-columns:35% 1fr;}
+
+  /* bottom stats row */
+  .bottom-row{grid-template-columns:repeat(5,1fr);}
+  .bstat-val{font-size:13px!important;}
+  .bstat-lbl{font-size:7px!important;}
+  .bstat-sub{font-size:6px;}
+
+  /* stats strip */
+  .stats-strip{font-size:9px;gap:10px;padding:0 6px;}
+
+  /* panel paddings */
+  .panel-hdr{padding:0 5px;}
+  .hdr{padding:0 6px;gap:4px;}
+  .hero-pnl{padding:5px 8px;}
+  .pipe-body{padding:0 4px;}
+
+  /* hide extra stats strip items on mobile */
+  .ss-hide{display:none;}
+}
 </style>
 </head>
 <body>
@@ -206,10 +239,10 @@ footer{flex:0 0 11px;display:flex;align-items:center;justify-content:center;}
   <div class="stats-strip">
     <div class="ss">Trades <span id="sTrades">1,200</span></div>
     <div class="ss">Win Rate <span class="up" id="sWin">68%</span></div>
-    <div class="ss">BB Win <span>4%</span></div>
+    <div class="ss ss-hide">BB Win <span>4%</span></div>
     <div class="ss">$/day <span id="sDay">$1,200</span></div>
-    <div class="ss">AutoReinvest <span id="sReinv">$187</span></div>
-    <div class="ss">Clean <span class="up">99%</span></div>
+    <div class="ss ss-hide">AutoReinvest <span id="sReinv">$187</span></div>
+    <div class="ss ss-hide">Clean <span class="up">99%</span></div>
     <div class="ss">Uptime <span id="sUptime">0.0h</span></div>
   </div>
 
@@ -386,10 +419,10 @@ function buildBars(){
   sbEl.innerHTML='';
   PAIRS.forEach(function(p,i){
     var d=document.createElement('div'); d.className='hbar-row'; d.id='hb'+i;
-    var pos=bPos[i]; var val=(pos?1:-1)*bPct[i]*.8;
+    var pos=bPos[i]; var val=(pos?1:-1)*(0.004+bPct[i]/100*0.012);
     d.innerHTML='<span class="hbar-lbl">'+p+'</span>'+
       '<div class="hbar-track"><div class="hbar-fill '+(pos?'pos':'neg')+'" style="width:'+bPct[i]+'%"></div></div>'+
-      '<span class="hbar-val '+(pos?'pos':'neg')+'">'+(val>=0?'+$':'-$')+Math.abs(val).toFixed(1)+'</span>';
+      '<span class="hbar-val '+(pos?'pos':'neg')+'">'+(val>=0?'+$':'-$')+Math.abs(val).toFixed(3)+'</span>';
     sbEl.appendChild(d);
   });
 }
@@ -404,8 +437,8 @@ function jitterBars(){
       fill.style.width=bPct[i]+'%';
       fill.className='hbar-fill '+(bPos[i]?'pos':'neg');
       val.className ='hbar-val '+(bPos[i]?'pos':'neg');
-      var v=(bPos[i]?1:-1)*bPct[i]*.8;
-      val.textContent=(v>=0?'+$':'-$')+Math.abs(v).toFixed(1);
+      var v=(bPos[i]?1:-1)*(0.004+bPct[i]/100*0.012);
+      val.textContent=(v>=0?'+$':'-$')+Math.abs(v).toFixed(3);
     }
   });
 }
