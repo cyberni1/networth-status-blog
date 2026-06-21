@@ -111,7 +111,7 @@ canvas{width:100%;height:100%;display:block;}
 .fh-l span{color:#3db8ff;}
 .fh-r{color:#5c7099;font-size:9px;}
 .feed-body{
-  flex:0 0 70px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
+  flex:0 0 110px;background:#0b0f1d;border:1px solid #1a2035;border-radius:5px;
   overflow:hidden;display:flex;flex-direction:column-reverse;padding:2px 6px;gap:0;
 }
 .fi{display:flex;align-items:center;justify-content:space-between;padding:2px 0;border-bottom:1px solid #0e1520;}
@@ -335,9 +335,9 @@ function fmtBig(v){
 
 /* ── Trade timing: every 8-12 seconds ── */
 var tTrade    = 0;          // timestamp of last trade (0 = not fired yet)
-var nextTrade = 8000 + Math.random() * 4000;
+var nextTrade = 5000 + Math.random() * 3000;
 
-function nextTradeInterval(){ return 8000 + Math.random() * 4000; }
+function nextTradeInterval(){ return 5000 + Math.random() * 3000; }
 
 /* ── Trade generator: calibrated for ~$2/hour net ──
    ~360 trades/hour × (0.65×$0.010 − 0.35×$0.005) = ~$1.71/hr ≈ $2 ✓  */
@@ -540,18 +540,20 @@ function pushFeed(amt){
   var ts  = new Date();
   var el  = document.createElement('div');
   el.className = 'fi';
+  var pct = Math.abs(amt / px * 100).toFixed(3) + '%';
   el.innerHTML =
     '<span class="fi-l">' +
       '<span class="fi-dot ' + (up ? 'up' : 'dn') + '"></span>' +
       pad(ts.getHours()) + ':' + pad(ts.getMinutes()) + ':' + pad(ts.getSeconds()) +
       ' <span class="fi-sym">' + sym + '</span>' +
       ' <span class="fi-price">$' + px.toFixed(sym === 'XRP' || sym === 'ADA' ? 4 : 2) + '</span>' +
+      '<span class="fi-pct" style="color:#4a6080;font-size:9px;margin-left:4px;">±' + pct + '</span>' +
     '</span>' +
     '<span class="fi-amt ' + (up ? 'up' : 'dn') + '">' +
       (up ? '+$' : '-$') + Math.abs(amt).toFixed(3) +
     '</span>';
   eFeedBody.insertBefore(el, eFeedBody.firstChild);
-  while(eFeedBody.children.length > 14){
+  while(eFeedBody.children.length > 20){
     eFeedBody.removeChild(eFeedBody.lastChild);
   }
   feedVol += Math.abs(amt) * 400;
@@ -689,6 +691,13 @@ for(var pi = 0; pi < PRE_N; pi++){
   simVal += RATE_HR / PRE_N;                      // steady upward drift
   simVal += (Math.random() - 0.44) * 0.08;        // slight upward bias noise
   series.push(simVal);
+}
+
+/* ── Pre-populate feed: 12 historical entries so it looks busy on load ── */
+for (var pi2 = 0; pi2 < 12; pi2++) {
+  var preUp = Math.random() < 0.65;
+  var preAmt = preUp ? (0.004 + Math.random()*0.012) : -(0.002 + Math.random()*0.006);
+  pushFeed(parseFloat(preAmt.toFixed(3)));
 }
 
 /* Kick off */
