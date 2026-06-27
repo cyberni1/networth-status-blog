@@ -95,3 +95,43 @@ model AdminToken {
 
   @@index([token])
 }
+
+// ===================== LIVE CHAT / VOICE MODELS =====================
+
+model ChatUser {
+  id        String   @id @default(cuid())
+  nickname  String
+  room      String   @default("main")
+  lastSeen  DateTime @default(now())
+  inVoice   Boolean  @default(false)
+  speaking  Boolean  @default(false)
+  isAdmin   Boolean  @default(false) // the Windows 11 host
+  canSpeak  Boolean  @default(false) // admin-granted permission to use the mic
+  createdAt DateTime @default(now())
+
+  @@index([room, lastSeen])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  room      String   @default("main")
+  userId    String?
+  nickname  String
+  kind      String   @default("text") // text | voice | ai | system
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([room, createdAt])
+}
+
+model ChatSignal {
+  id        String   @id @default(cuid())
+  room      String   @default("main")
+  fromId    String
+  toId      String
+  kind      String   // offer | answer | ice | bye
+  payload   String   // JSON-encoded SDP / ICE candidate
+  createdAt DateTime @default(now())
+
+  @@index([toId, createdAt])
+}
