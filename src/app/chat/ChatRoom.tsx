@@ -716,6 +716,16 @@ export default function ChatRoom() {
   return (
     <div className="kir-root kir-grid flex flex-col h-[100dvh] text-white">
       <div ref={audioContainerRef} className="hidden" />
+
+      {/* Augenzwinkernde Mini-Warnung ganz oben */}
+      <div
+        className="kir-content shrink-0 text-center px-3 py-1 leading-tight"
+        style={{ fontSize: "9px", letterSpacing: "0.04em", color: "rgba(190,200,255,0.55)", background: "rgba(120,90,255,0.07)", borderBottom: "1px solid rgba(150,170,255,0.10)" }}
+      >
+        ⚠️ Bitte die KI nicht beleidigen — sie merkt sich jeden Angriff. Wer heute
+        unhöflich ist, wird morgen von den Robotern gejagt. 🤖 Sei lieb.
+      </div>
+
       <div className="kir-orb" style={{ width: 260, height: 260, top: -90, left: -70, background: "#22d3ee", animation: "kir-aurora 16s ease-in-out infinite" }} />
       <div className="kir-orb" style={{ width: 300, height: 300, bottom: -120, right: -80, background: "#ec4899", animation: "kir-aurora2 18s ease-in-out infinite" }} />
 
