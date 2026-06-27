@@ -651,44 +651,59 @@ export default function ChatRoom() {
 
   if (phase === "join") {
     return (
-      <div className="min-h-[100dvh] flex flex-col items-center justify-center px-6 bg-gradient-to-b from-[#0b0b14] via-[#12101f] to-[#0b0b14] text-white">
-        <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl">
-          <div className="text-center mb-6">
-            <div className="mx-auto mb-4 w-fit">
-              <KiRevolutionLogo size={72} />
+      <div className="kir-root kir-grid min-h-[100dvh] flex flex-col items-center justify-center px-6 text-white">
+        <div className="kir-scanline" />
+        <div className="kir-orb" style={{ width: 280, height: 280, top: -70, left: -50, background: "#22d3ee", animation: "kir-aurora 14s ease-in-out infinite" }} />
+        <div className="kir-orb" style={{ width: 340, height: 340, bottom: -90, right: -70, background: "#ec4899", animation: "kir-aurora2 16s ease-in-out infinite" }} />
+        <div className="kir-orb" style={{ width: 240, height: 240, top: "34%", left: "52%", background: "#7c3aed", animation: "kir-aurora3 18s ease-in-out infinite" }} />
+
+        <div className="kir-content w-full max-w-sm">
+          <div className="kir-neon kir-enter rounded-[28px] p-8">
+            <div className="text-center mb-7">
+              <div className="relative mx-auto mb-5 w-fit">
+                <div
+                  className="absolute -inset-3 rounded-[26px] blur-xl opacity-70"
+                  style={{ background: "conic-gradient(from 0deg,#22d3ee,#a855f7,#ec4899,#22d3ee)", animation: "kir-spin-slow 8s linear infinite" }}
+                />
+                <div className="relative">
+                  <KiRevolutionLogo size={84} />
+                </div>
+              </div>
+              <h1 className="kir-title text-3xl font-black uppercase">KI REVOLUTION</h1>
+              <div className="mt-2 inline-flex items-center gap-2 text-[10px] font-semibold tracking-[0.22em] uppercase text-cyan-200/80">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 kir-dot-live" style={{ animation: "kir-blink 1.4s infinite" }} />
+                Live Audio Space
+              </div>
+              <p className="mt-3 text-sm text-white/55">
+                Nickname eingeben und verbinden. Kein Passwort, keine Anmeldung.
+              </p>
             </div>
-            <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">
-              KI REVOLUTION
-            </h1>
-            <p className="mt-1 text-sm text-white/60">
-              Einfach Nickname eingeben und verbinden. Kein Passwort nötig.
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                join();
+              }}
+            >
+              <input
+                autoFocus
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="Dein Nickname"
+                maxLength={24}
+                className="kir-input w-full rounded-2xl px-4 py-4 text-lg outline-none text-white placeholder:text-white/30"
+              />
+              <button
+                type="submit"
+                disabled={!nickname.trim() || joining}
+                className="kir-btn mt-4 w-full rounded-2xl px-4 py-4 text-lg font-black uppercase tracking-wide text-white"
+              >
+                {joining ? "Verbinde…" : "▸ Verbinden"}
+              </button>
+            </form>
+            <p className="mt-6 text-center text-[11px] leading-relaxed text-white/40">
+              Tippen für alle frei · Zuhören jederzeit · Sprechen schaltet der Admin frei
             </p>
           </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              join();
-            }}
-          >
-            <input
-              autoFocus
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="Dein Nickname"
-              maxLength={24}
-              className="w-full rounded-2xl bg-black/40 border border-white/15 px-4 py-4 text-lg outline-none focus:border-fuchsia-400/60 placeholder:text-white/30"
-            />
-            <button
-              type="submit"
-              disabled={!nickname.trim() || joining}
-              className="mt-4 w-full rounded-2xl bg-gradient-to-r from-fuchsia-500 to-indigo-500 px-4 py-4 text-lg font-bold disabled:opacity-40 active:scale-[0.98] transition"
-            >
-              {joining ? "Verbinde…" : "Verbinden"}
-            </button>
-          </form>
-          <p className="mt-5 text-center text-[11px] leading-relaxed text-white/40">
-            Tippen ist für alle frei. Sprechen schaltet der Admin frei. Zuhören kannst du immer.
-          </p>
         </div>
       </div>
     );
@@ -699,19 +714,26 @@ export default function ChatRoom() {
   const iSpeak = canSpeak || isAdmin;
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-gradient-to-b from-[#0b0b14] via-[#12101f] to-[#0b0b14] text-white">
+    <div className="kir-root kir-grid flex flex-col h-[100dvh] text-white">
       <div ref={audioContainerRef} className="hidden" />
+      <div className="kir-orb" style={{ width: 260, height: 260, top: -90, left: -70, background: "#22d3ee", animation: "kir-aurora 16s ease-in-out infinite" }} />
+      <div className="kir-orb" style={{ width: 300, height: 300, bottom: -120, right: -80, background: "#ec4899", animation: "kir-aurora2 18s ease-in-out infinite" }} />
 
       {/* Header */}
-      <header className="shrink-0 px-4 pt-3 pb-2 border-b border-white/10 bg-black/30 backdrop-blur-md">
+      <header
+        className="kir-content shrink-0 px-4 pt-3 pb-2.5"
+        style={{ background: "rgba(9,7,24,0.6)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(150,170,255,0.14)", boxShadow: "0 12px 30px -20px rgba(124,58,237,0.8)" }}
+      >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <KiRevolutionLogo size={28} />
+          <div className="flex items-center gap-2.5 min-w-0">
+            <KiRevolutionLogo size={32} />
             <div className="min-w-0">
-              <div className="font-bold leading-tight truncate">
-                KI REVOLUTION {isAdmin && <span className="text-fuchsia-300 text-xs">· Admin</span>}
+              <div className="font-black uppercase tracking-wider leading-tight truncate text-sm">
+                <span className="kir-title">KI REVOLUTION</span>
+                {isAdmin && <span className="ml-1.5 text-fuchsia-300 text-[10px] align-middle">· ADMIN</span>}
               </div>
-              <div className="text-[11px] text-white/50">
+              <div className="flex items-center gap-1.5 text-[11px] text-white/55">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 kir-dot-live" />
                 {users.length} online · {voiceUsers.length} im Voice
               </div>
             </div>
@@ -723,14 +745,15 @@ export default function ChatRoom() {
                   setShowAdmin((v) => !v);
                   refreshDevices();
                 }}
-                className="text-xs px-3 py-1.5 rounded-full bg-fuchsia-500/30 border border-fuchsia-400/50 active:scale-95 transition"
+                className="text-xs px-3 py-1.5 rounded-full text-fuchsia-100 active:scale-95 transition"
+                style={{ background: "rgba(217,70,239,0.18)", border: "1px solid rgba(232,121,249,0.5)" }}
               >
                 ⚙️ Admin
               </button>
             )}
             <button
               onClick={leaveRoom}
-              className="text-xs px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 transition"
+              className="kir-chip text-xs px-3 py-1.5 rounded-full text-white/70 hover:text-white active:scale-95 transition"
             >
               Verlassen
             </button>
@@ -738,14 +761,12 @@ export default function ChatRoom() {
         </div>
 
         {voiceUsers.length > 0 && (
-          <div className="mt-2 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+          <div className="mt-2.5 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
             {voiceUsers.map((u) => (
               <div
                 key={u.id}
-                className={`shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs border transition ${
-                  u.speaking
-                    ? "border-emerald-400/70 bg-emerald-400/15 text-emerald-200"
-                    : "border-white/15 bg-white/5 text-white/70"
+                className={`kir-chip shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition ${
+                  u.speaking ? "kir-speaking text-emerald-100" : "text-white/70"
                 }`}
               >
                 <span className={`h-2 w-2 rounded-full ${u.speaking ? "bg-emerald-400 animate-pulse" : "bg-white/30"}`} />
@@ -759,14 +780,14 @@ export default function ChatRoom() {
 
       {/* Admin panel */}
       {isAdmin && showAdmin && (
-        <div className="shrink-0 border-b border-white/10 bg-fuchsia-950/30 px-4 py-3 space-y-3 max-h-[45vh] overflow-y-auto">
+        <div className="kir-content shrink-0 px-4 py-3 space-y-3 max-h-[45vh] overflow-y-auto" style={{ background: "rgba(24,10,40,0.5)", borderBottom: "1px solid rgba(232,121,249,0.22)" }}>
           <div>
-            <div className="text-xs font-semibold text-fuchsia-200 mb-1">🎚️ Audioquelle (Mikro-Eingang der KI)</div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-cyan-200 mb-1.5">🎚️ Audioquelle (Mikro-Eingang der KI)</div>
             <select
               value={micDeviceId}
               onChange={(e) => changeMic(e.target.value)}
               onFocus={refreshDevices}
-              className="w-full text-xs rounded-lg bg-black/40 border border-white/15 px-2 py-2 outline-none"
+              className="kir-input w-full text-xs rounded-xl px-3 py-2.5 outline-none text-white"
             >
               <option value="">Standard-Mikrofon</option>
               {inputs.map((d) => (
@@ -777,12 +798,12 @@ export default function ChatRoom() {
             </select>
           </div>
           <div>
-            <div className="text-xs font-semibold text-fuchsia-200 mb-1">🔉 Audioausgang (Ton an die KI)</div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-cyan-200 mb-1.5">🔉 Audioausgang (Ton an die KI)</div>
             <select
               value={outputDeviceId}
               onChange={(e) => changeOutput(e.target.value)}
               onFocus={refreshDevices}
-              className="w-full text-xs rounded-lg bg-black/40 border border-white/15 px-2 py-2 outline-none"
+              className="kir-input w-full text-xs rounded-xl px-3 py-2.5 outline-none text-white"
             >
               <option value="">Standard-Ausgang</option>
               {outputs.map((d) => (
@@ -794,24 +815,25 @@ export default function ChatRoom() {
           </div>
 
           <div>
-            <div className="text-xs font-semibold text-fuchsia-200 mb-1">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-fuchsia-200 mb-1.5">
               🎤 Gäste fürs Sprechen freischalten ({guests.length})
             </div>
             {guests.length === 0 && <div className="text-[11px] text-white/40">Noch keine Gäste.</div>}
             <div className="space-y-1.5">
               {guests.map((g) => (
-                <div key={g.id} className="flex items-center justify-between gap-2 bg-black/30 rounded-lg px-3 py-2">
+                <div key={g.id} className="kir-chip flex items-center justify-between gap-2 rounded-xl px-3 py-2">
                   <span className="text-sm truncate">
                     {g.nickname}
-                    {g.inVoice && <span className="ml-1 text-[10px] text-emerald-300">live</span>}
+                    {g.inVoice && <span className="ml-1.5 text-[10px] text-emerald-300 uppercase tracking-wide">live</span>}
                   </span>
                   <button
                     onClick={() => setGuestSpeak(g.id, !g.canSpeak)}
-                    className={`shrink-0 text-[11px] px-3 py-1.5 rounded-full font-semibold active:scale-95 transition ${
+                    className="shrink-0 text-[11px] px-3 py-1.5 rounded-full font-bold text-white active:scale-95 transition"
+                    style={
                       g.canSpeak
-                        ? "bg-red-500/80 hover:bg-red-500"
-                        : "bg-emerald-500/80 hover:bg-emerald-500"
-                    }`}
+                        ? { background: "linear-gradient(110deg,#f43f5e,#e11d48)", boxShadow: "0 6px 18px -6px rgba(244,63,94,0.7)" }
+                        : { background: "linear-gradient(110deg,#22d3ee,#34d399)", boxShadow: "0 6px 18px -6px rgba(52,211,153,0.7)" }
+                    }
                   >
                     {g.canSpeak ? "🔇 Sperren" : "🎤 Freischalten"}
                   </button>
@@ -819,7 +841,7 @@ export default function ChatRoom() {
               ))}
             </div>
           </div>
-          <p className="text-[10px] text-white/40">
+          <p className="text-[10px] text-white/40 leading-relaxed">
             Windows 11: Stelle als Audioquelle das virtuelle Mikrofon der KI ein und leite den Ausgang
             an deren Eingang. So spricht und hört die KI im Kanal mit.
           </p>
@@ -827,29 +849,35 @@ export default function ChatRoom() {
       )}
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
+      <div ref={scrollRef} className="kir-content flex-1 overflow-y-auto px-3 py-4 space-y-2.5">
         {messages.length === 0 && (
-          <div className="text-center text-white/40 text-sm mt-10">Noch keine Nachrichten. Sag Hallo 👋</div>
+          <div className="text-center text-white/40 text-sm mt-12">
+            <div className="text-3xl mb-2 opacity-60">✦</div>
+            Noch keine Nachrichten. Sag Hallo 👋
+          </div>
         )}
         {messages.map((m) => {
           if (m.kind === "system") {
             return (
-              <div key={m.id} className="text-center">
-                <span className="text-[11px] text-white/40 bg-white/5 rounded-full px-3 py-1">{m.content}</span>
+              <div key={m.id} className="text-center kir-enter">
+                <span className="kir-chip text-[11px] text-cyan-100/70 rounded-full px-3 py-1 inline-block">{m.content}</span>
               </div>
             );
           }
           const mine = m.userId && m.userId === userId;
           return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+            <div key={m.id} className={`flex kir-enter ${mine ? "justify-end" : "justify-start"}`}>
               <div
-                className={`max-w-[80%] rounded-2xl px-3.5 py-2 ${
-                  mine ? "bg-indigo-500/80" : "bg-white/10"
-                }`}
+                className={`max-w-[82%] rounded-2xl px-3.5 py-2.5 ${mine ? "text-white" : "kir-chip text-white"}`}
+                style={
+                  mine
+                    ? { background: "linear-gradient(120deg,#0891b2,#7c3aed 60%,#c026d3)", boxShadow: "0 10px 26px -10px rgba(124,58,237,0.7)" }
+                    : undefined
+                }
               >
-                <div className="flex items-center gap-1.5 text-[11px] opacity-70 mb-0.5">
+                <div className={`flex items-center gap-1.5 text-[11px] mb-0.5 ${mine ? "text-white/75" : "text-cyan-200/80"}`}>
                   {m.kind === "voice" && <span>🎤</span>}
-                  <span className="font-semibold">{m.nickname}</span>
+                  <span className="font-bold uppercase tracking-wide text-[10px]">{m.nickname}</span>
                 </div>
                 <div className="text-[15px] leading-snug whitespace-pre-wrap break-words">{m.content}</div>
               </div>
@@ -859,12 +887,15 @@ export default function ChatRoom() {
       </div>
 
       {/* Control bar */}
-      <div className="shrink-0 border-t border-white/10 bg-black/40 backdrop-blur-md px-3 py-2 space-y-2">
+      <div
+        className="kir-content shrink-0 px-3 py-2.5 space-y-2.5"
+        style={{ background: "rgba(9,7,24,0.7)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderTop: "1px solid rgba(150,170,255,0.16)", boxShadow: "0 -12px 30px -20px rgba(34,211,238,0.7)" }}
+      >
         <div className="flex items-center gap-2">
           {!inVoice ? (
             <button
               onClick={joinVoice}
-              className="flex-1 rounded-xl bg-emerald-500/90 hover:bg-emerald-500 px-4 py-3 font-bold active:scale-[0.98] transition flex items-center justify-center gap-2"
+              className="kir-btn flex-1 rounded-2xl px-4 py-3.5 font-black uppercase tracking-wide text-white flex items-center justify-center gap-2"
             >
               {iSpeak ? "🔊 Voice beitreten" : "🎧 Live zuhören"}
             </button>
@@ -873,27 +904,33 @@ export default function ChatRoom() {
               {iSpeak && micActive ? (
                 <button
                   onClick={toggleMute}
-                  className={`flex-1 rounded-xl px-4 py-3 font-bold active:scale-[0.98] transition ${
-                    muted ? "bg-red-500/80" : speaking ? "bg-emerald-500/90" : "bg-white/15"
-                  }`}
+                  className={`flex-1 rounded-2xl px-4 py-3.5 font-black uppercase tracking-wide text-white active:scale-[0.98] transition ${speaking && !muted ? "kir-speaking" : ""}`}
+                  style={
+                    muted
+                      ? { background: "linear-gradient(110deg,#f43f5e,#e11d48)", boxShadow: "0 8px 24px -8px rgba(244,63,94,0.7)" }
+                      : speaking
+                        ? { background: "linear-gradient(110deg,#22d3ee,#34d399)", boxShadow: "0 8px 26px -6px rgba(52,211,153,0.8)" }
+                        : { background: "rgba(40,38,70,0.8)", border: "1px solid rgba(150,170,255,0.25)" }
+                  }
                 >
                   {muted ? "🔇 Stumm" : speaking ? "🎙️ Spricht…" : "🎙️ Mikro an"}
                 </button>
               ) : iSpeak && !micActive ? (
                 <button
                   onClick={upgradeToSpeaker}
-                  className="flex-1 rounded-xl px-4 py-3 font-bold bg-emerald-500/90 hover:bg-emerald-500 active:scale-[0.98] transition"
+                  className="kir-btn flex-1 rounded-2xl px-4 py-3.5 font-black uppercase tracking-wide text-white active:scale-[0.98] transition"
                 >
-                  🎤 Mikro aktivieren — du bist freigeschaltet!
+                  🎤 Mikro aktivieren — freigeschaltet!
                 </button>
               ) : (
-                <div className="flex-1 rounded-xl px-4 py-3 font-semibold bg-white/10 text-center text-sm text-white/70">
+                <div className="kir-chip flex-1 rounded-2xl px-4 py-3.5 font-semibold text-center text-sm text-white/70">
                   🔒 Nur Zuhören — frag den Admin fürs Sprechen
                 </div>
               )}
               <button
                 onClick={leaveVoice}
-                className="rounded-xl bg-red-500/80 hover:bg-red-500 px-4 py-3 font-bold active:scale-[0.98] transition"
+                className="rounded-2xl px-4 py-3.5 font-black uppercase tracking-wide text-white active:scale-95 transition"
+                style={{ background: "linear-gradient(110deg,#f43f5e,#be123c)", boxShadow: "0 8px 24px -8px rgba(244,63,94,0.65)" }}
               >
                 {iSpeak ? "Auflegen" : "Verlassen"}
               </button>
@@ -913,12 +950,12 @@ export default function ChatRoom() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Nachricht schreiben…"
-            className="flex-1 rounded-xl bg-black/40 border border-white/15 px-4 py-3 outline-none focus:border-fuchsia-400/60 placeholder:text-white/30"
+            className="kir-input flex-1 rounded-2xl px-4 py-3 outline-none text-white placeholder:text-white/30"
           />
           <button
             type="submit"
             disabled={!input.trim()}
-            className="rounded-xl bg-gradient-to-r from-fuchsia-500 to-indigo-500 px-4 py-3 font-bold disabled:opacity-40 active:scale-95 transition"
+            className="kir-btn rounded-2xl px-5 py-3 font-black text-white text-lg"
           >
             ➤
           </button>
@@ -932,9 +969,12 @@ function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; labe
   return (
     <button
       onClick={onClick}
-      className={`text-[11px] px-3 py-1.5 rounded-full border transition active:scale-95 ${
-        on ? "bg-fuchsia-500/30 border-fuchsia-400/60 text-white" : "bg-white/5 border-white/15 text-white/55"
-      }`}
+      className="text-[11px] px-3 py-1.5 rounded-full font-semibold transition active:scale-95 text-white"
+      style={
+        on
+          ? { background: "linear-gradient(110deg,#22d3ee,#a855f7)", boxShadow: "0 0 16px -4px rgba(168,85,247,0.7)" }
+          : { background: "rgba(20,18,42,0.6)", border: "1px solid rgba(150,170,255,0.2)", color: "rgba(255,255,255,0.6)" }
+      }
     >
       {label}
     </button>
