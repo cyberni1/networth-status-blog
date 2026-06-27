@@ -5,19 +5,24 @@ import { generateSecureToken, hashToken } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
-// One-click admin setup. Open once in your browser:
-//   /api/admin/bootstrap?secret=<CRON_SECRET>
-// It creates a fresh admin token, logs THIS browser in (cookie) and sends you
-// to /chat as admin. Gated by CRON_SECRET so only the site owner can use it.
+// One-click admin setup.
+//   First time (no admin exists yet): just open /api/admin/bootstrap — no secret needed.
+//   After an admin exists: requires /api/admin/bootstrap?secret=<CRON_SECRET>.
+// Either way it creates an admin token, logs THIS browser in (cookie) and
+// redirects to /chat as admin.
 export async function GET(req: NextRequest) {
-  const secret = req.nextUrl.searchParams.get("secret");
-  const expected = process.env.CRON_SECRET;
+  const activeAdmins = await prisma.adminToken.count({ where: { active: true } });
+  const firstRun = activeAdmins === 0;
 
-  if (!expected) {
-    return NextResponse.json({ error: "CRON_SECRET ist nicht gesetzt." }, { status: 500 });
-  }
-  if (!secret || secret !== expected) {
-    return NextResponse.json({ error: "Falsches oder fehlendes secret." }, { status: 403 });
+  if (!firstRun) {
+    const secret = req.nextUrl.searchParams.get("secret");
+    const expected = process.env.CRON_SECRET;
+    if (!expected || !secret || secret !== expected) {
+      return NextResponse.json(
+        { error: "Es existiert bereits ein Admin. Aufruf nur mit ?secret=<CRON_SECRET>." },
+        { status: 403 },
+      );
+    }
   }
 
   const plainToken = generateSecureToken();
@@ -32,6 +37,5 @@ export async function GET(req: NextRequest) {
     path: "/",
   });
 
-  // Land directly in the chat as admin.
   return NextResponse.redirect(new URL("/chat", req.url), { status: 302 });
 }
