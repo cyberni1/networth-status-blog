@@ -75,6 +75,19 @@ export default function Navbar() {
                 minHeight: "44px", display: "flex", alignItems: "center",
               }}
             >Team</Link>
+            <Link href="/chat"
+              role="menuitem"
+              aria-label="KI REVOLUTION – Live-Chat"
+              style={{
+                marginLeft: "4px", padding: "8px 14px", borderRadius: "10px", fontSize: "14px", fontWeight: 700,
+                color: "#fff", textDecoration: "none", minHeight: "44px",
+                display: "flex", alignItems: "center", gap: "7px",
+                background: "linear-gradient(90deg,#d946ef,#6366f1)",
+              }}
+            >
+              <span aria-hidden="true" style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#34d399", boxShadow: "0 0 0 3px rgba(52,211,153,0.25)" }} />
+              KI REVOLUTION
+            </Link>
           </div>
 
           {/* Right side: Search + Hamburger */}
@@ -164,6 +177,20 @@ export default function Navbar() {
                 background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)",
                 minHeight: "48px",
               }}>👥 Über uns / Team</Link>
+            <Link href="/chat"
+              role="menuitem"
+              onClick={() => setMenuOpen(false)}
+              style={{
+                display: "flex", alignItems: "center", gap: "10px",
+                padding: "14px 16px", borderRadius: "10px",
+                fontSize: "15px", fontWeight: 700, color: "#fff",
+                textDecoration: "none", marginTop: "6px",
+                background: "linear-gradient(90deg,#d946ef,#6366f1)",
+                minHeight: "48px",
+              }}>
+              <span aria-hidden="true" style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#34d399", boxShadow: "0 0 0 3px rgba(52,211,153,0.25)" }} />
+              🎙️ KI REVOLUTION – Live
+            </Link>
           </div>
         )}
       </nav>
