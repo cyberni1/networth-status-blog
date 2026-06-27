@@ -83,6 +83,8 @@ export default function ChatRoom() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const audioContainerRef = useRef<HTMLDivElement | null>(null);
   const stopSpeakingRef = useRef<() => void>(() => {});
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const audioSrcNodesRef = useRef<Map<string, MediaStreamAudioSourceNode>>(new Map());
 
   useEffect(() => {
     inVoiceRef.current = inVoice;
@@ -226,20 +228,40 @@ export default function ChatRoom() {
   // ================= WebRTC voice mesh =================
 
   const attachAudio = useCallback((peerId: string, stream: MediaStream) => {
+    if (!stream) return;
+
+    // Primary path: Web Audio API (bypasses mobile autoplay restrictions).
+    // The AudioContext is unlocked during the joinVoice user-gesture tap.
+    const ctx = audioCtxRef.current;
+    if (ctx && ctx.state !== "closed") {
+      const old = audioSrcNodesRef.current.get(peerId);
+      if (old) { try { old.disconnect(); } catch { /* ignore */ } }
+      try {
+        const src = ctx.createMediaStreamSource(stream);
+        src.connect(ctx.destination);
+        audioSrcNodesRef.current.set(peerId, src);
+      } catch { /* ignore */ }
+    }
+
+    // Secondary path: <audio> element for admin setSinkId device routing.
+    // Muted when AudioContext is handling playback to avoid double audio.
     let el = audioElsRef.current.get(peerId);
     if (!el) {
       el = document.createElement("audio");
-      el.autoplay = true;
       (el as any).playsInline = true;
+      el.autoplay = !ctx;
+      el.muted = !!ctx;
       audioElsRef.current.set(peerId, el);
       audioContainerRef.current?.appendChild(el);
     }
     el.srcObject = stream;
-    // Admin can route channel sound to a chosen output (e.g. the AI's input).
     if (outputDeviceIdRef.current && (el as any).setSinkId) {
+      el.muted = false;
       (el as any).setSinkId(outputDeviceIdRef.current).catch(() => {});
+      el.play().catch(() => {});
+    } else if (!ctx) {
+      el.play().catch(() => {});
     }
-    el.play().catch(() => {});
   }, []);
 
   const closePeer = useCallback((peerId: string) => {
@@ -259,6 +281,11 @@ export default function ChatRoom() {
       el.srcObject = null;
       el.remove();
       audioElsRef.current.delete(peerId);
+    }
+    const srcNode = audioSrcNodesRef.current.get(peerId);
+    if (srcNode) {
+      try { srcNode.disconnect(); } catch { /* ignore */ }
+      audioSrcNodesRef.current.delete(peerId);
     }
   }, []);
 
@@ -282,7 +309,10 @@ export default function ChatRoom() {
         }
       }
 
-      pc.ontrack = (ev) => attachAudio(peerId, ev.streams[0]);
+      pc.ontrack = (ev) => {
+        const s = ev.streams[0] ?? (ev.track ? new MediaStream([ev.track]) : null);
+        if (s) attachAudio(peerId, s);
+      };
 
       pc.onicecandidate = (ev) => {
         if (ev.candidate && userIdRef.current) {
@@ -444,6 +474,19 @@ export default function ChatRoom() {
   // ---------- Join / leave / rejoin voice ----------
   const joinVoice = useCallback(async () => {
     try {
+      // Unlock Web Audio API during user gesture — required for mobile autoplay.
+      // This must happen for ALL users (listeners too), not only speakers.
+      if (!audioCtxRef.current) {
+        const AC = window.AudioContext || (window as any).webkitAudioContext;
+        if (AC) {
+          try {
+            const ctx = new AC();
+            await ctx.resume();
+            audioCtxRef.current = ctx;
+          } catch { /* ignore */ }
+        }
+      }
+
       const iSpeak = canSpeakRef.current || isAdminRef.current;
       if (iSpeak) {
         const constraints: MediaStreamConstraints = {
@@ -477,6 +520,14 @@ export default function ChatRoom() {
       for (const t of localStreamRef.current.getTracks()) t.stop();
       localStreamRef.current = null;
     }
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close().catch(() => {});
+      audioCtxRef.current = null;
+    }
+    for (const src of audioSrcNodesRef.current.values()) {
+      try { src.disconnect(); } catch { /* ignore */ }
+    }
+    audioSrcNodesRef.current.clear();
     setMicActive(false);
     speakingRef.current = false;
     setSpeaking(false);
@@ -538,8 +589,30 @@ export default function ChatRoom() {
   const changeOutput = useCallback((deviceId: string) => {
     setOutputDeviceId(deviceId);
     outputDeviceIdRef.current = deviceId;
-    for (const el of audioElsRef.current.values()) {
-      if ((el as any).setSinkId) (el as any).setSinkId(deviceId).catch(() => {});
+    for (const [peerId, el] of audioElsRef.current.entries()) {
+      if (deviceId) {
+        // Route to specific device: disconnect AudioContext node, play via audio element
+        const srcNode = audioSrcNodesRef.current.get(peerId);
+        if (srcNode) {
+          try { srcNode.disconnect(); } catch { /* ignore */ }
+          audioSrcNodesRef.current.delete(peerId);
+        }
+        el.muted = false;
+        if ((el as any).setSinkId) (el as any).setSinkId(deviceId).catch(() => {});
+        el.play().catch(() => {});
+      } else {
+        // No specific device: mute audio element, reconnect AudioContext
+        el.muted = true;
+        const ctx = audioCtxRef.current;
+        const stream = el.srcObject as MediaStream | null;
+        if (ctx && stream && ctx.state !== "closed") {
+          try {
+            const src = ctx.createMediaStreamSource(stream);
+            src.connect(ctx.destination);
+            audioSrcNodesRef.current.set(peerId, src);
+          } catch { /* ignore */ }
+        }
+      }
     }
   }, []);
 
@@ -715,7 +788,7 @@ export default function ChatRoom() {
 
   return (
     <div className="kir-root kir-grid flex flex-col h-[100dvh] text-white">
-      <div ref={audioContainerRef} className="hidden" />
+      <div ref={audioContainerRef} aria-hidden="true" style={{ position: "fixed", top: "-2px", left: "-2px", width: "1px", height: "1px", overflow: "hidden", opacity: 0, pointerEvents: "none" }} />
 
       {/* Augenzwinkernde Mini-Warnung ganz oben */}
       <div
