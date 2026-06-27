@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import ChatRoom from "./ChatRoom";
 
 export const metadata: Metadata = {
-  title: "Live-Raum – Sprach- & Text-Chat",
+  title: "KI REVOLUTION – Live Sprach- & Text-Chat",
   description:
-    "Tritt mit deinem Nickname dem Live-Raum bei. Tippe mit allen, höre den Voice-Chat und sprich, sobald der Admin dich freischaltet.",
+    "KI REVOLUTION: Tritt mit deinem Nickname bei. Tippe mit allen, höre den Live-Voice-Chat und sprich, sobald der Admin dich freischaltet.",
   robots: { index: false, follow: false },
 };
 

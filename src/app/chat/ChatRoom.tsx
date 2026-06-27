@@ -656,7 +656,9 @@ export default function ChatRoom() {
             <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-indigo-500 flex items-center justify-center text-3xl">
               🎙️
             </div>
-            <h1 className="text-2xl font-extrabold tracking-tight">Live-Raum</h1>
+            <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">
+              KI REVOLUTION
+            </h1>
             <p className="mt-1 text-sm text-white/60">
               Einfach Nickname eingeben und verbinden. Kein Passwort nötig.
             </p>
@@ -706,7 +708,7 @@ export default function ChatRoom() {
             <span className="text-xl">🎙️</span>
             <div className="min-w-0">
               <div className="font-bold leading-tight truncate">
-                Live-Raum {isAdmin && <span className="text-fuchsia-300 text-xs">· Admin</span>}
+                KI REVOLUTION {isAdmin && <span className="text-fuchsia-300 text-xs">· Admin</span>}
               </div>
               <div className="text-[11px] text-white/50">
                 {users.length} online · {voiceUsers.length} im Voice
