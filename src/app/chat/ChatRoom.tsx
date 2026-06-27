@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import KiRevolutionLogo from "@/components/KiRevolutionLogo";
 
 type Msg = {
   id: string;
@@ -653,8 +654,8 @@ export default function ChatRoom() {
       <div className="min-h-[100dvh] flex flex-col items-center justify-center px-6 bg-gradient-to-b from-[#0b0b14] via-[#12101f] to-[#0b0b14] text-white">
         <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-7 shadow-2xl">
           <div className="text-center mb-6">
-            <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-indigo-500 flex items-center justify-center text-3xl">
-              🎙️
+            <div className="mx-auto mb-4 w-fit">
+              <KiRevolutionLogo size={72} />
             </div>
             <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">
               KI REVOLUTION
@@ -705,7 +706,7 @@ export default function ChatRoom() {
       <header className="shrink-0 px-4 pt-3 pb-2 border-b border-white/10 bg-black/30 backdrop-blur-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-xl">🎙️</span>
+            <KiRevolutionLogo size={28} />
             <div className="min-w-0">
               <div className="font-bold leading-tight truncate">
                 KI REVOLUTION {isAdmin && <span className="text-fuchsia-300 text-xs">· Admin</span>}

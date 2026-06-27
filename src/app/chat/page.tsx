@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "KI REVOLUTION – Live Sprach- & Text-Chat",
   description:
     "KI REVOLUTION: Tritt mit deinem Nickname bei. Tippe mit allen, höre den Live-Voice-Chat und sprich, sobald der Admin dich freischaltet.",
+  icons: { icon: "/ki-revolution.svg" },
   robots: { index: false, follow: false },
 };
 
