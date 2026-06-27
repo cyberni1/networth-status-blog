@@ -10,11 +10,16 @@ export const dynamic = "force-dynamic";
 //   TURN_USERNAME
 //   TURN_CREDENTIAL
 //
-// If those are not set, a best-effort public TURN fallback is used.
+// Recommended free TURN: sign up at https://dashboard.metered.ca/signup
+// Then set TURN_URLS, TURN_USERNAME, TURN_CREDENTIAL in Vercel env vars.
 export async function GET() {
   const iceServers: RTCIceServer[] = [
+    // Multiple STUN servers for reliability
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun2.l.google.com:19302" },
+    { urls: "stun:stun3.l.google.com:19302" },
+    { urls: "stun:stun.cloudflare.com:3478" },
   ];
 
   const turnUrls = process.env.TURN_URLS?.trim();
@@ -28,19 +33,19 @@ export async function GET() {
       credential: turnCred,
     });
   } else {
-    // Public best-effort fallback (Open Relay). Replace with your own TURN
-    // for production-grade reliability by setting the env vars above.
-    iceServers.push(
-      {
-        urls: [
-          "turn:openrelay.metered.ca:80",
-          "turn:openrelay.metered.ca:443",
-          "turn:openrelay.metered.ca:443?transport=tcp",
-        ],
-        username: "openrelayproject",
-        credential: "openrelayproject",
-      },
-    );
+    // Public best-effort TURN fallbacks — not 100% reliable under heavy load.
+    // Set TURN_URLS / TURN_USERNAME / TURN_CREDENTIAL in Vercel env vars for
+    // production reliability (metered.ca free tier works great).
+    iceServers.push({
+      urls: [
+        "turn:openrelay.metered.ca:80",
+        "turn:openrelay.metered.ca:443",
+        "turns:openrelay.metered.ca:443",
+        "turn:openrelay.metered.ca:443?transport=tcp",
+      ],
+      username: "openrelayproject",
+      credential: "openrelayproject",
+    });
   }
 
   return NextResponse.json({ iceServers });

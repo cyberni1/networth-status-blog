@@ -55,6 +55,7 @@ export default function ChatRoom() {
   const [speaking, setSpeaking] = useState(false);
   const [sttOn, setSttOn] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [iceStates, setIceStates] = useState<Record<string, string>>({});
 
   // Admin audio-routing (Windows 11): pick the AI's virtual mic/speaker.
   const [inputs, setInputs] = useState<MediaDeviceInfo[]>([]);
@@ -312,6 +313,10 @@ export default function ChatRoom() {
       pc.ontrack = (ev) => {
         const s = ev.streams[0] ?? (ev.track ? new MediaStream([ev.track]) : null);
         if (s) attachAudio(peerId, s);
+      };
+
+      pc.oniceconnectionstatechange = () => {
+        setIceStates((prev) => ({ ...prev, [peerId]: pc.iceConnectionState }));
       };
 
       pc.onicecandidate = (ev) => {
@@ -818,6 +823,15 @@ export default function ChatRoom() {
               <div className="flex items-center gap-1.5 text-[11px] text-white/55">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 kir-dot-live" />
                 {users.length} online · {voiceUsers.length} im Voice
+                {inVoice && Object.keys(iceStates).length > 0 && (
+                  <span className="ml-1">·{" "}
+                    {Object.values(iceStates).map((s, i) => (
+                      <span key={i} style={{ color: s === "connected" || s === "completed" ? "#34d399" : s === "failed" || s === "disconnected" ? "#f87171" : "#fbbf24" }}>
+                        {s === "connected" || s === "completed" ? "✓" : s === "failed" ? "✗" : "⋯"}
+                      </span>
+                    ))}
+                  </span>
+                )}
               </div>
             </div>
           </div>
