@@ -21,7 +21,8 @@ type Participant = {
 };
 
 const ROOM = "main";
-const ICE_SERVERS: RTCIceServer[] = [
+// Default until the server's ICE config (incl. TURN) is fetched.
+const DEFAULT_ICE: RTCIceServer[] = [
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun1.l.google.com:19302" },
 ];
@@ -77,6 +78,7 @@ export default function ChatRoom() {
   const peerCanSpeak = useRef<Map<string, boolean>>(new Map());
   const audioElsRef = useRef<Map<string, HTMLAudioElement>>(new Map());
   const recognitionRef = useRef<any>(null);
+  const iceServersRef = useRef<RTCIceServer[]>(DEFAULT_ICE);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const audioContainerRef = useRef<HTMLDivElement | null>(null);
   const stopSpeakingRef = useRef<() => void>(() => {});
@@ -104,6 +106,14 @@ export default function ChatRoom() {
     if (!name) return;
     setJoining(true);
     try {
+      // Load ICE/TURN config (best-effort) so voice works across networks.
+      fetch("/api/chat/ice")
+        .then((r) => r.json())
+        .then((d) => {
+          if (Array.isArray(d?.iceServers) && d.iceServers.length) iceServersRef.current = d.iceServers;
+        })
+        .catch(() => {});
+
       const res = await api("join", { nickname: name, room: ROOM });
       if (res.userId) {
         localStorage.setItem("chat_nickname", name);
@@ -254,7 +264,7 @@ export default function ChatRoom() {
   const createPeer = useCallback(
     (peerId: string, initiator: boolean) => {
       if (peersRef.current.has(peerId)) return peersRef.current.get(peerId)!;
-      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+      const pc = new RTCPeerConnection({ iceServers: iceServersRef.current });
       peersRef.current.set(peerId, pc);
 
       const stream = localStreamRef.current;
