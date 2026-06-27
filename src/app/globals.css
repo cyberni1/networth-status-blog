@@ -328,3 +328,76 @@ body {
 .prose-wealth pre { background: rgba(0,0,0,0.45); border-radius: 0.75rem; padding: 1.25rem; overflow-x: auto; margin-bottom: 1.5rem; }
 .prose-wealth code { background: rgba(0,0,0,0.3); padding: 0.125rem 0.375rem; border-radius: 0.25rem; color: #c084fc; font-size: 0.9em; }
 .prose-wealth img { max-width: 100%; border-radius: 1rem; margin: 2rem 0; }
+
+/* ════════════════ KI REVOLUTION — Futuristic theme ════════════════ */
+@keyframes kir-aurora  { 0%,100% { transform: translate3d(-4%,-4%,0) scale(1);    } 50% { transform: translate3d(6%,5%,0)  scale(1.25); } }
+@keyframes kir-aurora2 { 0%,100% { transform: translate3d(5%,0,0)    scale(1.1);  } 50% { transform: translate3d(-6%,6%,0) scale(0.9);  } }
+@keyframes kir-aurora3 { 0%,100% { transform: translate3d(0,4%,0)    scale(0.95); } 50% { transform: translate3d(4%,-6%,0) scale(1.2);  } }
+@keyframes kir-pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(34,211,238,0.55);} 70% { box-shadow: 0 0 0 12px rgba(34,211,238,0);} 100% { box-shadow: 0 0 0 0 rgba(34,211,238,0);} }
+@keyframes kir-float-up { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+@keyframes kir-scan { 0% { transform: translateY(-120%); } 100% { transform: translateY(320%); } }
+@keyframes kir-spin-slow { to { transform: rotate(360deg); } }
+@keyframes kir-blink { 0%,100% { opacity:1; } 50% { opacity:0.25; } }
+
+.kir-root {
+  position: relative;
+  background:
+    radial-gradient(1200px 620px at 50% -12%, rgba(124,58,237,0.30), transparent 60%),
+    radial-gradient(900px 520px at -5% 105%, rgba(34,211,238,0.20), transparent 55%),
+    radial-gradient(900px 520px at 105% 105%, rgba(236,72,153,0.20), transparent 55%),
+    #05030f;
+  overflow: hidden;
+}
+.kir-grid::before {
+  content:""; position:absolute; inset:0; z-index:0;
+  background-image:
+    linear-gradient(rgba(124,58,237,0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,211,238,0.09) 1px, transparent 1px);
+  background-size: 40px 40px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 25%, #000 25%, transparent 78%);
+          mask-image: radial-gradient(ellipse at 50% 25%, #000 25%, transparent 78%);
+  pointer-events:none;
+}
+.kir-orb { position:absolute; border-radius:50%; filter: blur(64px); opacity:0.5; pointer-events:none; z-index:0; }
+.kir-content { position: relative; z-index: 1; }
+
+.kir-title {
+  background: linear-gradient(100deg,#67e8f9,#c084fc 45%,#f472b6);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 26px rgba(192,132,252,0.35);
+  letter-spacing: .12em;
+}
+.kir-neon {
+  border: 1px solid rgba(150,170,255,0.20);
+  background: rgba(16,14,34,0.62);
+  -webkit-backdrop-filter: blur(20px) saturate(150%); backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: 0 10px 50px -16px rgba(124,58,237,0.55), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+.kir-input {
+  background: rgba(7,6,20,0.7);
+  border: 1px solid rgba(150,170,255,0.18);
+  transition: border-color .2s, box-shadow .2s;
+}
+.kir-input:focus {
+  border-color: rgba(103,232,249,0.7);
+  box-shadow: 0 0 0 3px rgba(34,211,238,0.18), 0 0 22px -6px rgba(34,211,238,0.6);
+}
+.kir-btn {
+  background: linear-gradient(110deg,#22d3ee,#a855f7 48%,#ec4899);
+  background-size: 220% 100%;
+  box-shadow: 0 10px 34px -8px rgba(168,85,247,0.65), 0 0 22px -6px rgba(34,211,238,0.5);
+  transition: filter .2s, transform .08s, background-position .6s;
+}
+.kir-btn:hover { filter: brightness(1.12); background-position: 100% 0; }
+.kir-btn:active { transform: scale(0.97); }
+.kir-btn:disabled { filter: grayscale(0.5) brightness(0.6); box-shadow:none; }
+
+.kir-chip { border:1px solid rgba(150,170,255,0.18); background: rgba(20,18,42,0.6); }
+.kir-speaking { animation: kir-pulse-ring 1.5s infinite; border-color: rgba(52,211,153,0.8) !important; }
+.kir-enter { animation: kir-float-up .26s ease both; }
+.kir-scanline {
+  content:""; position:absolute; left:0; right:0; top:0; height:26%; z-index:0;
+  background: linear-gradient(to bottom, transparent, rgba(34,211,238,0.06), transparent);
+  animation: kir-scan 8s linear infinite; pointer-events:none;
+}
+.kir-dot-live { box-shadow: 0 0 0 3px rgba(52,211,153,0.22), 0 0 10px rgba(52,211,153,0.9); }
